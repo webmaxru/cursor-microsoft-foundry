@@ -132,9 +132,11 @@ shared with a community proxy. The author's code was not incorporated.
   Cursor's servers [C11, C16]. The documentation is treated as authoritative.
 - Staff cite `*.cognitiveservices.azure.com` endpoints for Foundry [F8], while
   another staff reply and the slot's placeholder use `*.openai.azure.com`
-  [F31]. Both host names exist on a Foundry resource. Neither was tested
-  through Cursor with a real key; direct calls with the key to the
-  `*.openai.azure.com` host succeeded for the GPT deployment.
+  [F31]. Both host names exist on a Foundry resource. With the resource's
+  real key, the `*.openai.azure.com` form gave "Network Error" through Cursor
+  and Foundry recorded no request; the `*.cognitiveservices.azure.com` form
+  wasn't tried. Direct calls with the same key to the `*.openai.azure.com`
+  host succeeded for the GPT deployments.
 - LiteLLM documents the Azure slot reaching a LiteLLM gateway on Cursor
   3.17.21 [L2]. On 3.30.14 two non-Azure hosts in the slot received no
   requests. Cursor may have restricted the slot since, or it may differ by

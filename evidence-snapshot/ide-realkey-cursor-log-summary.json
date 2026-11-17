@@ -1,0 +1,190 @@
+{
+  "source": "Cursor Agent Host.log",
+  "turns": [
+    {
+      "started_utc": "2026-11-17T12:13:50Z",
+      "model": "grok-4.7",
+      "runtime": "connect",
+      "disposition": "fallback",
+      "reason": "byok-connect-routed",
+      "backend_errors": {
+        "invalid_argument": 1
+      },
+      "decisions": [
+        "THROW ActionRequiredError"
+      ],
+      "outcome": "failed",
+      "final_grpc_code": {
+        "code": 3,
+        "name": "InvalidArgument"
+      },
+      "ended_utc": "2026-11-17T12:13:51Z",
+      "error_message": "Bad Request This model does not support custom API keys."
+    },
+    {
+      "started_utc": "2026-11-17T12:21:41Z",
+      "model": "grok-4.7",
+      "runtime": "managed-local",
+      "disposition": "expected",
+      "reason": "eligible",
+      "backend_errors": {},
+      "decisions": [],
+      "outcome": "no failure logged"
+    },
+    {
+      "started_utc": "2026-11-17T16:31:16Z",
+      "model": "gpt-5.2",
+      "runtime": "connect",
+      "disposition": "fallback",
+      "reason": "byok-connect-routed",
+      "backend_errors": {
+        "resource_exhausted": 4
+      },
+      "decisions": [
+        "RETRY",
+        "RETRY",
+        "RETRY",
+        "THROW RetriableError"
+      ],
+      "outcome": "failed",
+      "final_grpc_code": {
+        "code": 8,
+        "name": "ResourceExhausted"
+      },
+      "ended_utc": "2026-11-17T16:31:35Z",
+      "error_message": "[resource_exhausted] Error"
+    },
+    {
+      "started_utc": "2026-11-17T16:54:31Z",
+      "model": "gpt-5.2",
+      "runtime": "connect",
+      "disposition": "fallback",
+      "reason": "byok-connect-routed",
+      "backend_errors": {
+        "resource_exhausted": 4
+      },
+      "decisions": [
+        "RETRY",
+        "RETRY",
+        "RETRY",
+        "THROW RetriableError"
+      ],
+      "outcome": "failed",
+      "final_grpc_code": {
+        "code": 8,
+        "name": "ResourceExhausted"
+      },
+      "ended_utc": "2026-11-17T16:54:50Z",
+      "error_message": "[resource_exhausted] Error"
+    },
+    {
+      "started_utc": "2026-11-17T16:59:11Z",
+      "model": "gpt-5.2",
+      "runtime": "connect",
+      "disposition": "fallback",
+      "reason": "byok-connect-routed",
+      "backend_errors": {
+        "resource_exhausted": 4
+      },
+      "decisions": [
+        "RETRY",
+        "RETRY",
+        "RETRY",
+        "THROW RetriableError"
+      ],
+      "outcome": "failed",
+      "final_grpc_code": {
+        "code": 8,
+        "name": "ResourceExhausted"
+      },
+      "ended_utc": "2026-11-17T16:59:30Z",
+      "error_message": "[resource_exhausted] Error"
+    },
+    {
+      "started_utc": "2026-11-17T17:10:33Z",
+      "model": "cursor-poc-gpt-6-luna",
+      "runtime": "connect",
+      "disposition": "fallback",
+      "reason": "byok-connect-routed",
+      "backend_errors": {
+        "resource_exhausted": 4
+      },
+      "decisions": [
+        "RETRY",
+        "RETRY",
+        "RETRY",
+        "THROW RetriableError"
+      ],
+      "outcome": "failed",
+      "final_grpc_code": {
+        "code": 8,
+        "name": "ResourceExhausted"
+      },
+      "ended_utc": "2026-11-17T17:10:53Z",
+      "error_message": "[resource_exhausted] Error"
+    },
+    {
+      "started_utc": "2026-11-17T17:20:47Z",
+      "model": "gpt-4.1",
+      "runtime": "connect",
+      "disposition": "fallback",
+      "reason": "byok-connect-routed",
+      "backend_errors": {
+        "resource_exhausted": 4
+      },
+      "decisions": [
+        "RETRY",
+        "RETRY",
+        "RETRY",
+        "THROW RetriableError"
+      ],
+      "outcome": "failed",
+      "final_grpc_code": {
+        "code": 8,
+        "name": "ResourceExhausted"
+      },
+      "ended_utc": "2026-11-17T17:21:06Z",
+      "error_message": "[resource_exhausted] Error"
+    },
+    {
+      "started_utc": "2026-11-17T17:40:16Z",
+      "model": "foundry-haiku",
+      "runtime": "connect",
+      "disposition": "fallback",
+      "reason": "byok-connect-routed",
+      "backend_errors": {
+        "unauthenticated": 1
+      },
+      "decisions": [
+        "THROW ActionRequiredError"
+      ],
+      "outcome": "failed",
+      "final_grpc_code": {
+        "code": 16,
+        "name": "Unauthenticated"
+      },
+      "ended_utc": "2026-11-17T17:40:18Z",
+      "error_message": "Invalid API key. Unauthorized User API key"
+    },
+    {
+      "started_utc": "2026-11-17T17:44:06Z",
+      "model": "foundry-haiku",
+      "runtime": "connect",
+      "disposition": "fallback",
+      "reason": "byok-connect-routed",
+      "backend_errors": {
+        "unauthenticated": 1
+      },
+      "decisions": [
+        "THROW ActionRequiredError"
+      ],
+      "outcome": "failed",
+      "final_grpc_code": {
+        "code": 16,
+        "name": "Unauthenticated"
+      },
+      "ended_utc": "2026-11-17T17:44:08Z",
+      "error_message": "Invalid API key. Unauthorized User API key"
+    }
+  ]
+}

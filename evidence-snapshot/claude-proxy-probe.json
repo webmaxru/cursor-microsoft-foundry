@@ -1,0 +1,150 @@
+{
+  "observed_at_utc": "2026-11-17T17:57:10.743194+00:00",
+  "claude_deployment": "claude-haiku-5-5",
+  "openai_deployment": "cursor-poc-gpt-6-luna",
+  "modes": {
+    "messages": {
+      "plain": {
+        "finish": "stop",
+        "usage": {
+          "completion_tokens": 9,
+          "prompt_tokens": 26,
+          "total_tokens": 35,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          }
+        },
+        "ok": true
+      },
+      "stream_with_usage": {
+        "finish": "stop",
+        "usage": {
+          "completion_tokens": 15,
+          "prompt_tokens": 18,
+          "total_tokens": 33,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          }
+        },
+        "ok": true
+      },
+      "tool_loop": {
+        "turns": [
+          2,
+          0
+        ],
+        "final_finish": "stop",
+        "cities_called": [
+          "oslo",
+          "paris"
+        ],
+        "answer_uses_both_results": true,
+        "ok": true
+      },
+      "tool_loop_streamed": {
+        "turns": [
+          2,
+          0
+        ],
+        "final_finish": "stop",
+        "cities_called": [
+          "oslo",
+          "paris"
+        ],
+        "answer_uses_both_results": true,
+        "ok": true
+      },
+      "azure_slot_path": {
+        "path": "/openai/deployments/<claude deployment>/chat/completions",
+        "finish": "stop",
+        "ok": true
+      },
+      "luna_passthrough": {
+        "finish": "stop",
+        "model": "gpt-6-luna-2026-09-22",
+        "ok": true
+      },
+      "models_list": {
+        "models": [
+          "claude-haiku-5-5",
+          "cursor-poc-gpt-6-luna",
+          "foundry-haiku"
+        ],
+        "ok": true
+      },
+      "wrong_secret_rejected": {
+        "status": 401,
+        "ok": true
+      }
+    },
+    "responses": {
+      "plain": {
+        "finish": "stop",
+        "usage": {
+          "completion_tokens": 9,
+          "prompt_tokens": 23,
+          "total_tokens": 32,
+          "completion_tokens_details": {
+            "reasoning_tokens": 0
+          },
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          }
+        },
+        "ok": true
+      },
+      "stream_with_usage": {
+        "finish": "stop",
+        "usage": {
+          "completion_tokens": 15,
+          "prompt_tokens": 14,
+          "total_tokens": 29,
+          "completion_tokens_details": {
+            "reasoning_tokens": 0
+          },
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          }
+        },
+        "ok": true
+      },
+      "tool_loop": {
+        "turns": [
+          1,
+          1,
+          0
+        ],
+        "final_finish": "stop",
+        "cities_called": [
+          "oslo",
+          "paris"
+        ],
+        "answer_uses_both_results": true,
+        "ok": true
+      },
+      "tool_loop_streamed": {
+        "turns": [
+          1,
+          1,
+          0
+        ],
+        "final_finish": "stop",
+        "cities_called": [
+          "oslo",
+          "paris"
+        ],
+        "answer_uses_both_results": true,
+        "ok": true
+      },
+      "azure_slot_path": {
+        "path": "/openai/deployments/<claude deployment>/chat/completions",
+        "finish": "stop",
+        "ok": true
+      }
+    }
+  },
+  "proxy_log_entries": 19,
+  "prompt_text_in_log": false,
+  "passed": 13,
+  "total": 13
+}

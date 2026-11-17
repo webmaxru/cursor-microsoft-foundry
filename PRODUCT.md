@@ -31,10 +31,10 @@ They need practical instructions and verifiable results, not promotional claims.
   does not replace Cursor's own agent model.
 - CLI and IDE MCP paths have recorded end-to-end evidence. For the IDE's Azure
   OpenAI slot, the Foundry side was verified with a key and the slot passed
-  Cursor's plan gate on Premium with a dummy key, but it was not run with a
-  real key. A LiteLLM gateway passed every direct case, yet Cursor sent it no
-  request from any surface on Premium. The Cloud MCP path is an unexecuted
-  blueprint.
+  Cursor's plan gate on Premium with a dummy key; with the resource's real key
+  it gave "Network Error" and Foundry recorded no request. A LiteLLM gateway
+  and a translating Claude proxy passed every direct case, yet Cursor sent
+  them no request. The Cloud MCP path is an unexecuted blueprint.
 - Preserve those confidence distinctions, source citations, and all evidence.
 - Render bracketed source citations as linked superscripts; each key resolves
   to its annotated bibliography row and original source link.

@@ -1,0 +1,82 @@
+[
+  {
+    "Category": "RequestResponse",
+    "DurationMs": "632",
+    "OperationName": "chatcompletions_create",
+    "ResultSignature": "200",
+    "TableName": "PrimaryResult",
+    "TimeGenerated": "2026-11-17T17:03:39.25Z"
+  },
+  {
+    "Category": "AzureOpenAIRequestUsage",
+    "DurationMs": "None",
+    "OperationName": "completion",
+    "ResultSignature": "",
+    "TableName": "PrimaryResult",
+    "TimeGenerated": "2026-11-17T17:05:00.3045584Z"
+  },
+  {
+    "Category": "RequestResponse",
+    "DurationMs": "440",
+    "OperationName": "chatcompletions_create",
+    "ResultSignature": "200",
+    "TableName": "PrimaryResult",
+    "TimeGenerated": "2026-11-17T17:17:10.328Z"
+  },
+  {
+    "Category": "RequestResponse",
+    "DurationMs": "283",
+    "OperationName": "chatcompletions_create",
+    "ResultSignature": "200",
+    "TableName": "PrimaryResult",
+    "TimeGenerated": "2026-11-17T17:17:51.266Z"
+  },
+  {
+    "Category": "AzureOpenAIRequestUsage",
+    "DurationMs": "None",
+    "OperationName": "completion",
+    "ResultSignature": "",
+    "TableName": "PrimaryResult",
+    "TimeGenerated": "2026-11-17T17:19:06.7298742Z"
+  },
+  {
+    "Category": "AzureOpenAIRequestUsage",
+    "DurationMs": "None",
+    "OperationName": "completion",
+    "ResultSignature": "",
+    "TableName": "PrimaryResult",
+    "TimeGenerated": "2026-11-17T17:19:07.4660072Z"
+  },
+  {
+    "Category": "RequestResponse",
+    "DurationMs": "180",
+    "OperationName": "chatcompletions_create",
+    "ResultSignature": "200",
+    "TableName": "PrimaryResult",
+    "TimeGenerated": "2026-11-17T17:25:35.493Z"
+  },
+  {
+    "Category": "AzureOpenAIRequestUsage",
+    "DurationMs": "None",
+    "OperationName": "completion",
+    "ResultSignature": "",
+    "TableName": "PrimaryResult",
+    "TimeGenerated": "2026-11-17T17:27:02.6642835Z"
+  },
+  {
+    "Category": "RequestResponse",
+    "DurationMs": "758",
+    "OperationName": "Root_Wildcard_Post",
+    "ResultSignature": "200",
+    "TableName": "PrimaryResult",
+    "TimeGenerated": "2026-11-17T17:28:54.06Z"
+  },
+  {
+    "Category": "RequestResponse",
+    "DurationMs": "751",
+    "OperationName": "",
+    "ResultSignature": "200",
+    "TableName": "PrimaryResult",
+    "TimeGenerated": "2026-11-17T17:28:54.859Z"
+  }
+]

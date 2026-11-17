@@ -11,12 +11,12 @@ none exists. Status as of November 2026.
 {.surfaces}
 - [Cursor IDE](ide.md){.card-link} [Partial switch]{.status .status-partial}
 
-  The Azure OpenAI key slot can send chat and Agent requests to a Foundry
-  OpenAI deployment, through Cursor's servers, on a paid plan. Reported
-  working; on Premium the slot passed the plan gate, but no real key was
-  used here, and the run is prepared. A gateway was refused, and Claude has no
-  native route; a translating proxy works when called directly but received no
-  request from Cursor.
+  The Azure OpenAI key slot is documented to send chat and Agent requests to a
+  Foundry OpenAI deployment, through Cursor's servers, on a paid plan. Others
+  report it working; here, with the resource's real key on Premium, it gave
+  "Network Error" in four tests and Foundry logged no request. A gateway was
+  refused, and Claude has no native route; a translating proxy works when
+  called directly but received no request from Cursor.
 
 - [Cursor CLI](cli.md){.card-link} [No switch]{.status .status-none}
 
@@ -35,17 +35,18 @@ none exists. Status as of November 2026.
 
 - **There is no full switch like Claude Code's.** Claude Code sends its own
   model calls straight to Foundry. Cursor sends model calls from its servers.
-- **The IDE comes closest.** The Azure OpenAI key slot, pointed at
-  `https://<resource>.openai.azure.com`, can make a Foundry OpenAI deployment
-  the chat and Agent model. Tab, Auto and Cursor's own models stay on Cursor.
+- **The IDE comes closest, on paper.** The Azure OpenAI key slot, pointed at
+  `https://<resource>.openai.azure.com`, is documented to make a Foundry
+  OpenAI deployment the chat and Agent model. Tab, Auto and Cursor's own
+  models stay on Cursor. With a real key it sent Foundry nothing here.
 - **Gateways were refused.** On Premium, Cursor refused custom models behind
   the OpenAI base URL override, and sent **no request** to a working LiteLLM
   gateway from any surface.
 - **Claude on Foundry has no native route.** Cursor's Anthropic slot has no
   base URL, and Foundry rejects Claude on Chat Completions, which the Azure
-  slot uses. A proxy can translate the format, as a LiteLLM gateway did in 15
-  of 15 direct cases, but Cursor sent it no request, and the gateway alias was
-  refused.
+  slot uses. A proxy can translate the format: LiteLLM passed 15 of 15 direct
+  cases and the [translating proxy](ide.md#can-a-proxy-bring-claude-to-the-ide)
+  built here passed 13 of 13, but Cursor sent neither a request.
 - **The CLI and Cloud Agents have no switch.** Where none exists, the fallback
   is MCP: Cursor's model stays the agent and calls Foundry deployments as
   tools.
@@ -54,7 +55,7 @@ none exists. Status as of November 2026.
 
 | | Claude Code [A3] | Cursor IDE | Cursor CLI | Cloud Agents |
 | --- | --- | --- | --- | --- |
-| Full switch to Foundry | **Yes**: `CLAUDE_CODE_USE_FOUNDRY=1` | **Partial**: GPT models through the Azure slot, your own key | **No** | **No**, by design |
+| Full switch to Foundry | **Yes**: `CLAUDE_CODE_USE_FOUNDRY=1` | **Partial, on paper**: GPT models through the Azure slot, your own key; failed here with a real key | **No** | **No**, by design |
 | Model calls come from | Your machine | Cursor's servers | Cursor | Cursor |
 | Sign-in | Key, Entra ID or token | Key only | Not applicable | Not applicable |
 | Claude on Foundry | Yes | No | No | No |
@@ -128,8 +129,10 @@ Completions route while GPT has, and a LiteLLM gateway passed 15 of 15
 Cursor-shaped cases for both models. Cursor then sent that gateway nothing: the
 IDE refused the custom models, the CLI said "Cannot use this model" and Cloud
 Agents said "Model Not Available". The IDE's Azure slot passed the plan gate
-with a dummy key; a run with a real Foundry key needs its owner to enter the
-key, and the [steps are prepared](ide.md#check-it-with-your-own-key).
+with a dummy key, then failed with the resource's real key: "Network Error" in
+four tests and no request in Foundry's metrics or request logs
+([real-key round](ide.md#what-happened-with-a-real-key)). A translating Claude
+proxy passed 13 of 13 direct cases, and Cursor sent it nothing too.
 
 See the [evidence index](evidence.md) for every recorded result. All code is
 on [GitHub](https://github.com/webmaxru/cursor-microsoft-foundry) under the

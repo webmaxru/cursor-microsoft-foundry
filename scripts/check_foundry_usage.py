@@ -34,7 +34,8 @@ def query(config, deployment, metric, minutes):
         "az", "monitor", "metrics", "list", "--resource", resource_id(config),
         "--metrics", metric, "--aggregation", "Total", "--interval", "PT1M",
         "--start-time", start.isoformat(), "--end-time", end.isoformat(),
-        "--filter", f"ModelDeploymentName eq '{deployment}' and StatusCode eq '*' and ApiName eq '*'",
+        "--filter", (f"ModelDeploymentName eq '{deployment}' and StatusCode eq '*'"
+                   " and OperationName eq '*' and StreamType eq '*'"),
         "-o", "json"]
     result = subprocess.run(command, capture_output=True, text=True, shell=os.name == "nt", timeout=180)
     if result.returncode:
@@ -50,8 +51,10 @@ def summarize(payload):
             for point in series.get("data", []):
                 count = int(point.get("total") or 0)
                 if count:
-                    status, api = labels.get("statuscode", "?"), labels.get("apiname", "?")
-                    rows.append({"minute": point["timeStamp"], "status": status, "api": api, "requests": count})
+                    status = labels.get("statuscode", "?")
+                    rows.append({"minute": point["timeStamp"], "status": status,
+                                 "operation": labels.get("operationname", "?"),
+                                 "stream": labels.get("streamtype", "?"), "requests": count})
                     totals[status] += count
     rows.sort(key=lambda row: row["minute"])
     return rows, dict(totals)
@@ -74,7 +77,7 @@ def main():
 
     print(f"{args.metric} for deployment '{deployment}', last {args.minutes} min (UTC):")
     for row in rows:
-        print(f"  {row['minute']}  status {row['status']:>4}  {row['api']:<40} {row['requests']}")
+        print(f"  {row['minute']}  status {row['status']:>4}  {row['operation']:<28} {row['stream']:<14} {row['requests']}")
     if not rows:
         print("  none recorded (allow 1-3 minutes for metrics to arrive)")
     print("Totals by status:", json.dumps(totals) if totals else "{}")

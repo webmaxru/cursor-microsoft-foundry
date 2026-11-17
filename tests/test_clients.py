@@ -212,6 +212,97 @@ class CaptureProxy(unittest.TestCase):
             self.assertNotIn("distinct-prompt-7f3", log.read_text(encoding="utf-8"))
 
 
+class ClaudeProxy(unittest.TestCase):
+    def test_tool_round_trip_translates_to_messages(self):
+        import foundry_claude_proxy as proxy
+        body = {"model": "x", "temperature": 1.5, "parallel_tool_calls": False, "stop": "END", "messages": [
+            {"role": "system", "content": "Be brief."},
+            {"role": "user", "content": "Weather in Oslo and Paris?"},
+            {"role": "assistant", "content": None, "tool_calls": [
+                {"id": "c1", "type": "function", "function": {"name": "get_weather", "arguments": '{"city": "Oslo"}'}},
+                {"id": "c2", "type": "function", "function": {"name": "get_weather", "arguments": '{"city": "Paris"}'}}]},
+            {"role": "tool", "tool_call_id": "c1", "content": "12C"},
+            {"role": "tool", "tool_call_id": "c2", "content": "18C"}],
+            "tools": [{"type": "function", "function": {"name": "get_weather", "parameters": {"type": "object"}}}]}
+        out = proxy.chat_to_messages(body, "claude-dep")
+        self.assertEqual((out["model"], out["max_tokens"], out["temperature"]), ("claude-dep", 8192, 1.0))
+        self.assertEqual(out["system"], [{"type": "text", "text": "Be brief."}])
+        self.assertEqual([m["role"] for m in out["messages"]], ["user", "assistant", "user"])
+        self.assertEqual([b["input"] for b in out["messages"][1]["content"]], [{"city": "Oslo"}, {"city": "Paris"}])
+        self.assertEqual([b["tool_use_id"] for b in out["messages"][2]["content"]], ["c1", "c2"])
+        self.assertEqual(out["tools"][0]["input_schema"], {"type": "object"})
+        self.assertEqual(out["tool_choice"], {"type": "auto", "disable_parallel_tool_use": True})
+        self.assertEqual(out["stop_sequences"], ["END"])
+        with self.assertRaises(proxy.TranslationError):
+            proxy.chat_to_messages(dict(body, n=2), "claude-dep")
+
+    def test_parallel_tool_use_stream_becomes_two_indexed_tool_calls(self):
+        import foundry_claude_proxy as proxy
+        events = [
+            {"type": "message_start", "message": {"usage": {"input_tokens": 10, "cache_read_input_tokens": 5}}},
+            {"type": "content_block_start", "index": 0, "content_block": {"type": "tool_use", "id": "t1", "name": "w"}},
+            {"type": "content_block_start", "index": 1, "content_block": {"type": "tool_use", "id": "t2", "name": "w"}},
+            {"type": "content_block_delta", "index": 1, "delta": {"type": "input_json_delta", "partial_json": '{"city": "Paris"}'}},
+            {"type": "content_block_delta", "index": 0, "delta": {"type": "input_json_delta", "partial_json": '{"city": "Oslo"}'}},
+            {"type": "message_delta", "delta": {"stop_reason": "tool_use"}, "usage": {"output_tokens": 7}},
+            {"type": "message_stop"}]
+        stream = proxy.MessagesStream("alias", include_usage=True)
+        chunks = [chunk for event in events for chunk in stream.feed(event)]
+        args, ids = {}, {}
+        for chunk in chunks:
+            for call in (chunk["choices"][0]["delta"].get("tool_calls") or []) if chunk["choices"] else []:
+                ids.setdefault(call["index"], call.get("id"))
+                args[call["index"]] = args.get(call["index"], "") + call["function"].get("arguments", "")
+        self.assertEqual(ids, {0: "t1", 1: "t2"})
+        self.assertEqual({i: json.loads(a) for i, a in args.items()}, {0: {"city": "Oslo"}, 1: {"city": "Paris"}})
+        self.assertEqual(chunks[-2]["choices"][0]["finish_reason"], "tool_calls")
+        self.assertEqual(chunks[-1]["usage"], {"prompt_tokens": 15, "completion_tokens": 7, "total_tokens": 22,
+                                               "prompt_tokens_details": {"cached_tokens": 5}})
+
+    def test_responses_stream_uses_final_arguments_not_garbled_deltas(self):
+        import foundry_claude_proxy as proxy
+        item = {"type": "function_call", "call_id": "c1", "name": "w"}
+        events = [
+            {"type": "response.created"},
+            {"type": "response.output_item.added", "output_index": 0, "item": item},
+            {"type": "response.function_call_arguments.delta", "output_index": 0, "delta": '{"city": "Oslo"}'},
+            {"type": "response.function_call_arguments.delta", "output_index": 0, "delta": "}"},
+            {"type": "response.output_item.done", "output_index": 0, "item": dict(item, arguments='{"city": "Paris"}')},
+            {"type": "response.completed", "response": {"usage": {"input_tokens": 3, "output_tokens": 4, "total_tokens": 7}}}]
+        stream = proxy.ResponsesStream("alias", include_usage=False)
+        chunks = [chunk for event in events for chunk in stream.feed(event)]
+        arguments = "".join(call["function"].get("arguments", "") for chunk in chunks
+                            for call in chunk["choices"][0]["delta"].get("tool_calls") or [])
+        self.assertEqual(json.loads(arguments), {"city": "Paris"})
+        self.assertEqual(chunks[-1]["choices"][0]["finish_reason"], "tool_calls")
+
+    def test_bad_secret_and_unknown_model_never_reach_foundry(self):
+        import contextlib
+        import io
+        import threading
+        import foundry_claude_proxy as proxy
+        config = load_config(EXAMPLE_CONFIG_PATH)
+        with tempfile.TemporaryDirectory() as directory, contextlib.redirect_stdout(io.StringIO()):
+            log = Path(directory) / "proxy.jsonl"
+            server = proxy.Server(("127.0.0.1", 0), config, "right-secret", proxy.model_map(config), log, key="k")
+            threading.Thread(target=server.serve_forever, daemon=True).start()
+            try:
+                with patch.object(server, "upstream") as upstream:
+                    url = f"http://127.0.0.1:{server.server_address[1]}/v1/chat/completions"
+                    body = {"model": config["claude_deployment_name"], "messages": [{"role": "user", "content": "prompt-9c1"}]}
+                    wrong = httpx.post(url, json=body, headers={"Authorization": "Bearer wrong-secret"})
+                    unknown = httpx.post(url, json=dict(body, model="gpt-5.2"), headers={"api-key": "right-secret"})
+                    upstream.assert_not_called()
+            finally:
+                server.shutdown()
+                server.server_close()
+            self.assertEqual((wrong.status_code, unknown.status_code), (401, 404))
+            self.assertEqual(unknown.json()["error"]["code"], "model_not_found")
+            text = log.read_text(encoding="utf-8")
+            self.assertNotIn("wrong-secret", text)
+            self.assertNotIn("prompt-9c1", text)
+
+
 class CliProbe(unittest.TestCase):
     def test_command_names_come_from_the_commands_section_only(self):
         import probe_cli_fullswitch
@@ -240,6 +331,34 @@ class KeyRouteProbe(unittest.TestCase):
         self.assertIn("x-api-key", messages["Anthropic Messages (x-api-key)"])
         self.assertIn("api-key", messages["Anthropic Messages (api-key)"])
         self.assertTrue(all(value is None or value == "2023-06-01" for h in messages.values() for value in h.values()))
+
+
+class AgentLogSummary(unittest.TestCase):
+    def test_turns_keep_routing_and_errors_but_drop_ids(self):
+        import summarize_cursor_agent_log as summary
+        conv = "0b7c1e52-9f3a-4d1e-8c2b-6a5f4e3d2c1b"
+        lines = [
+            "2026-11-17 17:40:16.100 [info] [agent-harness] turn -> conversation=" + conv + " model=foundry-haiku\n",
+            '2026-11-17 17:40:16.200 [info] Selected Agent Host turn runtime {"runtime":"connect","disposition":"fallback","reason":"byok-connect-routed"}\n',
+            '2026-11-17 17:40:17.300 [warning] retry {"caughtError":"ConnectError: [unauthenticated] Error"}\n',
+            "2026-11-17 17:40:17.400 [info] [AGENT_ERROR_DIAGNOSTICS] request=" + conv + " decision=THROW ActionRequiredError\n",
+            '2026-11-17 17:40:17.500 [info] {"underlyingConnectError":{"code":16,"codeName":"Unauthenticated"}}\n',
+            "2026-11-17 17:40:17.600 [info] Agent host turn failed\n",
+            "2026-11-17 17:40:17.700 [error] Invalid API key. Request " + conv + "\n",
+            "2026-11-17 17:45:00.000 [info] [agent-harness] turn -> model=grok-4.7\n",
+            '2026-11-17 17:45:00.100 [info] Selected Agent Host turn runtime {"runtime":"managed-local","disposition":"expected","reason":"eligible"}\n',
+        ]
+        turns = summary.summarize(lines, offset_minutes=60)
+        self.assertEqual(len(turns), 2)
+        failed, ok = turns
+        self.assertEqual((failed["model"], failed["reason"], failed["outcome"]), ("foundry-haiku", "byok-connect-routed", "failed"))
+        self.assertEqual(failed["backend_errors"], {"unauthenticated": 1})
+        self.assertEqual(failed["decisions"], ["THROW ActionRequiredError"])
+        self.assertEqual(failed["final_grpc_code"], {"code": 16, "name": "Unauthenticated"})
+        self.assertEqual((failed["started_utc"], failed["ended_utc"]), ("2026-11-17T16:40:16Z", "2026-11-17T16:40:17Z"))
+        self.assertEqual(failed["error_message"], "Invalid API key. Request <id>")
+        self.assertEqual((ok["reason"], ok["outcome"]), ("eligible", "no failure logged"))
+        self.assertNotIn(conv, json.dumps(turns))
 
 
 if __name__ == "__main__":

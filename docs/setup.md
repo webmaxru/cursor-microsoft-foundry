@@ -309,7 +309,9 @@ az cognitiveservices account keys regenerate -g <resource-group> -n <resource> -
 To see whether Cursor's requests reached your deployment, run
 `scripts/check_foundry_usage.py --minutes 10` after a test prompt. It reads
 Azure Monitor metrics with your `az` login and needs the Monitoring Reader
-role; the [IDE page](ide.md#check-it-with-your-own-key) has the steps.
+role; the [IDE page](ide.md#check-it-with-your-own-key) has the steps. Metrics
+don't count rejected (401 or 404) requests, so pair it with
+[Cursor's own log](ide.md#read-cursors-own-log).
 
 To confirm Foundry accepts the key on the routes Cursor would use, run
 `scripts/probe_fullswitch_routes.py`. It reads the key from `az` (or from the
