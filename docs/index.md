@@ -9,16 +9,13 @@ none exists. Status as of November 2026.
 ## Choose your Cursor surface
 
 {.surfaces}
-- [Cursor IDE](ide.md){.card-link} [Partial switch]{.status .status-partial}
+- [Cursor IDE](ide.md){.card-link} [Switch for chat and Agent]{.status .status-verified}
 
-  The Azure OpenAI key slot is documented to send chat and Agent requests to a
-  Foundry OpenAI deployment, through Cursor's servers, on a paid plan. Others
-  report it working; in my setup, with the resource's real key on Premium, it
-  gave "Network Error" in five tests and Foundry logged no successful request.
-  Cursor gives the same error for a resource that doesn't exist, so it names no
-  cause. A gateway was
-  refused, and Claude has no native route; a translating proxy works when
-  called directly but received no request from Cursor.
+  Your own key in the Azure OpenAI slot sends chat and Agent requests to a
+  Foundry deployment, through Cursor's servers, on a paid plan. Verified with
+  a real key: `gpt-4.1` answered with tool calls, every request `200` in
+  Foundry. GPT-6 Luna and Claude ran through a translating proxy behind a
+  public tunnel. Tab, Auto and Composer stay on Cursor.
 
 - [Cursor CLI](cli.md){.card-link} [No switch]{.status .status-none}
 
@@ -37,32 +34,36 @@ none exists. Status as of November 2026.
 
 - **There is no full switch like Claude Code's.** Claude Code sends its own
   model calls straight to Foundry. Cursor sends model calls from its servers.
-- **The IDE comes closest, on paper.** The Azure OpenAI key slot, pointed at
-  `https://<resource>.openai.azure.com`, is documented to make a Foundry
-  OpenAI deployment the chat and Agent model. Tab, Auto and Cursor's own
-  models stay on Cursor. With a real key it failed in my setup, for a reason
-  Cursor doesn't show ([details](ide.md#is-the-documented-option-broken)).
-- **Gateways were refused.** On Premium, Cursor refused custom models behind
-  the OpenAI base URL override, and sent **no request** to a working LiteLLM
-  gateway from any surface.
-- **Claude on Foundry has no native route.** Cursor's Anthropic slot has no
-  base URL, and Foundry rejects Claude on Chat Completions, which the Azure
-  slot uses. A proxy can translate the format: LiteLLM passed 15 of 15 direct
-  cases and the [translating proxy](ide.md#can-a-proxy-bring-claude-to-the-ide)
-  built here passed 13 of 13, but Cursor sent neither a request.
-- **The CLI and Cloud Agents have no switch.** Where none exists, the fallback
-  is MCP: Cursor's model stays the agent and calls Foundry deployments as
-  tools.
+- **The IDE has a real switch for chat and the Agent.** The Azure OpenAI key
+  slot, pointed at `https://<resource>.openai.azure.com`, makes a Foundry
+  OpenAI deployment the chat and Agent model. With a real key on Premium, the
+  Agent ran on `gpt-4.1` with tool calls and Foundry answered `200` to every
+  request. Tab, Auto and Cursor's own models stay on Cursor
+  ([is it broken?](ide.md#is-the-documented-option-broken)).
+- **GPT-6 Luna and Claude need a proxy.** Foundry refuses Luna with Cursor's
+  tools on Chat Completions (`400`), and serves Claude only on the Messages
+  and Responses APIs. The
+  [translating proxy](ide.md#can-a-proxy-bring-claude-to-the-ide) built here,
+  behind a public tunnel, ran the Agent on both from the Azure slot and from
+  the OpenAI override.
+- **The CLI and Cloud Agents have no switch.** On Premium they refused custom
+  models. There, the fallback is MCP: Cursor's model stays the agent and calls
+  Foundry deployments as tools.
+
+> **Correction, 17 November 2026.** Earlier versions said the IDE slot failed
+> with a real key and that Cursor refused gateways in the IDE. My UI automation
+> had never saved Cursor's settings
+> ([what went wrong](ide.md#correction-what-went-wrong-in-the-first-tests)).
 
 ## How Cursor compares with Claude Code
 
 | | Claude Code [A3] | Cursor IDE | Cursor CLI | Cloud Agents |
 | --- | --- | --- | --- | --- |
-| Full switch to Foundry | **Yes**: `CLAUDE_CODE_USE_FOUNDRY=1` | **Partial, on paper**: GPT models through the Azure slot, your own key; failed in my setup with a real key | **No** | **No**, by design |
+| Full switch to Foundry | **Yes**: `CLAUDE_CODE_USE_FOUNDRY=1` | **For chat and the Agent**: the Azure slot with your own key; verified with a real key | **No** | **No**, by design |
 | Model calls come from | Your machine | Cursor's servers | Cursor | Cursor |
 | Sign-in | Key, Entra ID or token | Key only | Not applicable | Not applicable |
-| Claude on Foundry | Yes | No | No | No |
-| OpenAI on Foundry | Not applicable: it runs Claude models | Yes, one deployment at a time | No | No |
+| Claude on Foundry | Yes | Through a proxy you run | No | No |
+| OpenAI on Foundry | Not applicable: it runs Claude models | Yes, one deployment at a time; reasoning models through a proxy | No | No |
 | Fallback | None needed | MCP tools | MCP tools | HTTP MCP tools |
 
 [Read the full comparison](fullswitch.md), including what the community says
@@ -129,15 +130,15 @@ that failure from the shell-invoked MCP client used for the coding comparison.
 The switch was tested on a Premium plan. Foundry accepted 12 of 12 probes
 with a resource API key, a second key probe confirmed that Claude has no Chat
 Completions route while GPT has, and a LiteLLM gateway passed 15 of 15
-Cursor-shaped cases for both models. Cursor then sent that gateway nothing: the
-IDE refused the custom models, the CLI said "Cannot use this model" and Cloud
-Agents said "Model Not Available". The IDE's Azure slot passed the plan gate
-with a dummy key, then failed with the resource's real key: "Network Error" in
-five tests on both host forms, and no successful request in Foundry's metrics
-or request logs ([real-key round](ide.md#what-happened-with-a-real-key)). That
-doesn't prove the slot is broken for everyone; the error is the same for a
-resource that doesn't exist, and others report it working. A translating Claude
-proxy passed 13 of 13 direct cases, and Cursor sent it nothing too.
+Cursor-shaped cases for both models. The CLI said "Cannot use this model" and
+Cloud Agents said "Model Not Available" for custom models. In the IDE, with
+the resource's real key in the Azure slot, Foundry answered `200` to the
+Agent's requests on a `gpt-4.1` deployment, including tool calls, on a Foundry
+resource and on a classic Azure OpenAI resource
+([real-key round](ide.md#what-happened-with-a-real-key)). A translating proxy
+behind a public tunnel logged 14 requests from Cursor's backend and ran the
+Agent on Claude Haiku 5.5 and GPT-6 Luna, from the Azure slot and from the
+OpenAI override.
 
 See the [evidence index](evidence.md) for every recorded result. All code is
 on [GitHub](https://github.com/webmaxru/cursor-microsoft-foundry) under the

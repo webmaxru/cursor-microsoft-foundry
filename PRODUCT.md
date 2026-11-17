@@ -29,14 +29,16 @@ They need practical instructions and verifiable results, not promotional claims.
   no switch exists.
 - The local MCP bridge calls Foundry OpenAI and Claude models as tools. It
   does not replace Cursor's own agent model.
-- CLI and IDE MCP paths have recorded end-to-end evidence. For the IDE's Azure
-  OpenAI slot, the Foundry side was verified with a key and the slot passed
-  Cursor's plan gate on Premium with a dummy key; with the resource's real key
-  it gave "Network Error" in my setup and Foundry recorded no successful
-  request; the same error appeared for a resource that doesn't exist, so the
-  cause is unknown and others report the slot working. A LiteLLM gateway
-  and a translating Claude proxy passed every direct case, yet Cursor sent
-  them no request. The Cloud MCP path is an unexecuted blueprint.
+- CLI and IDE MCP paths have recorded end-to-end evidence. The IDE's Azure
+  OpenAI slot is verified with real keys on Premium: `gpt-4.1` on a Foundry
+  resource and on a classic Azure OpenAI resource answered with tool calls,
+  every request `200` in Azure. A translating proxy behind a public tunnel
+  brought Claude Haiku 5.5 and GPT-6 Luna to the IDE through the Azure slot
+  and the OpenAI override. The first real-key tests and the Premium round's
+  IDE cases are withdrawn because UI automation never saved Cursor's
+  settings; keep that correction visible. A LiteLLM gateway passed every
+  direct case but wasn't re-run in Cursor. The Cloud MCP path is an
+  unexecuted blueprint.
 - Preserve those confidence distinctions, source citations, and all evidence.
 - Render bracketed source citations as linked superscripts; each key resolves
   to its annotated bibliography row and original source link.

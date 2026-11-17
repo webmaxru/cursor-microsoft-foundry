@@ -1,0 +1,22 @@
+{
+  "chat_tools_effort_medium": {
+    "status": 400,
+    "error": "Function tools with reasoning_effort are not supported for cursor-poc-gpt-6-luna in /v1/chat/completions. To use function tools, use /v1/responses or set reasoning_effort to 'none'."
+  },
+  "chat_tools_no_effort": {
+    "status": 400,
+    "error": "Function tools with reasoning_effort are not supported for cursor-poc-gpt-6-luna in /v1/chat/completions. To use function tools, use /v1/responses or set reasoning_effort to 'none'."
+  },
+  "chat_tools_effort_none": {
+    "status": 200,
+    "error": null
+  },
+  "chat_no_tools_effort_medium": {
+    "status": 200,
+    "error": null
+  },
+  "responses_tools_effort_medium": {
+    "status": 200,
+    "error": null
+  }
+}

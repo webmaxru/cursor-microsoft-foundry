@@ -6,19 +6,24 @@ with OpenAI and Anthropic Claude models. It includes tested proofs of concept,
 setup guides for each surface, every disadvantage of the closest option and a
 source-cited investigation.
 
-**Short answer:** there is no full switch like Claude Code's. The IDE documents
-a partial one: chat and Agent models on your Foundry OpenAI deployment through
-the Azure OpenAI slot, on a paid plan. Others report it working, but in my
-setup, with the resource's real key on a Premium plan, it failed in five tests
-and gave no reason. The CLI and Cloud Agents have none, and Cursor
-refused custom models behind a LiteLLM gateway on every surface, even on a
-Premium plan. Claude on Foundry has no native route; a
-[translating proxy](docs/ide.md#can-a-proxy-bring-claude-to-the-ide) built here
-passes 13 of 13 cases when called directly, but Cursor sent it nothing. Where
-there is none, Foundry
-models were verified as MCP tools in the earlier arithmetic proof. New native
-CLI sessions failed tool discovery; the [development study](docs/development.md)
-tests and clearly labels a shell-invoked MCP-client alternative.
+**Short answer:** only the IDE has a switch, and it is narrower than Claude
+Code's. With your own key in the IDE's documented **Azure OpenAI** slot, chat
+and the Agent run on your Foundry deployment, tool calls included. Verified
+with a real key on a Premium plan: Foundry answered `200` to every Agent
+request for a `gpt-4.1` deployment. Used directly, the slot suits non-reasoning
+OpenAI deployments. GPT-6 Luna (refused with Cursor's tools) and Claude (no
+Chat Completions route) worked through a
+[translating proxy](docs/ide.md#can-a-proxy-bring-claude-to-the-ide) built
+here, behind a public tunnel. Tab, Auto and Composer stay on Cursor, and every
+request passes through Cursor's servers. The CLI and Cloud Agents have no
+switch and refused custom models on Premium. There, Foundry models were
+verified as MCP tools in the earlier arithmetic proof. New native CLI sessions
+failed tool discovery; the [development study](docs/development.md) tests and
+clearly labels a shell-invoked MCP-client alternative.
+
+> **Correction, 17 November 2026.** Earlier versions said the IDE slot failed
+> with a real key. My UI automation hadn't saved Cursor's settings; with saved
+> settings it works ([what went wrong](docs/ide.md#correction-what-went-wrong-in-the-first-tests)).
 
 - **Website:** https://salnikov.no/cursor-microsoft-foundry/
 - **Guides:** [Full switch](docs/fullswitch.md) · [Foundry setup](docs/setup.md) ·
@@ -43,7 +48,7 @@ provider counters are published, including the failures.
 
 | Surface | Full switch to Foundry? | Fallback: Foundry models as tools (MCP) | Status |
 | --- | --- | --- | --- |
-| [Cursor IDE](docs/ide.md) | **Partial, on paper.** Chat and Agent models through the Azure OpenAI slot, OpenAI deployments only, paid plan, requests pass through Cursor's servers. With a real key it failed in my setup, with no successful request in Foundry. A gateway behind the OpenAI base URL override was refused on 3.30.14. Claude has no native route; a translating proxy passed 13 of 13 direct cases, but Cursor sent it nothing. | **Works.** The same MCP server, verified end to end in the Agent panel. | Azure slot with a real key: "Network Error" in 5 of 5 tests aimed at Foundry, no successful request in Foundry, the same error for a resource name that doesn't exist. Proxy and gateway: 0 requests from Cursor |
+| [Cursor IDE](docs/ide.md) | **Yes, for chat and the Agent.** The Azure OpenAI slot with your key runs non-reasoning OpenAI deployments directly. GPT-6 Luna and Claude need the translating proxy behind a public tunnel. Paid plan; requests pass through Cursor's servers; Tab, Auto and Composer stay on Cursor. | **Works.** The same MCP server, verified end to end in the Agent panel. | Real key on Premium: `gpt-4.1` on a Foundry resource and a classic Azure OpenAI resource answered `200` with tool calls. Through the proxy, from the Azure slot and the OpenAI override: Claude Haiku 5.5 and GPT-6 Luna answered with tool calls, 14 requests from Cursor. Luna direct: `400` |
 | [Cursor CLI](docs/cli.md) | **No.** `--endpoint` is Cursor's service, `--model` takes only Cursor's catalog ("Cannot use this model" on Premium), provider environment variables are ignored. | Historical arithmetic proof passed; native tool discovery failed in new coding sessions. | See the [development study](docs/development.md) for the shell-MCP workaround and measured limits |
 | [Cloud Agents](docs/cloud.md) | **No, by design.** Cursor staff say keys come from the IDE client, which headless runs lack. A custom model gave "Model Not Available" on Premium. | By design, through an authenticated HTTP MCP service in Azure. | No switch; MCP blueprint not run (needs a Cursor API key and a public MCP service) |
 
@@ -59,7 +64,8 @@ Two API findings apply to every surface:
 - The Luna deployment accepted the request shapes the IDE key slots can send,
   except Chat Completions with a Responses-style `reasoning` object (400
   `unknown_parameter`), legacy `max_tokens` (400), and function tools unless
-  `reasoning_effort` is `none` (400).
+  `reasoning_effort` is `none` (400). That last one is what the IDE's Agent
+  hit in the Azure slot.
 
 ## Quick start (the MCP fallback)
 
@@ -117,7 +123,7 @@ through the tools are visible to both Cursor and Foundry.
 | [`docs/cli.md`](docs/cli.md), [`docs/ide.md`](docs/ide.md), [`docs/cloud.md`](docs/cloud.md) | Guides for the Cursor CLI, IDE and Cloud Agents |
 | [`FINDINGS.md`](FINDINGS.md) | Investigation: results by surface, API formats, forum threads, privacy, billing |
 | [`SOURCES.md`](SOURCES.md) | Annotated sources (Cursor docs, forum threads, Microsoft Learn, SDKs) |
-| [`scripts/`](scripts/) | MCP server, Foundry clients, setup, deployment, verification, probe and capture-proxy scripts ([reference](docs/scripts.md)) |
+| [`scripts/`](scripts/) | MCP server, Foundry clients, the translating proxy for the IDE, setup, deployment, verification, probe and capture-proxy scripts ([reference](docs/scripts.md)) |
 | [`config/`](config/) | Configuration template, the Cloud Agents request blueprint and an example LiteLLM gateway config (rendered by `scripts/litellm_gateway.py`) |
 | [`demo/`](demo/) | Cursor workspace with the MCP config and tool permissions |
 | [`tests/`](tests/) | Unit tests (`python -m unittest discover -s tests -v`) |

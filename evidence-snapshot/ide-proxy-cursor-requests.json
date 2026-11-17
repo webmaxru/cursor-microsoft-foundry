@@ -1,0 +1,687 @@
+{
+  "source": "scripts/foundry_claude_proxy.py --log, filtered to requests whose user agent was Cursor's backend (Cursor/1.0). Request ids, hosts and the tunnel address are dropped. P and Q came in through the Azure OpenAI slot; S came in through OpenAI API Key + Override OpenAI Base URL.",
+  "runs": [
+    {
+      "test": "P: claude-haiku-5-5, proxy upstream Anthropic Messages",
+      "requests_from_cursor": 3,
+      "requests": [
+        {
+          "time_utc": "2026-11-17T21:48:45Z",
+          "path": "/openai/deployments/claude-haiku-5-5/chat/completions",
+          "query": "api-version=2024-12-01-preview",
+          "auth_header_style": "api-key",
+          "via_public_tunnel": true,
+          "body_keys": [
+            "fallbacks",
+            "messages",
+            "model",
+            "output_config",
+            "stream",
+            "stream_options",
+            "thinking",
+            "tools",
+            "user"
+          ],
+          "stream": true,
+          "reasoning_effort_sent": null,
+          "tool_count": 10,
+          "tool_names": [
+            "Shell",
+            "Glob",
+            "Grep",
+            "Read",
+            "StrReplace",
+            "Write",
+            "SendToCall",
+            "AskQuestion",
+            "GetDynamicTools",
+            "CallDynamicTool"
+          ],
+          "message_roles": [
+            "system",
+            "user",
+            "user"
+          ],
+          "body_bytes": 64238,
+          "upstream_api": "messages",
+          "upstream_status": 200,
+          "finish_reason": "stop",
+          "tool_calls": 0,
+          "prompt_tokens": 24517,
+          "completion_tokens": 10,
+          "elapsed_ms": 1234
+        },
+        {
+          "time_utc": "2026-11-17T21:50:01Z",
+          "path": "/openai/deployments/claude-haiku-5-5/chat/completions",
+          "query": "api-version=2024-12-01-preview",
+          "auth_header_style": "api-key",
+          "via_public_tunnel": true,
+          "body_keys": [
+            "fallbacks",
+            "messages",
+            "model",
+            "output_config",
+            "stream",
+            "stream_options",
+            "thinking",
+            "tools",
+            "user"
+          ],
+          "stream": true,
+          "reasoning_effort_sent": null,
+          "tool_count": 10,
+          "tool_names": [
+            "Shell",
+            "Glob",
+            "Grep",
+            "Read",
+            "StrReplace",
+            "Write",
+            "SendToCall",
+            "AskQuestion",
+            "GetDynamicTools",
+            "CallDynamicTool"
+          ],
+          "message_roles": [
+            "system",
+            "user",
+            "user"
+          ],
+          "body_bytes": 64308,
+          "upstream_api": "messages",
+          "upstream_status": 200,
+          "finish_reason": "tool_calls",
+          "tool_calls": 1,
+          "prompt_tokens": 24525,
+          "completion_tokens": 78,
+          "elapsed_ms": 1203
+        },
+        {
+          "time_utc": "2026-11-17T21:50:04Z",
+          "path": "/openai/deployments/claude-haiku-5-5/chat/completions",
+          "query": "api-version=2024-12-01-preview",
+          "auth_header_style": "api-key",
+          "via_public_tunnel": true,
+          "body_keys": [
+            "fallbacks",
+            "messages",
+            "model",
+            "output_config",
+            "stream",
+            "stream_options",
+            "thinking",
+            "tools",
+            "user"
+          ],
+          "stream": true,
+          "reasoning_effort_sent": null,
+          "tool_count": 10,
+          "tool_names": [
+            "Shell",
+            "Glob",
+            "Grep",
+            "Read",
+            "StrReplace",
+            "Write",
+            "SendToCall",
+            "AskQuestion",
+            "GetDynamicTools",
+            "CallDynamicTool"
+          ],
+          "message_roles": [
+            "system",
+            "user",
+            "user",
+            "assistant",
+            "tool"
+          ],
+          "body_bytes": 65290,
+          "upstream_api": "messages",
+          "upstream_status": 200,
+          "finish_reason": "stop",
+          "tool_calls": 0,
+          "prompt_tokens": 24844,
+          "completion_tokens": 22,
+          "elapsed_ms": 1078
+        }
+      ]
+    },
+    {
+      "test": "Q: cursor-poc-gpt-6-luna, proxy --openai-api responses",
+      "requests_from_cursor": 4,
+      "requests": [
+        {
+          "time_utc": "2026-11-17T22:11:10Z",
+          "path": "/openai/deployments/cursor-poc-gpt-6-luna/chat/completions",
+          "query": "api-version=2024-12-01-preview",
+          "auth_header_style": "api-key",
+          "via_public_tunnel": true,
+          "body_keys": [
+            "messages",
+            "model",
+            "stream",
+            "stream_options",
+            "tools",
+            "user"
+          ],
+          "stream": true,
+          "reasoning_effort_sent": null,
+          "tool_count": 10,
+          "tool_names": [
+            "Shell",
+            "Glob",
+            "Grep",
+            "Read",
+            "StrReplace",
+            "Write",
+            "SendToCall",
+            "AskQuestion",
+            "GetDynamicTools",
+            "CallDynamicTool"
+          ],
+          "message_roles": [
+            "system",
+            "user",
+            "user"
+          ],
+          "body_bytes": 64133,
+          "upstream_api": "responses",
+          "upstream_status": 200,
+          "finish_reason": "stop",
+          "tool_calls": 0,
+          "prompt_tokens": 14122,
+          "completion_tokens": 7,
+          "elapsed_ms": 1218
+        },
+        {
+          "time_utc": "2026-11-17T22:12:13Z",
+          "path": "/openai/deployments/cursor-poc-gpt-6-luna/chat/completions",
+          "query": "api-version=2024-12-01-preview",
+          "auth_header_style": "api-key",
+          "via_public_tunnel": true,
+          "body_keys": [
+            "messages",
+            "model",
+            "stream",
+            "stream_options",
+            "tools",
+            "user"
+          ],
+          "stream": true,
+          "reasoning_effort_sent": null,
+          "tool_count": 10,
+          "tool_names": [
+            "Shell",
+            "Glob",
+            "Grep",
+            "Read",
+            "StrReplace",
+            "Write",
+            "SendToCall",
+            "AskQuestion",
+            "GetDynamicTools",
+            "CallDynamicTool"
+          ],
+          "message_roles": [
+            "system",
+            "user",
+            "user"
+          ],
+          "body_bytes": 64189,
+          "upstream_api": "responses",
+          "upstream_status": 200,
+          "finish_reason": "tool_calls",
+          "tool_calls": 1,
+          "prompt_tokens": 14131,
+          "completion_tokens": 44,
+          "elapsed_ms": 2062
+        },
+        {
+          "time_utc": "2026-11-17T22:12:16Z",
+          "path": "/openai/deployments/cursor-poc-gpt-6-luna/chat/completions",
+          "query": "api-version=2024-12-01-preview",
+          "auth_header_style": "api-key",
+          "via_public_tunnel": true,
+          "body_keys": [
+            "messages",
+            "model",
+            "stream",
+            "stream_options",
+            "tools",
+            "user"
+          ],
+          "stream": true,
+          "reasoning_effort_sent": null,
+          "tool_count": 10,
+          "tool_names": [
+            "Shell",
+            "Glob",
+            "Grep",
+            "Read",
+            "StrReplace",
+            "Write",
+            "SendToCall",
+            "AskQuestion",
+            "GetDynamicTools",
+            "CallDynamicTool"
+          ],
+          "message_roles": [
+            "system",
+            "user",
+            "user",
+            "assistant",
+            "tool"
+          ],
+          "body_bytes": 64642,
+          "upstream_api": "responses",
+          "upstream_status": 200,
+          "finish_reason": "tool_calls",
+          "tool_calls": 1,
+          "prompt_tokens": 14199,
+          "completion_tokens": 56,
+          "elapsed_ms": 1953
+        },
+        {
+          "time_utc": "2026-11-17T22:12:20Z",
+          "path": "/openai/deployments/cursor-poc-gpt-6-luna/chat/completions",
+          "query": "api-version=2024-12-01-preview",
+          "auth_header_style": "api-key",
+          "via_public_tunnel": true,
+          "body_keys": [
+            "messages",
+            "model",
+            "stream",
+            "stream_options",
+            "tools",
+            "user"
+          ],
+          "stream": true,
+          "reasoning_effort_sent": null,
+          "tool_count": 10,
+          "tool_names": [
+            "Shell",
+            "Glob",
+            "Grep",
+            "Read",
+            "StrReplace",
+            "Write",
+            "SendToCall",
+            "AskQuestion",
+            "GetDynamicTools",
+            "CallDynamicTool"
+          ],
+          "message_roles": [
+            "system",
+            "user",
+            "user",
+            "assistant",
+            "tool",
+            "assistant",
+            "tool"
+          ],
+          "body_bytes": 65648,
+          "upstream_api": "responses",
+          "upstream_status": 200,
+          "finish_reason": "stop",
+          "tool_calls": 0,
+          "prompt_tokens": 14392,
+          "completion_tokens": 18,
+          "elapsed_ms": 2843
+        }
+      ]
+    },
+    {
+      "test": "S1-S2: OpenAI API Key + Override OpenAI Base URL, custom model foundry-haiku -> claude-haiku-5-5, proxy upstream Anthropic Messages",
+      "requests_from_cursor": 3,
+      "requests": [
+        {
+          "time_utc": "2026-11-17T22:31:28Z",
+          "path": "/v1/chat/completions",
+          "query": "",
+          "auth_header_style": "Authorization: Bearer",
+          "via_public_tunnel": true,
+          "model_in_body": "foundry-haiku",
+          "proxy_deployment": "claude-haiku-5-5",
+          "body_keys": [
+            "messages",
+            "model",
+            "stream",
+            "stream_options",
+            "tools",
+            "user"
+          ],
+          "stream": true,
+          "reasoning_effort_sent": null,
+          "tool_count": 10,
+          "tool_names": [
+            "Shell",
+            "Glob",
+            "Grep",
+            "Read",
+            "StrReplace",
+            "Write",
+            "SendToCall",
+            "AskQuestion",
+            "GetDynamicTools",
+            "CallDynamicTool"
+          ],
+          "message_roles": [
+            "system",
+            "user",
+            "user"
+          ],
+          "body_bytes": 64051,
+          "upstream_api": "messages",
+          "upstream_status": 200,
+          "finish_reason": "stop",
+          "tool_calls": 0,
+          "prompt_tokens": 24519,
+          "completion_tokens": 10,
+          "elapsed_ms": 1250
+        },
+        {
+          "time_utc": "2026-11-17T22:33:02Z",
+          "path": "/v1/chat/completions",
+          "query": "",
+          "auth_header_style": "Authorization: Bearer",
+          "via_public_tunnel": true,
+          "model_in_body": "foundry-haiku",
+          "proxy_deployment": "claude-haiku-5-5",
+          "body_keys": [
+            "messages",
+            "model",
+            "stream",
+            "stream_options",
+            "tools",
+            "user"
+          ],
+          "stream": true,
+          "reasoning_effort_sent": null,
+          "tool_count": 10,
+          "tool_names": [
+            "Shell",
+            "Glob",
+            "Grep",
+            "Read",
+            "StrReplace",
+            "Write",
+            "SendToCall",
+            "AskQuestion",
+            "GetDynamicTools",
+            "CallDynamicTool"
+          ],
+          "message_roles": [
+            "system",
+            "user",
+            "user",
+            "assistant",
+            "user"
+          ],
+          "body_bytes": 64650,
+          "upstream_api": "messages",
+          "upstream_status": 200,
+          "finish_reason": "tool_calls",
+          "tool_calls": 1,
+          "prompt_tokens": 24699,
+          "completion_tokens": 78,
+          "elapsed_ms": 1188
+        },
+        {
+          "time_utc": "2026-11-17T22:33:06Z",
+          "path": "/v1/chat/completions",
+          "query": "",
+          "auth_header_style": "Authorization: Bearer",
+          "via_public_tunnel": true,
+          "model_in_body": "foundry-haiku",
+          "proxy_deployment": "claude-haiku-5-5",
+          "body_keys": [
+            "messages",
+            "model",
+            "stream",
+            "stream_options",
+            "tools",
+            "user"
+          ],
+          "stream": true,
+          "reasoning_effort_sent": null,
+          "tool_count": 10,
+          "tool_names": [
+            "Shell",
+            "Glob",
+            "Grep",
+            "Read",
+            "StrReplace",
+            "Write",
+            "SendToCall",
+            "AskQuestion",
+            "GetDynamicTools",
+            "CallDynamicTool"
+          ],
+          "message_roles": [
+            "system",
+            "user",
+            "user",
+            "assistant",
+            "user",
+            "assistant",
+            "tool"
+          ],
+          "body_bytes": 65632,
+          "upstream_api": "messages",
+          "upstream_status": 200,
+          "finish_reason": "stop",
+          "tool_calls": 0,
+          "prompt_tokens": 25018,
+          "completion_tokens": 35,
+          "elapsed_ms": 1016
+        }
+      ]
+    },
+    {
+      "test": "S3: same override, custom model foundry-luna -> cursor-poc-gpt-6-luna, proxy --openai-api responses",
+      "requests_from_cursor": 2,
+      "requests": [
+        {
+          "time_utc": "2026-11-17T22:36:55Z",
+          "path": "/v1/chat/completions",
+          "query": "",
+          "auth_header_style": "Authorization: Bearer",
+          "via_public_tunnel": true,
+          "model_in_body": "foundry-luna",
+          "proxy_deployment": "cursor-poc-gpt-6-luna",
+          "body_keys": [
+            "messages",
+            "model",
+            "stream",
+            "stream_options",
+            "tools",
+            "user"
+          ],
+          "stream": true,
+          "reasoning_effort_sent": null,
+          "tool_count": 10,
+          "tool_names": [
+            "Shell",
+            "Glob",
+            "Grep",
+            "Read",
+            "StrReplace",
+            "Write",
+            "SendToCall",
+            "AskQuestion",
+            "GetDynamicTools",
+            "CallDynamicTool"
+          ],
+          "message_roles": [
+            "system",
+            "user",
+            "user"
+          ],
+          "body_bytes": 64104,
+          "upstream_api": "responses",
+          "upstream_status": 200,
+          "finish_reason": "tool_calls",
+          "tool_calls": 1,
+          "prompt_tokens": 14128,
+          "completion_tokens": 44,
+          "elapsed_ms": 1750
+        },
+        {
+          "time_utc": "2026-11-17T22:36:59Z",
+          "path": "/v1/chat/completions",
+          "query": "",
+          "auth_header_style": "Authorization: Bearer",
+          "via_public_tunnel": true,
+          "model_in_body": "foundry-luna",
+          "proxy_deployment": "cursor-poc-gpt-6-luna",
+          "body_keys": [
+            "messages",
+            "model",
+            "stream",
+            "stream_options",
+            "tools",
+            "user"
+          ],
+          "stream": true,
+          "reasoning_effort_sent": null,
+          "tool_count": 10,
+          "tool_names": [
+            "Shell",
+            "Glob",
+            "Grep",
+            "Read",
+            "StrReplace",
+            "Write",
+            "SendToCall",
+            "AskQuestion",
+            "GetDynamicTools",
+            "CallDynamicTool"
+          ],
+          "message_roles": [
+            "system",
+            "user",
+            "user",
+            "assistant",
+            "tool"
+          ],
+          "body_bytes": 65110,
+          "upstream_api": "responses",
+          "upstream_status": 200,
+          "finish_reason": "stop",
+          "tool_calls": 0,
+          "prompt_tokens": 14321,
+          "completion_tokens": 24,
+          "elapsed_ms": 1312
+        }
+      ]
+    },
+    {
+      "test": "S4a: same override, custom model gpt-4.1 (no proxy alias)",
+      "requests_from_cursor": 1,
+      "requests": [
+        {
+          "time_utc": "2026-11-17T22:39:57Z",
+          "path": "/v1/chat/completions",
+          "query": "",
+          "auth_header_style": "Authorization: Bearer",
+          "via_public_tunnel": true,
+          "model_in_body": "gpt-4.1",
+          "proxy_deployment": null,
+          "body_keys": [
+            "messages",
+            "model",
+            "stream",
+            "stream_options",
+            "tools",
+            "user"
+          ],
+          "stream": true,
+          "reasoning_effort_sent": null,
+          "tool_count": 10,
+          "tool_names": [
+            "Shell",
+            "Glob",
+            "Grep",
+            "Read",
+            "StrReplace",
+            "Write",
+            "SendToCall",
+            "AskQuestion",
+            "GetDynamicTools",
+            "CallDynamicTool"
+          ],
+          "message_roles": [
+            "system",
+            "user",
+            "user"
+          ],
+          "body_bytes": 64001,
+          "proxy_status": 404,
+          "proxy_error": "model not exposed by this proxy (no alias configured)"
+        }
+      ]
+    },
+    {
+      "test": "S4b: same override, Cursor's built-in GPT-5.6 Sol (no proxy alias)",
+      "requests_from_cursor": 1,
+      "requests": [
+        {
+          "time_utc": "2026-11-17T22:41:53Z",
+          "path": "/v1/chat/completions",
+          "query": "",
+          "auth_header_style": "Authorization: Bearer",
+          "via_public_tunnel": true,
+          "model_in_body": "gpt-5.6-sol",
+          "proxy_deployment": null,
+          "body_keys": [
+            "messages",
+            "model",
+            "stream",
+            "stream_options",
+            "tools",
+            "user"
+          ],
+          "stream": true,
+          "reasoning_effort_sent": null,
+          "tool_count": 9,
+          "tool_names": [
+            "Shell",
+            "Glob",
+            "rg",
+            "ReadFile",
+            "ApplyPatch",
+            "SendToCall",
+            "AskQuestion",
+            "GetDynamicTools",
+            "CallDynamicTool"
+          ],
+          "message_roles": [
+            "system",
+            "user",
+            "user"
+          ],
+          "body_bytes": 78022,
+          "proxy_status": 404,
+          "proxy_error": "model not exposed by this proxy (no alias configured)"
+        }
+      ]
+    }
+  ],
+  "not_routed_to_proxy_during_S": [
+    {
+      "test": "S4c",
+      "model": "Claude Opus 5.5 (built-in)",
+      "proxy_requests": 0,
+      "cursor_ui": "Claude Opus 5.5 is not included in your weekly usage. Buy credits or switch to a Grok model to continue.",
+      "cursor_log": "runtime managed-local, reason eligible: billed to the Cursor plan, not to the key"
+    },
+    {
+      "test": "S4d",
+      "model": "Composer 2.5 Fast (built-in)",
+      "proxy_requests": 0,
+      "cursor_ui": "Bad Request. This model does not support custom API keys.",
+      "cursor_log": "reason byok-connect-routed, invalid_argument"
+    }
+  ]
+}

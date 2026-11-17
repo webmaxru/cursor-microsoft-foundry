@@ -1,24 +1,32 @@
 # Can Cursor fully switch to Microsoft Foundry?
 
-**Short answer: not the way Claude Code can.** Claude Code has a Foundry mode:
-set `CLAUDE_CODE_USE_FOUNDRY=1`, name your resource, and the agent's own model
-calls go straight to your Foundry deployments, signed in with Entra ID or a
-key [A3]. Cursor has no equivalent. The closest thing is one key slot in the
-**IDE** that sends **OpenAI** deployments' requests to your Foundry resource,
-through Cursor's servers. The CLI and Cloud Agents have nothing.
+**Short answer: not the way Claude Code can, but the IDE comes close.** Claude
+Code has a Foundry mode: set `CLAUDE_CODE_USE_FOUNDRY=1`, name your resource,
+and the agent's own model calls go straight to your Foundry deployments, signed
+in with Entra ID or a key [A3]. Cursor has no equivalent. What it has is one
+key slot in the **IDE** that sends chat and Agent requests to a Foundry
+**OpenAI** deployment, through Cursor's servers. With a small translating proxy
+in between, the same slot also runs **GPT-6 Luna** and **Claude**. The CLI and
+Cloud Agents have nothing.
 
-I tested every surface again on a **Premium** plan with a local LiteLLM
-gateway in front of both Foundry models. **Cursor sent no request to the
-gateway on any surface.** A later round used the resource's **real key** in the
-IDE's Azure slot and a purpose-built Claude proxy. **Foundry recorded no
-successful request from Cursor, and the proxy none at all.**
+I tested every surface on a **Premium** plan, then ran the IDE with the
+resource's **real key**. **The IDE's Azure slot worked**: Foundry answered
+`200` to every Agent request for a `gpt-4.1` deployment, tool calls included.
+Through the proxy, Claude Haiku 5.5 and GPT-6 Luna ran the Agent from the
+Azure slot and from the OpenAI override. The CLI and Cloud Agents refused
+custom models.
+
+> **Correction, 17 November 2026.** An earlier version said the IDE slot
+> failed with a real key and that Cursor refused a gateway. Both came from my
+> UI automation, which changed the screen but never saved Cursor's settings
+> ([what went wrong](ide.md#correction-what-went-wrong-in-the-first-tests)).
 
 | Surface | Full switch to Foundry? | The route | What was verified here |
 | --- | --- | --- | --- |
-| [Cursor IDE](ide.md) | **OpenAI deployments only, through the Azure OpenAI slot, on paper.** Chat and Agent; not Tab, Auto or Composer | **Models > API Keys > Azure OpenAI** with `https://<resource>.openai.azure.com` | Reported working by staff and users [F31], [F8]. In my setup, with the resource's real key on Premium, **it failed in 5 of 5 tests** on both host forms: "Network Error" after about 19 seconds, and **no successful request** in Foundry's metrics and request logs, while the same key returned 200 directly. The same error came for a resource name that doesn't exist, so it names no cause ([real-key round](ide.md#what-happened-with-a-real-key), [is it broken?](ide.md#is-the-documented-option-broken)). The OpenAI key with Override Base URL to a gateway was **refused**, with 0 requests at the gateway |
+| [Cursor IDE](ide.md) | **Yes, for chat and the Agent.** Not Tab, Auto or Composer | **Models > API Keys > Azure OpenAI** with `https://<resource>.openai.azure.com`, your deployment and key | With the real key on Premium, `gpt-4.1` on a Foundry resource and on a classic Azure OpenAI resource answered with text and tool calls, every request `200` in Azure ([real-key round](ide.md#what-happened-with-a-real-key), [is it broken?](ide.md#is-the-documented-option-broken)). GPT-6 Luna directly: `400`, tools need the Responses API. Matches staff and users [F31], [F8] |
 | [Cursor CLI](cli.md) | **No** | None. `--model` accepts only Cursor's catalog; the only provider command is AWS Bedrock | "Cannot use this model: foundry-luna" on Premium; 0 gateway requests |
 | [Cursor Cloud Agents](cloud.md) | **No, by design** | None. The API takes a Cursor model ID and MCP servers, nothing for a provider | "Model Not Available" for the custom model on Premium; 0 gateway requests |
-| Claude on Foundry, any surface | **No** | Cursor's Anthropic slot has no base URL, and Foundry has no Chat Completions route for Claude | The LiteLLM alias was refused like the GPT one; a [translating proxy](ide.md#can-a-proxy-bring-claude-to-the-ide) passed 13 of 13 direct cases and got 0 requests from the Azure slot or the override |
+| Claude on Foundry | **IDE only, through a proxy** | Cursor's Anthropic slot has no base URL, and Foundry has no Chat Completions route for Claude. A [translating proxy](ide.md#can-a-proxy-bring-claude-to-the-ide) behind a public tunnel, in the Azure slot or the OpenAI override | Claude Haiku 5.5 ran the Agent with tool calls from both slots; the proxy logged Cursor's requests and Foundry answered `200` |
 
 Where no switch exists, the fallback is to keep Cursor's own model and let it
 call Foundry deployments as **MCP tools**. That works on all three surfaces
@@ -38,10 +46,10 @@ Cursor's model still runs on Cursor. Read [what MCP does and doesn't do](#what-t
 | Switch | One environment variable, `CLAUDE_CODE_USE_FOUNDRY=1` | One IDE key slot for Azure OpenAI; nothing in the CLI or Cloud Agents |
 | Where the agent's model calls go | Directly from your machine to the Foundry resource | From Cursor's servers: the IDE sends your key to Cursor with every request and Cursor builds the prompt [C11] |
 | Sign-in | Resource API key, Entra ID (the default Azure credential chain, so `az login` works) or a bearer token | A resource API key only. No Entra ID |
-| Claude on Foundry as the main model | Yes: you pin model names to your deployments with `ANTHROPIC_DEFAULT_*_MODEL` | No. The Anthropic slot has no base URL; a LiteLLM alias was refused and a translating proxy got no request |
-| OpenAI models on Foundry as the main model | Not applicable | IDE only, one deployment at a time, through the Azure OpenAI slot; failed in my setup with a real key |
-| A gateway in between | Not needed | Documented by LiteLLM [L2], but refused by Cursor 3.30.14 on Premium |
-| What moves to Foundry | The agent's model calls | At most the IDE's chat and Agent requests for GPT models. Tab, Auto, Composer, the CLI and Cloud Agents stay on Cursor |
+| Claude on Foundry as the main model | Yes: you pin model names to your deployments with `ANTHROPIC_DEFAULT_*_MODEL` | Only through a translating proxy that you run behind a public HTTPS address. The Anthropic slot has no base URL |
+| OpenAI models on Foundry as the main model | Not applicable | IDE only, one deployment at a time, through the Azure OpenAI slot. Reasoning models such as GPT-6 Luna need the proxy for tools |
+| A gateway in between | Not needed | Optional for GPT, required for Claude and Luna. The proxy built here worked from both IDE slots; LiteLLM documents the same pattern [L2] but wasn't re-run after the correction |
+| What moves to Foundry | The agent's model calls | The IDE's chat and Agent requests, for one deployment at a time. Tab, Auto, Composer, the CLI and Cloud Agents stay on Cursor |
 
 The comparison explains why the question has a different answer in each
 product. Claude Code calls Foundry from your machine. Cursor sends model
@@ -61,9 +69,8 @@ picture is consistent:
   Foundry project endpoint (`*.services.ai.azure.com`) is not supported. The
   user confirmed it worked, and later ran GPT-5.6 Luna in the Agent [F31].
   Staff in November 2026: Foundry OpenAI deployments should work, with no
-  dedicated Foundry integration and no timeline [F8]. It failed in this
-  study's [real-key round](ide.md#what-happened-with-a-real-key), for a reason
-  Cursor doesn't show.
+  dedicated Foundry integration and no timeline [F8]. This study's
+  [real-key round](ide.md#what-happened-with-a-real-key) confirms it.
 - **It breaks often.** Cursor-side bugs stopped Azure own-key requests for
   weeks at a time: `model is required` from January to July 2026 [F32], [F35],
   [F37], and GPT-5 errors in 2025 that closed without a fix [F33]. Other
@@ -96,14 +103,16 @@ picture is consistent:
 
 ### What the community built
 
-Two kinds of project exist. Neither was run here.
+Two kinds of project exist. Apart from LiteLLM, none was run here; this
+study's own [proxy](ide.md#can-a-proxy-bring-claude-to-the-ide) plays the same
+role as the gateways.
 
-**Gateways for the IDE's override.** These sit where I put LiteLLM: Cursor's
-servers call them, and they call your provider.
+**Gateways for the IDE's override.** These sit where I put LiteLLM and the
+translating proxy: Cursor's servers call them, and they call your provider.
 
 | Project | What it does | Status |
 | --- | --- | --- |
-| LiteLLM [L2] | General gateway with a documented Cursor route | Tested directly here (15 of 15); Cursor refused to use it on 3.30.14 |
+| LiteLLM [L2] | General gateway with a documented Cursor route | Tested directly here (15 of 15); not re-run in Cursor after the correction |
 | gabrii/Cursor-Azure-GPT-5 [G3] | Turns override requests into Azure Responses API calls | 75 stars, MIT. Recommended by Cursor staff in April 2026 [F32] |
 | rosch100/AI-Model-proxy [G4] | Copy of G3 with newer models, including Luna | Archived |
 | xFurti/cursor-custom-provider [G5] | Model-name rewriting plus an automatic HTTPS tunnel | 19 stars, MIT |
@@ -111,8 +120,10 @@ servers call them, and they call your provider.
 | bcat95/Cursor-Azure-Claude [G7] | OpenAI to Anthropic for Azure-hosted Claude | 11 stars; used mainly with Ctrl+K [F6] |
 | Alorse/llm-proxy [G8] | Aliases a model under a name Cursor accepts | 24 stars; last push July 2025 |
 
-All of them depend on the same Cursor gate that refused LiteLLM here. If
-Cursor doesn't call your base URL, no gateway helps.
+Cursor's backend does call a public base URL in the override: with saved
+settings, it reached this study's proxy and ran Agent turns through it. Each
+gateway still has to accept Cursor's request shape, which changes with Cursor
+updates.
 
 **Backend replacements.** These install a local certificate authority,
 intercept Cursor's own traffic and answer it locally, so Cursor never talks to
@@ -142,8 +153,8 @@ cover.
   requests go directly to your provider [F1]; the current documentation says
   they pass through Cursor's servers [C11]. I follow the documentation.
 - LiteLLM documents the Azure slot reaching a gateway on Cursor 3.17.21 [L2].
-  On 3.30.14 it didn't. I can't tell whether Cursor changed it or the plan
-  matters.
+  On 3.30.14 the Azure slot reached this study's proxy (tests P and Q); I
+  didn't re-run LiteLLM itself in Cursor.
 
 ## Why the CLI and Cloud Agents have no switch
 
@@ -163,35 +174,35 @@ cover.
 
 ## The IDE switch and its costs
 
-The IDE route is documented but narrow, and it failed in my setup with a real
-key. The [IDE page](ide.md#all-the-disadvantages) lists every disadvantage. In
-short:
+The IDE route is documented and works, but it is narrow. The
+[IDE page](ide.md#all-the-disadvantages) lists every disadvantage. In short:
 
-- **It may not work for you.** With the resource's real key on Premium,
-  Cursor's backend gave "Network Error" in five tests and Foundry logged no
-  successful request. Others report it working, and it has broken after past
-  updates. Test it on your own account before relying on it.
-- Requests still go through Cursor's servers, with your key, so Foundry must be
-  reachable from the public internet. Private endpoints and Entra ID don't fit.
-- OpenAI deployments only, one at a time. No Claude.
+- Requests still go through Cursor's servers, with your key, so Foundry, or
+  your proxy, must be reachable from the public internet. Private endpoints
+  and Entra ID don't fit.
+- Directly, non-reasoning OpenAI deployments only, one at a time. GPT-6 Luna
+  and Claude need a proxy that you run, expose and maintain.
 - Tab, Auto, Composer, Apply, image attachments, the CLI and Cloud Agents stay
-  on Cursor.
-- No gateway or proxy in between on 3.30.14, so no logging, budgets or
-  failover of your own.
-- Repeated breakages after Cursor updates, and several staff-confirmed side
-  effects when toggles are on.
+  on Cursor. The OpenAI override also takes over Cursor's built-in GPT models
+  and blocks Composer while it is on.
+- Cursor's prompts are large, about 14,000 to 24,500 tokens on a first Agent
+  turn here, so a deployment with a low tokens-per-minute limit fails.
+- Cursor's error messages are generic, and Cursor updates have broken the
+  slot for weeks at a time. Re-test after updates.
 - A paid plan; on pooled plans Cursor's token rate and usage limits apply too.
 
 ## Other routes to a full switch
 
-- **A gateway you run.** LiteLLM [L2] and Databricks AI Gateway [M9] document
-  Cursor's override for this. My LiteLLM gateway passed all 15 Cursor-shaped
-  cases against both Foundry models
+- **A proxy or gateway you run.** Required for Claude and GPT-6 Luna in the
+  IDE. The [translating proxy](ide.md#can-a-proxy-bring-claude-to-the-ide)
+  built here worked from the Azure slot and the OpenAI override. LiteLLM [L2]
+  and Databricks AI Gateway [M9] document Cursor's override for the same job;
+  my LiteLLM gateway passed all 15 Cursor-shaped cases against both Foundry
+  models when called directly
   ([`litellm-gateway-docker.json`](../evidence-snapshot/litellm-gateway-docker.json)),
-  and a purpose-built [Claude proxy](ide.md#can-a-proxy-bring-claude-to-the-ide)
-  passed 13 of 13, but Cursor 3.30.14 sent neither anything. Re-test after
-  Cursor updates; the [IDE page](ide.md#gateway-route-refused-by-cursor) has
-  the setup and the probe.
+  but I didn't re-run it in Cursor. The
+  [IDE page](ide.md#gateway-route-litellm-behind-the-override) has the setup
+  and the probe.
 - **A backend replacement.** See [above](#what-the-community-built). Not
   recommended.
 - **Another agent.** If every token must go to Foundry, use a tool built for
@@ -211,8 +222,8 @@ The local `foundry-models` MCP server gives Cursor's agent two tools,
   the [CLI](cli.md#fallback-foundry-models-as-mcp-tools) and the
   [IDE](ide.md#fallback-foundry-models-as-mcp-tools).
 
-Use it when a surface has no switch, for Claude on Foundry, or next to the
-Azure slot when you want both.
+Use it on the CLI and Cloud Agents, which have no switch, when you can't give
+Cursor a key or expose a proxy, or next to the Azure slot when you want both.
 
 For practical limits rather than another connectivity proof, see
 [MCP for real development](development.md): a greenfield project, follow-up

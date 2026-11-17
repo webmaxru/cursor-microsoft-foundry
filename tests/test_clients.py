@@ -276,6 +276,18 @@ class ClaudeProxy(unittest.TestCase):
         self.assertEqual(json.loads(arguments), {"city": "Paris"})
         self.assertEqual(chunks[-1]["choices"][0]["finish_reason"], "tool_calls")
 
+    def test_openai_reasoning_deployment_keeps_effort_and_parallel_calls_on_responses(self):
+        import foundry_claude_proxy as proxy
+        body = {"model": "x", "reasoning_effort": "medium", "messages": [{"role": "user", "content": "hi"}],
+                "tools": [{"type": "function", "function": {"name": "Read", "parameters": {"type": "object"}}}]}
+        out = proxy.chat_to_responses(body, "luna-dep", openai=True)
+        self.assertEqual(out["reasoning"], {"effort": "medium"})
+        self.assertNotIn("parallel_tool_calls", out)
+        self.assertNotIn("max_output_tokens", out)
+        claude = proxy.chat_to_responses(body, "claude-dep")
+        self.assertNotIn("reasoning", claude)
+        self.assertEqual((claude["parallel_tool_calls"], claude["max_output_tokens"]), (False, 8192))
+
     def test_bad_secret_and_unknown_model_never_reach_foundry(self):
         import contextlib
         import io

@@ -335,7 +335,7 @@ on the [CLI](cli.md#troubleshooting) and [IDE](ide.md#troubleshooting) pages.
 | Key auth: HTTP 401 | The key is wrong or was rotated, or key access is disabled (`disableLocalAuth` is `true`). Both the `api-key` and `Authorization: Bearer` headers accept the key on OpenAI routes. |
 | Key auth: HTTP 400 mentioning `max_completion_tokens` | The model rejects the legacy `max_tokens` field on Chat Completions. Use `max_completion_tokens`. |
 | Key auth: HTTP 400 mentioning function tools and `reasoning_effort` | Luna rejects tools on Chat Completions unless `reasoning_effort` is `none`. Use Responses or set `none`. |
-| Key auth: HTTP 404 `api_not_supported` for Claude on `/openai/v1/chat/completions` | Claude isn't served on Chat Completions, on either the legacy or the current route. It accepts the Responses API and `/anthropic/v1/messages`. Cursor has no native route to them; see [Claude on Foundry](ide.md#claude-on-foundry-no-native-ide-route) and [Can a proxy bring Claude to the IDE?](ide.md#can-a-proxy-bring-claude-to-the-ide) |
+| Key auth: HTTP 404 `api_not_supported` for Claude on `/openai/v1/chat/completions` | Claude isn't served on Chat Completions, on either the legacy or the current route. It accepts the Responses API and `/anthropic/v1/messages`. Cursor can't call those directly; see [Claude on Foundry](ide.md#claude-on-foundry-no-direct-route) and [Can a proxy bring Claude to the IDE?](ide.md#can-a-proxy-bring-claude-to-the-ide) |
 | Windows: "The system cannot find the path specified" | Run `./scripts/Setup.ps1` again to rewrite absolute paths. |
 
 ## 9. Clean up

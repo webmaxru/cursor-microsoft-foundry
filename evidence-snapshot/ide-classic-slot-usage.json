@@ -1,0 +1,77 @@
+{
+  "source": "Azure Monitor metric ModelRequests on the classic Azure OpenAI resource, 1-minute buckets, 21:05 to 21:45 UTC on 2026-11-17, split by deployment and status code. Queried afterwards with az monitor metrics list.",
+  "resource": "a classic Azure OpenAI resource (kind OpenAI), name not published",
+  "rows": [
+    {
+      "minute": "2026-11-17T21:09:00Z",
+      "deployment": "gpt-4.1",
+      "status": 200,
+      "requests": 2,
+      "attribution": "two direct control requests (not Cursor)"
+    },
+    {
+      "minute": "2026-11-17T21:11:00Z",
+      "deployment": "gpt-4.1",
+      "status": 429,
+      "requests": 1,
+      "attribution": "test I"
+    },
+    {
+      "minute": "2026-11-17T21:15:00Z",
+      "deployment": "gpt-4.1",
+      "status": 429,
+      "requests": 1,
+      "attribution": "test J"
+    },
+    {
+      "minute": "2026-11-17T21:18:00Z",
+      "deployment": "gpt-4.1",
+      "status": 200,
+      "requests": 2,
+      "attribution": "direct requests polling the rate-limit headers (not Cursor)"
+    },
+    {
+      "minute": "2026-11-17T21:19:00Z",
+      "deployment": "gpt-4.1",
+      "status": 200,
+      "requests": 1,
+      "attribution": "direct header poll (not Cursor)"
+    },
+    {
+      "minute": "2026-11-17T21:20:00Z",
+      "deployment": "gpt-4.1",
+      "status": 200,
+      "requests": 1,
+      "attribution": "direct header poll (not Cursor)"
+    },
+    {
+      "minute": "2026-11-17T21:21:00Z",
+      "deployment": "gpt-4.1",
+      "status": 200,
+      "requests": 2,
+      "attribution": "test K plus the last direct header poll"
+    },
+    {
+      "minute": "2026-11-17T21:26:00Z",
+      "deployment": "gpt-4.1",
+      "status": 200,
+      "requests": 2,
+      "attribution": "test L (tool call, then answer)"
+    },
+    {
+      "minute": "2026-11-17T21:32:00Z",
+      "deployment": "gpt-4.1",
+      "status": 200,
+      "requests": 1,
+      "attribution": "test M1: the old deployment, because the on-screen change was not saved"
+    },
+    {
+      "minute": "2026-11-17T21:40:00Z",
+      "deployment": "dep-gpt-4.1",
+      "status": 200,
+      "requests": 2,
+      "attribution": "test N plus one direct check of the new deployment"
+    }
+  ],
+  "not_visible": "M2 (deployment that did not exist) and O (empty Base URL) left no rows, as expected: Azure does not record requests for unknown deployments, and O never reached Azure."
+}

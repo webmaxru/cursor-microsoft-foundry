@@ -1,0 +1,32 @@
+{
+  "checked_at": "2026-11-17T21:52:05.573448+00:00",
+  "metric": "ModelRequests",
+  "deployment": "claude-haiku-5-5",
+  "minutes": 12,
+  "rows": [
+    {
+      "minute": "2026-11-17T21:46:00Z",
+      "status": "200",
+      "operation": "POST /anthropic/v1/messages",
+      "stream": "Non-Streaming",
+      "requests": 1
+    },
+    {
+      "minute": "2026-11-17T21:49:00Z",
+      "status": "200",
+      "operation": "POST /anthropic/v1/messages",
+      "stream": "Streaming",
+      "requests": 1
+    },
+    {
+      "minute": "2026-11-17T21:51:00Z",
+      "status": "200",
+      "operation": "POST /anthropic/v1/messages",
+      "stream": "Streaming",
+      "requests": 2
+    }
+  ],
+  "totals": {
+    "200": 4
+  }
+}

@@ -5,7 +5,9 @@ Claude deployments in Foundry answer the Anthropic Messages API and the OpenAI R
 and Override OpenAI Base URL settings send. This proxy accepts Chat Completions on the paths those clients
 use (including the legacy /openai/deployments/<name>/chat/completions form), translates the request to the
 Messages API (default) or the Responses API, and translates the answer, streamed or not, back to Chat
-Completions, including tool calls and token usage. Requests for an OpenAI deployment pass through.
+Completions, including tool calls and token usage. Requests for an OpenAI deployment pass through, or with
+--openai-api responses are translated to the Responses API too: reasoning models such as GPT-6 Luna reject
+function tools together with reasoning on Chat Completions, and Cursor's agent always sends tools.
 
 Clients authenticate with a proxy secret, never with the Foundry key. The proxy calls only the configured
 Foundry resource, with its API key (FOUNDRY_API_KEY or `az`) or a Microsoft Entra token, and logs request
@@ -189,8 +191,12 @@ def chat_to_messages(body, deployment, default_max_tokens=DEFAULT_MAX_TOKENS):
     return out
 
 
-def chat_to_responses(body, deployment, default_max_tokens=DEFAULT_MAX_TOKENS):
-    """Translate a Chat Completions request body to a Responses API request body."""
+def chat_to_responses(body, deployment, default_max_tokens=DEFAULT_MAX_TOKENS, openai=False):
+    """Translate a Chat Completions request body to a Responses API request body.
+
+    openai=True targets an OpenAI reasoning deployment: reasoning_effort becomes reasoning.effort, the client's
+    parallel tool call setting is kept and no output limit is added unless the client sent one.
+    """
     _check_common(body)
     instructions, items = [], []
     for message in body["messages"]:
@@ -225,8 +231,11 @@ def chat_to_responses(body, deployment, default_max_tokens=DEFAULT_MAX_TOKENS):
         else:
             raise TranslationError(f"unsupported message role: {role!r}")
 
-    out = {"model": deployment, "input": items, "store": False,
-           "max_output_tokens": _max_tokens(body, default_max_tokens)}
+    out = {"model": deployment, "input": items, "store": False}
+    if not openai or body.get("max_completion_tokens") or body.get("max_tokens"):
+        out["max_output_tokens"] = _max_tokens(body, default_max_tokens)
+    if openai and body.get("reasoning_effort"):
+        out["reasoning"] = {"effort": body["reasoning_effort"]}
     if instructions:
         out["instructions"] = "\n\n".join(instructions)
     tools = []
@@ -247,9 +256,12 @@ def chat_to_responses(body, deployment, default_max_tokens=DEFAULT_MAX_TOKENS):
             out["tool_choice"] = choice
         elif isinstance(choice, dict) and choice.get("type") == "function":
             out["tool_choice"] = {"type": "function", "name": (choice.get("function") or {}).get("name")}
-        # Claude on Foundry's Responses route merges parallel tool calls into one call that keeps only the
-        # last call's arguments, so ask for one call per turn; the client loops until the work is done.
-        out["parallel_tool_calls"] = False
+        if not openai:
+            # Claude on Foundry's Responses route merges parallel tool calls into one call that keeps only the
+            # last call's arguments, so ask for one call per turn; the client loops until the work is done.
+            out["parallel_tool_calls"] = False
+        elif body.get("parallel_tool_calls") is not None:
+            out["parallel_tool_calls"] = body["parallel_tool_calls"]
     for key in ("temperature", "top_p"):
         if body.get(key) is not None:
             out[key] = body[key]
@@ -549,6 +561,9 @@ class Handler(BaseHTTPRequestHandler):
         try:
             if kind == "responses":
                 api, payload = "responses", dict(body, model=deployment)
+            elif backend == "openai" and self.server.openai_api == "responses":
+                api, translate = "responses", "responses"
+                payload = chat_to_responses(body, deployment, self.server.default_max_tokens, openai=True)
             elif backend == "openai":
                 payload = dict(body, model=deployment)
                 if "max_tokens" in payload and "max_completion_tokens" not in payload:
@@ -644,10 +659,11 @@ class Server(ThreadingHTTPServer):
     daemon_threads = True
 
     def __init__(self, address, config, secret, models, log_path, claude_api="messages", auth="key", key=None,
-                 default_max_tokens=DEFAULT_MAX_TOKENS):
+                 default_max_tokens=DEFAULT_MAX_TOKENS, openai_api="chat"):
         super().__init__(address, Handler)
         self.config, self.secret, self.models, self.log_path = config, secret, models, log_path
         self.claude_api, self.auth, self.key, self.default_max_tokens = claude_api, auth, key, default_max_tokens
+        self.openai_api = openai_api
         self.http = httpx.Client(timeout=httpx.Timeout(600, connect=15))
         self.credential, self._token = None, None
         self._lock = threading.Lock()
@@ -724,6 +740,10 @@ def main():
                                          "else a new random one, printed once.")
     parser.add_argument("--claude-api", choices=("messages", "responses"), default="messages",
                         help="Foundry API that Claude requests are translated to (default: messages).")
+    parser.add_argument("--openai-api", choices=("chat", "responses"), default="chat",
+                        help="How OpenAI deployments are called: chat passes Chat Completions through unchanged "
+                             "(default); responses translates to the Responses API, which reasoning models such "
+                             "as GPT-6 Luna need for function tools with reasoning.")
     parser.add_argument("--upstream-auth", choices=("key", "entra"), default="key",
                         help="Call Foundry with the resource key (FOUNDRY_API_KEY or az, key 2) or an Entra token.")
     parser.add_argument("--alias", action="append", default=[], metavar="NAME=DEPLOYMENT",
@@ -737,11 +757,12 @@ def main():
     key = load_key(config) if args.upstream_auth == "key" else None
     secret = args.secret or os.environ.get("FOUNDRY_PROXY_SECRET") or secrets.token_urlsafe(32)
     server = Server(("127.0.0.1", args.port), config, secret, models, args.log, args.claude_api,
-                    args.upstream_auth, key, args.default_max_tokens)
+                    args.upstream_auth, key, args.default_max_tokens, args.openai_api)
     if args.upstream_auth == "entra":
         server.credentials("responses")
     shown = secret if not (args.secret or os.environ.get("FOUNDRY_PROXY_SECRET")) else "(as provided)"
     print(f"Foundry Claude proxy on http://127.0.0.1:{args.port}  claude-api={args.claude_api}  "
+          f"openai-api={args.openai_api}  "
           f"upstream-auth={args.upstream_auth}  models={', '.join(sorted(models))}  proxy-secret={shown}", flush=True)
     try:
         server.serve_forever()

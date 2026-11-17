@@ -1,0 +1,68 @@
+{
+  "checked_at": "2026-11-17T22:15:12.094693+00:00",
+  "metric": "ModelRequests",
+  "deployment": "cursor-poc-gpt-6-luna",
+  "minutes": 40,
+  "rows": [
+    {
+      "minute": "2026-11-17T22:04:00Z",
+      "status": "400",
+      "operation": "chatcompletions_create",
+      "stream": "Streaming",
+      "requests": 1
+    },
+    {
+      "minute": "2026-11-17T22:07:00Z",
+      "status": "400",
+      "operation": "chatcompletions_create",
+      "stream": "Non-Streaming",
+      "requests": 2
+    },
+    {
+      "minute": "2026-11-17T22:07:00Z",
+      "status": "200",
+      "operation": "create-response",
+      "stream": "Non-Streaming",
+      "requests": 1
+    },
+    {
+      "minute": "2026-11-17T22:07:00Z",
+      "status": "200",
+      "operation": "chatcompletions_create",
+      "stream": "Non-Streaming",
+      "requests": 2
+    },
+    {
+      "minute": "2026-11-17T22:09:00Z",
+      "status": "200",
+      "operation": "create-response",
+      "stream": "Streaming",
+      "requests": 1
+    },
+    {
+      "minute": "2026-11-17T22:09:00Z",
+      "status": "200",
+      "operation": "create-response",
+      "stream": "Non-Streaming",
+      "requests": 1
+    },
+    {
+      "minute": "2026-11-17T22:12:00Z",
+      "status": "200",
+      "operation": "create-response",
+      "stream": "Streaming",
+      "requests": 1
+    },
+    {
+      "minute": "2026-11-17T22:13:00Z",
+      "status": "200",
+      "operation": "create-response",
+      "stream": "Streaming",
+      "requests": 3
+    }
+  ],
+  "totals": {
+    "200": 9,
+    "400": 3
+  }
+}

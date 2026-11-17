@@ -5,7 +5,7 @@
     "cursor_ide": "3.30.14",
     "os": "Windows 11"
   },
-  "method": "The owner pasted a real Foundry resource key into Cursor IDE. Each test sent one short prompt from a new Agent chat. A request counts as 'reached' only if Foundry or the proxy recorded it. Server side: Azure Monitor metrics for each deployment plus a temporary Log Analytics diagnostic sink (RequestResponse and AzureOpenAIRequestUsage categories). Proxy side: scripts/foundry_claude_proxy.py logs every request it receives, including rejected ones. Client side: scripts/summarize_cursor_agent_log.py over Cursor's local agent-host log. UI messages are quoted as shown. Hosts, keys and ids are not published; the tunnel and the diagnostic sink were deleted afterwards.",
+  "method": "The owner pasted real keys into Cursor IDE. Each test sent one short prompt from a new Agent chat, or a prompt asking the Agent to read README.md with its Read tool. A request counts as 'reached' only if Azure (Monitor metrics per deployment, a temporary Log Analytics sink in the first part) or the proxy recorded it. Proxy side: scripts/foundry_claude_proxy.py logs every request it receives, including rejected ones. Client side: scripts/summarize_cursor_agent_log.py over Cursor's local agent-host log. Settings were entered with real keystrokes and then read back from Cursor's saved settings store (not from the screen) before every test from M2 on. UI messages are quoted as shown. Hosts, keys and ids are not published; tunnels and the diagnostic sink were deleted afterwards.",
   "key_validation": {
     "check": "The key Cursor stored (read from its local encrypted settings) was compared on this machine with the resource's Key2; they were identical. Only the yes/no result was printed; the key itself is not recorded.",
     "local_auth_enabled": true,
@@ -49,16 +49,16 @@
       "visible_in": "metrics and RequestResponse log"
     },
     {
-      "time_utc": "18:51",
-      "case": "Direct request with its own key to a separate classic Azure OpenAI resource (kind OpenAI), gpt-4.1 deployment",
-      "status": 200,
-      "visible_in": "direct response; not tested through Cursor"
-    },
-    {
       "time_utc": "18:52",
       "case": "Direct request with the same key to <resource>.cognitiveservices.azure.com, gpt-4.1 deployment, legacy Azure chat route",
       "status": 200,
       "visible_in": "metrics (1 request at 18:53)"
+    },
+    {
+      "time_utc": "21:08",
+      "case": "Two direct requests with its own key to a separate classic Azure OpenAI resource (kind OpenAI), gpt-4.1 deployment",
+      "status": 200,
+      "visible_in": "metrics"
     }
   ],
   "ide": [
@@ -70,7 +70,9 @@
       "deployment": "cursor-poc-gpt-6-luna",
       "model_picked": "GPT-5.2",
       "send_prompt": "Rate limited by model provider, retrying... then Network Error - We're having trouble connecting to the model provider",
-      "foundry_requests": 0
+      "foundry_requests": 0,
+      "valid": false,
+      "why_invalid": "Base URL and Deployment filled by UI automation that did not save them; see automation_defect and test O"
     },
     {
       "test": "B",
@@ -81,7 +83,9 @@
       "model_picked": "GPT-5.2",
       "send_prompt": "Network Error",
       "proxy_requests_from_cursor": 0,
-      "note": "A request sent by hand through the same tunnel was logged by the proxy and answered by Claude"
+      "note": "A request sent by hand through the same tunnel was logged by the proxy and answered by Claude",
+      "valid": false,
+      "why_invalid": "Base URL and Deployment filled by UI automation that did not save them; see automation_defect and test O"
     },
     {
       "test": "C",
@@ -91,7 +95,9 @@
       "deployment": "cursor-poc-gpt-6-luna",
       "model_picked": "GPT-5.2",
       "send_prompt": "Network Error - We're having trouble connecting to the model provider",
-      "foundry_requests": 0
+      "foundry_requests": 0,
+      "valid": false,
+      "why_invalid": "Base URL and Deployment filled by UI automation that did not save them; see automation_defect and test O"
     },
     {
       "test": "D",
@@ -102,7 +108,9 @@
       "model_picked": "custom model cursor-poc-gpt-6-luna (named after the deployment)",
       "send_prompt": "Network Error",
       "foundry_requests": 0,
-      "request_log_rows": 0
+      "request_log_rows": 0,
+      "valid": false,
+      "why_invalid": "Base URL and Deployment filled by UI automation that did not save them; see automation_defect and test O"
     },
     {
       "test": "E",
@@ -113,7 +121,9 @@
       "model_picked": "custom model gpt-4.1",
       "send_prompt": "Network Error - We're having trouble connecting to the model provider",
       "foundry_requests": 0,
-      "request_log_rows": 0
+      "request_log_rows": 0,
+      "valid": false,
+      "why_invalid": "Base URL and Deployment filled by UI automation that did not save them; see automation_defect and test O"
     },
     {
       "test": "F",
@@ -125,7 +135,9 @@
       "enable_dialog": "Are you sure you want to enable your own OpenAI API key? Several of Cursor's features require custom models (Tab, Apply from Chat, Agent), which cannot be billed to an API key.",
       "send_prompt": "Invalid API key. Unauthorized User API key",
       "proxy_requests_from_cursor": 0,
-      "note": "No request reached the proxy when the key, the override or the custom model was saved, and none when the prompt was sent"
+      "note": "No request reached the proxy when the key, the override or the custom model was saved, and none when the prompt was sent",
+      "valid": false,
+      "why_invalid": "Settings filled by UI automation that did not save them; superseded by S"
     },
     {
       "test": "F2",
@@ -134,7 +146,9 @@
       "base_url": "same tunnel, proxy restarted with an sk-prefixed secret",
       "model_picked": "custom model foundry-haiku",
       "send_prompt": "Invalid API key. Unauthorized User API key",
-      "proxy_requests_from_cursor": 0
+      "proxy_requests_from_cursor": 0,
+      "valid": false,
+      "why_invalid": "Settings filled by UI automation that did not save them; superseded by S"
     },
     {
       "test": "G",
@@ -145,7 +159,9 @@
       "model_picked": "custom model gpt-4.1",
       "send_prompt": "Network Error",
       "foundry_requests": 0,
-      "note": "Same Cursor log signature as A to E"
+      "note": "Same Cursor log signature as A to E",
+      "valid": false,
+      "why_invalid": "Base URL and Deployment filled by UI automation that did not save them; see automation_defect and test O"
     },
     {
       "test": "H",
@@ -156,39 +172,336 @@
       "model_picked": "custom model gpt-4.1",
       "send_prompt": "Network Error - We're having trouble connecting to the model provider. This might be temporary - please try again in a moment.",
       "purpose": "Negative control: no Azure resource can answer",
-      "note": "Identical Cursor log signature to A to E and G. Cursor's message is therefore the same whether the resource exists with a valid key or does not exist at all"
+      "note": "Identical Cursor log signature to A to E and G. Cursor's message is therefore the same whether the resource exists with a valid key or does not exist at all",
+      "valid": false,
+      "why_invalid": "Base URL and Deployment filled by UI automation that did not save them; see automation_defect and test O"
+    },
+    {
+      "test": "I",
+      "time_utc": "21:10",
+      "slot": "Azure OpenAI",
+      "resource": "a classic Azure OpenAI resource (kind OpenAI)",
+      "base_url": "https://<classic resource>.openai.azure.com",
+      "deployment": "gpt-4.1 at 10K tokens per minute",
+      "settings": "typed by the owner",
+      "send_prompt": "User Provided API Key Rate Limit Exceeded. User API Key Rate limit exceeded",
+      "azure": "one 429 on the deployment",
+      "valid": true
+    },
+    {
+      "test": "J",
+      "time_utc": "21:14",
+      "slot": "Azure OpenAI",
+      "resource": "a classic Azure OpenAI resource (kind OpenAI)",
+      "deployment": "gpt-4.1, capacity raised to 200K TPM but not yet in effect (took effect at 21:20)",
+      "send_prompt": "Same rate-limit message",
+      "azure": "one 429",
+      "valid": true
+    },
+    {
+      "test": "K",
+      "time_utc": "21:20",
+      "slot": "Azure OpenAI",
+      "resource": "a classic Azure OpenAI resource (kind OpenAI)",
+      "deployment": "gpt-4.1 at 200K TPM",
+      "send_prompt": "Replied with the requested text",
+      "azure": "one 200",
+      "valid": true
+    },
+    {
+      "test": "L",
+      "time_utc": "21:25",
+      "slot": "Azure OpenAI",
+      "resource": "a classic Azure OpenAI resource (kind OpenAI)",
+      "deployment": "gpt-4.1",
+      "prompt": "Read README.md with the file tool and reply with its first line",
+      "send_prompt": "Tool call shown, correct first line returned",
+      "azure": "two 200s (tool call, then answer)",
+      "valid": true
+    },
+    {
+      "test": "M1",
+      "time_utc": "21:31",
+      "slot": "Azure OpenAI",
+      "resource": "a classic Azure OpenAI resource (kind OpenAI)",
+      "deployment": "changed on screen by UI automation to a name that does not exist",
+      "send_prompt": "Replied normally",
+      "azure": "one 200 on the old deployment gpt-4.1",
+      "saved_settings": "still gpt-4.1",
+      "finding": "The automation does not save fields; Cursor uses the saved value",
+      "valid": true
+    },
+    {
+      "test": "M2",
+      "time_utc": "21:37",
+      "slot": "Azure OpenAI",
+      "resource": "a classic Azure OpenAI resource (kind OpenAI)",
+      "deployment": "a name that does not exist on this resource, typed with real keystrokes and confirmed in the saved settings",
+      "send_prompt": "Provider Error We're having trouble finding the resource you requested. If the problem persists, please contact support.",
+      "valid": true
+    },
+    {
+      "test": "N",
+      "time_utc": "21:39",
+      "slot": "Azure OpenAI",
+      "resource": "a classic Azure OpenAI resource (kind OpenAI)",
+      "deployment": "the same name, after creating that deployment",
+      "send_prompt": "Replied with the requested text",
+      "azure": "one 200",
+      "valid": true
+    },
+    {
+      "test": "O",
+      "time_utc": "21:42",
+      "slot": "Azure OpenAI",
+      "resource": "a classic Azure OpenAI resource (kind OpenAI)",
+      "base_url": "empty (cleared on purpose, confirmed in the saved settings)",
+      "send_prompt": "Network Error - We're having trouble connecting to the model provider. This might be temporary - please try again in a moment.",
+      "azure": "nothing",
+      "finding": "Identical to A to H in the UI and in Cursor's log",
+      "valid": true
+    },
+    {
+      "test": "P1",
+      "time_utc": "21:48",
+      "slot": "Azure OpenAI",
+      "base_url": "https://<public tunnel host> in front of the translating proxy",
+      "deployment": "claude-haiku-5-5",
+      "key": "the Foundry key (the proxy checks it, then uses its own credential upstream)",
+      "send_prompt": "Replied with the requested text",
+      "proxy_requests_from_cursor": 1,
+      "foundry": "one 200 on /anthropic/v1/messages, streamed",
+      "valid": true
+    },
+    {
+      "test": "P2",
+      "time_utc": "21:50",
+      "slot": "Azure OpenAI",
+      "deployment": "claude-haiku-5-5 through the proxy",
+      "prompt": "Read README.md with the file tool",
+      "send_prompt": "Tool card 'Read README.md L1-11' and the correct heading",
+      "proxy_requests_from_cursor": 2,
+      "foundry": "two 200s on /anthropic/v1/messages",
+      "valid": true
+    },
+    {
+      "test": "R1",
+      "time_utc": "21:56",
+      "slot": "Azure OpenAI",
+      "resource": "the Foundry resource (kind AIServices)",
+      "base_url": "https://<foundry resource>.openai.azure.com",
+      "deployment": "a gpt-4.1 deployment (Data Zone Standard, 50K TPM)",
+      "key": "the Foundry resource key",
+      "send_prompt": "Replied with the requested text",
+      "foundry": "one 200",
+      "valid": true
+    },
+    {
+      "test": "R2",
+      "time_utc": "21:57",
+      "slot": "Azure OpenAI",
+      "resource": "the Foundry resource (kind AIServices)",
+      "deployment": "the same gpt-4.1 deployment",
+      "prompt": "Read README.md with the file tool",
+      "send_prompt": "Tool card 'Read README.md L1-11' and the correct heading",
+      "foundry": "two 200s (three in total for R1 and R2)",
+      "valid": true
+    },
+    {
+      "test": "R3",
+      "time_utc": "22:03",
+      "slot": "Azure OpenAI",
+      "resource": "the Foundry resource (kind AIServices)",
+      "deployment": "cursor-poc-gpt-6-luna (GPT-6 Luna, a reasoning model)",
+      "send_prompt": "Provider Error Provider returned error: Function tools with reasoning_effort are not supported for cursor-poc-gpt-6-luna in /v1/chat/completions. To use function tools, use /v1/responses or set reasoning_effort to 'none'.",
+      "foundry": "one 400",
+      "finding": "Cursor sends tools over Chat Completions and no reasoning_effort; Luna's default effort is not 'none', so the request is refused (luna-tools-reasoning-probe.json)",
+      "valid": true
+    },
+    {
+      "test": "Q1",
+      "time_utc": "22:11",
+      "slot": "Azure OpenAI",
+      "base_url": "https://<public tunnel host> in front of the proxy started with --openai-api responses",
+      "deployment": "cursor-poc-gpt-6-luna",
+      "send_prompt": "Replied with the requested text",
+      "proxy_requests_from_cursor": 1,
+      "foundry": "Responses API 200",
+      "valid": true
+    },
+    {
+      "test": "Q2",
+      "time_utc": "22:12",
+      "slot": "Azure OpenAI",
+      "deployment": "cursor-poc-gpt-6-luna through the proxy",
+      "prompt": "Read README.md with the file tool",
+      "send_prompt": "'Explored README.md' and the correct heading",
+      "proxy_requests_from_cursor": 3,
+      "foundry": "Responses API 200s",
+      "valid": true
+    },
+    {
+      "test": "S1",
+      "time_utc": "22:31",
+      "slot": "OpenAI API Key + Override OpenAI Base URL (Azure slot off)",
+      "base_url": "https://<public tunnel host>/v1 in front of the proxy",
+      "key": "the proxy's own secret",
+      "saved_settings": "useOpenAIKey true and the override URL confirmed in the saved settings",
+      "model_picked": "custom model foundry-haiku (proxy alias for claude-haiku-5-5)",
+      "saving_the_key": "No request reached the proxy when the key was saved or enabled",
+      "send_prompt": "Replied with the requested text",
+      "proxy_requests_from_cursor": 1,
+      "foundry": "one 200 on /anthropic/v1/messages",
+      "valid": true
+    },
+    {
+      "test": "S2",
+      "time_utc": "22:33",
+      "slot": "OpenAI API Key + Override OpenAI Base URL",
+      "model_picked": "foundry-haiku",
+      "prompt": "Read README.md with the Read tool",
+      "send_prompt": "Tool card 'Read README.md L1-11' and the correct heading",
+      "proxy_requests_from_cursor": 2,
+      "foundry": "two 200s on /anthropic/v1/messages",
+      "valid": true
+    },
+    {
+      "test": "S3",
+      "time_utc": "22:36",
+      "slot": "OpenAI API Key + Override OpenAI Base URL",
+      "model_picked": "custom model foundry-luna (proxy alias for cursor-poc-gpt-6-luna; proxy in --openai-api responses mode)",
+      "prompt": "Read README.md with the Read tool",
+      "send_prompt": "Tool card 'Read README.md L1-11' and the correct heading",
+      "proxy_requests_from_cursor": 2,
+      "foundry": "two Responses API 200s",
+      "valid": true
+    },
+    {
+      "test": "S4a",
+      "time_utc": "22:39",
+      "slot": "same override",
+      "model_picked": "custom model gpt-4.1 (no alias on the proxy)",
+      "send_prompt": "Provider Error We're having trouble finding the resource you requested.",
+      "proxy_requests_from_cursor": 1,
+      "proxy_answer": "404 model not found",
+      "valid": true
+    },
+    {
+      "test": "S4b",
+      "time_utc": "22:41",
+      "slot": "same override",
+      "model_picked": "Cursor's built-in GPT-5.6 Sol",
+      "send_prompt": "Provider Error We're having trouble finding the resource you requested.",
+      "proxy_requests_from_cursor": 1,
+      "proxy_answer": "404 model not found (body model 'gpt-5.6-sol')",
+      "finding": "With the override on, Cursor's own OpenAI-family models are sent to the override URL too",
+      "valid": true
+    },
+    {
+      "test": "S4c",
+      "time_utc": "22:44",
+      "slot": "same override",
+      "model_picked": "Cursor's built-in Claude Opus 5.5",
+      "send_prompt": "Claude Opus 5.5 is not included in your weekly usage. Buy credits or switch to a Grok model to continue.",
+      "proxy_requests_from_cursor": 0,
+      "finding": "Cursor-hosted (log: managed-local, eligible); the message is the plan's usage gate, not the override",
+      "valid": true
+    },
+    {
+      "test": "S4d",
+      "time_utc": "22:46",
+      "slot": "same override",
+      "model_picked": "Cursor's built-in Composer 2.5 Fast",
+      "send_prompt": "Bad Request This model does not support custom API keys.",
+      "proxy_requests_from_cursor": 0,
+      "finding": "Composer is refused while an OpenAI key is enabled",
+      "valid": true
     }
   ],
   "custom_model_names": {
-    "claude-haiku-5-5": "Rejected when added: The model \"claude-haiku-5-5\" is already available as \"Claude Haiku 5.5\". A custom model cannot reuse a name Cursor maps to its own model, so the proxy serves an alias.",
-    "built_in_model_with_openai_key": "Bad Request This model does not support custom API keys."
+    "claude-haiku-5-5": "Rejected when added: The model \"claude-haiku-5-5\" is already available as \"Claude Haiku 5.5\". A custom model cannot reuse a name Cursor maps to its own model, so the proxy serves an alias (foundry-haiku).",
+    "in_azure_slot": "The Azure slot ignores the model picker for routing: every Agent request goes to the saved deployment, whatever model is picked.",
+    "composer_with_openai_key": "Bad Request This model does not support custom API keys. (S4d)"
   },
   "cursor_log_signature": {
     "source": "ide-realkey-cursor-log-summary.json",
     "no_key_enabled": "runtime managed-local, reason eligible; the turn ran normally",
-    "openai_override_tests_F_F2": "reason byok-connect-routed; the backend answered unauthenticated once, about 1.5 seconds after the prompt, and the client stopped (gRPC 16 Unauthenticated)",
-    "openai_key_with_cursor_model": "reason byok-connect-routed; invalid_argument, This model does not support custom API keys",
-    "azure_slot_tests_A_to_E_and_G": "runtime connect, disposition fallback, reason byok-connect-routed; the backend answered resource_exhausted four times, the client retried three times, then failed (gRPC 8 ResourceExhausted) after about 19 seconds",
-    "azure_slot_test_H_nonexistent_host": "identical to A to E and G"
+    "own_key_turn": "runtime connect, disposition fallback, reason byok-connect-routed, for both the Azure slot and the OpenAI override; successful turns log no failure",
+    "empty_base_url_O_and_A_to_H": "the backend answered resource_exhausted four times, the client retried three times, then failed (gRPC 8 ResourceExhausted) after about 20 seconds",
+    "built_in_claude_with_openai_key_on": "runtime managed-local, reason eligible (not routed to the key)"
   },
   "proxy": {
     "script": "scripts/foundry_claude_proxy.py",
-    "direct_probe": "13 of 13 cases passed (claude-proxy-probe.json): plain, streamed with usage, tool loop, streamed tool loop and the Azure-slot path for both Claude upstreams (Messages and Responses), plus Luna pass-through, model list and wrong-secret rejection. No prompt text in the proxy log.",
-    "through_public_tunnel": "GET /v1/models 200 and POST /v1/chat/completions on claude-haiku-5-5 200 (answer TUNNEL_OK), sent by hand from this machine through the same tunnel used in tests B, F and F2",
-    "requests_from_cursor": 0
+    "direct_probe": "13 of 13 cases passed (claude-proxy-probe.json)",
+    "requests_from_cursor": "P: 3, Q: 4, S: 7 (ide-proxy-cursor-requests.json). All came from Cursor's backend (user agent Cursor/1.0) through the public tunnel; none from the IDE process itself.",
+    "azure_slot_request": "POST {Base URL}/openai/deployments/{deployment}/chat/completions?api-version=2024-12-01-preview with an api-key header",
+    "override_request": "POST {override}/chat/completions with Authorization: Bearer <key>; body model is the picked model's name",
+    "body": "messages, model, stream, stream_options (include_usage), tools (9 or 10), user. Deployment names containing 'claude' also get thinking, output_config and fallbacks in the Azure slot. No reasoning_effort is sent.",
+    "prompt_size": "about 24.5K prompt tokens for Claude and 14.1K for Luna on a first turn"
   },
   "community": [
-    "F31: staff say the Azure slot needs https://<resource>.openai.azure.com and the exact deployment name; a user confirmed it worked in July 2026",
+    "F31: staff say the Azure slot needs https://<resource>.openai.azure.com and the exact deployment name; a user confirmed it worked in July 2026. Corroborated by K, L, N and R.",
+    "F8: staff say Foundry OpenAI deployments should work through the Azure slot (November 2026). Corroborated by R1 and R2 on a Foundry resource.",
+    "F34: a user's 'Network Error' turned out to be a misspelled Base URL. Matches O and the invalid A to H runs: the message is the same for any Base URL Cursor cannot use.",
     "F10, F35, F37: Azure slot failures reported in 2026; staff traced F35 and F37 to Cursor's request building and fixed them in July",
-    "F32: staff pointed users at a community proxy for the OpenAI override",
-    "F8: staff say Foundry OpenAI deployments, including *.cognitiveservices.azure.com endpoints, should work through the Azure slot (November 2026)",
-    "F34: a user's identical 'Network Error' was first explained by staff as a 502 on Cursor's side that fails before reaching Azure, then turned out to be a misspelled Base URL. The message does not distinguish configuration errors from Cursor-side failures"
+    "F32: staff pointed users at a community proxy for the OpenAI override; S confirms the override reaches a proxy from Cursor's backend"
   ],
-  "reading": "With a valid key, existing deployments, both documented host forms and a proxy that answers through a public tunnel, Cursor IDE 3.30.14 on this account produced no successful request in Foundry and no request at the proxy in eight tests. Cursor's own log shows each Azure-slot turn handed to its backend, which returned resource_exhausted; test H gave the identical error for a resource name that does not exist, so the error carries no information from Azure. Wrong keys, unknown deployments and bad api-version values are invisible in Foundry metrics and logs, so an Azure-side rejection cannot be fully excluded for tests A, C, D, E and G; it can be excluded for B, F and F2, where the proxy logs every request. The field values were read back from Cursor's settings and matched the resource and deployment exactly. This does not show that the documented option is broken in general: staff and users report it working (F31, F8), a classic Azure OpenAI resource was not tested through Cursor, and the cause inside Cursor is not visible from outside. It shows that it did not work for this account, version and Foundry resource, and that Cursor's error message cannot tell you why.",
+  "reading": "The documented Azure OpenAI slot works. With settings that Cursor actually saved, it ran Agent turns, including a file-tool call, against a classic Azure OpenAI resource (K, L, N) and against a Foundry resource (R1, R2), each confirmed by 200s in Azure. The earlier 'failed in all tests' result came from my UI automation, which never saved the Base URL; an empty Base URL reproduces it exactly (O). Three things do break it: a deployment rate limit too low for Cursor's large prompts (I, J: 429 at 10K TPM), a wrong deployment name (M2), and reasoning models such as GPT-6 Luna, which Foundry refuses because Cursor sends tools over Chat Completions (R3). Claude cannot be reached directly because the slot only speaks the Azure OpenAI Chat Completions route; it works through the translating proxy behind a public tunnel, in the Azure slot (P) and in the OpenAI override (S1, S2). The same proxy fixes Luna by calling the Responses API (Q, S3). The OpenAI override also redirects Cursor's own OpenAI-family models to the proxy and blocks Composer while it is on (S4).",
   "resource": {
-    "kind": "AIServices (a Foundry resource), S0, Sweden Central",
-    "network": "public network access enabled, no firewall rules",
-    "local_auth_enabled": true,
-    "note": "Cursor's help page describes the slot as 'Models deployed in your Azure OpenAI Service instance'. A classic Azure OpenAI resource (kind OpenAI) was created as a control and answered a direct request, but was not tested through Cursor because that needs its key saved in Cursor by the key owner."
+    "foundry": "AIServices (a Foundry resource), S0, Sweden Central; public network access, no firewall rules, local auth enabled",
+    "classic": "A classic Azure OpenAI resource (kind OpenAI) created for the comparison, same network settings",
+    "note": "Cursor's help page describes the slot as 'Models deployed in your Azure OpenAI Service instance'. Both kinds work when the Base URL is the resource's *.openai.azure.com host."
+  },
+  "automation_defect": {
+    "summary": "Tests A to H are invalid. The UI automation used to fill Cursor's Base URL and Deployment fields changed what the screen showed but not what Cursor saved, so those tests ran with an empty or stale Base URL.",
+    "how_found": "Test M1: the Deployment field was changed by the same automation to a name that did not exist; Cursor still answered, Azure logged the request on the old deployment, and Cursor's saved settings still held the old name.",
+    "how_confirmed": "Test O: an empty saved Base URL, entered deliberately, reproduced the exact A to H signature (Network Error; resource_exhausted four times; about 20 seconds; nothing reaches Azure).",
+    "earlier_read_back": "The earlier check that 'field values matched the resource' read the on-screen values, which is why it did not catch this.",
+    "also_affected": "Tests F and F2 and the Premium-round override cases (premium-round.json) were set up the same way. With the override URL unsaved, Cursor would have sent the proxy secret to OpenAI's own API, which explains 'Invalid API key' with no request at the proxy. Test S repeats them with saved settings."
+  },
+  "error_signatures": [
+    {
+      "condition": "Base URL empty, unsaved or not reachable (also a host that does not resolve)",
+      "ui": "Network Error - We're having trouble connecting to the model provider",
+      "cursor_log": "resource_exhausted four times, three retries, about 20 seconds",
+      "tests": "O; A to H"
+    },
+    {
+      "condition": "Deployment (Azure slot) or model (override) not found",
+      "ui": "Provider Error We're having trouble finding the resource you requested",
+      "cursor_log": "not_found, about 2 seconds",
+      "tests": "M2, S4a, S4b"
+    },
+    {
+      "condition": "Deployment rate limit too low for Cursor's ~15K to 25K token prompts",
+      "ui": "User Provided API Key Rate Limit Exceeded",
+      "cursor_log": "invalid_argument, about 2 seconds",
+      "azure": "429",
+      "tests": "I, J"
+    },
+    {
+      "condition": "Provider rejects the request body",
+      "ui": "Provider Error Provider returned error: {provider JSON}",
+      "cursor_log": "invalid_argument, about 2 seconds",
+      "azure": "400",
+      "tests": "R3"
+    },
+    {
+      "condition": "Composer picked while an OpenAI key is enabled",
+      "ui": "Bad Request This model does not support custom API keys.",
+      "cursor_log": "invalid_argument",
+      "tests": "S4d"
+    },
+    {
+      "condition": "Built-in model outside the plan's usage",
+      "ui": "<model> is not included in your weekly usage",
+      "cursor_log": "managed-local, eligible, resource_exhausted once",
+      "tests": "S4c"
+    }
+  ],
+  "enable_dialogs": {
+    "azure": "Are you sure you want to enable your own Azure OpenAI API key? Several of Cursor's features require custom models (Tab, Apply from Chat, Agent), which cannot be billed to an API key.",
+    "openai": "Are you sure you want to enable your own OpenAI API key? Several of Cursor's features require custom models (Tab, Apply from Chat, Agent), which cannot be billed to an API key.",
+    "observed": "Despite the wording, Agent ran on the key in K, L, N, P, Q, R and S. Tab and Apply were not measured here."
   }
 }

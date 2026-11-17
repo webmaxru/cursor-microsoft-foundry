@@ -1,0 +1,25 @@
+{
+  "checked_at": "2026-11-17T22:47:09.006880+00:00",
+  "metric": "ModelRequests",
+  "deployment": "claude-haiku-5-5",
+  "minutes": 25,
+  "rows": [
+    {
+      "minute": "2026-11-17T22:32:00Z",
+      "status": "200",
+      "operation": "POST /anthropic/v1/messages",
+      "stream": "Streaming",
+      "requests": 1
+    },
+    {
+      "minute": "2026-11-17T22:34:00Z",
+      "status": "200",
+      "operation": "POST /anthropic/v1/messages",
+      "stream": "Streaming",
+      "requests": 2
+    }
+  ],
+  "totals": {
+    "200": 3
+  }
+}

@@ -24,12 +24,14 @@
       "picker": "Custom models are listed in the IDE and Agents Window pickers",
       "select_with_slash_command": "Bad Request - This model does not support custom API keys.",
       "send_prompt": "Invalid API key. Unauthorized User API key",
-      "gateway_requests": 0
+      "gateway_requests": 0,
+      "superseded_by": "ide-realkey-round.json test S. These fields were filled by UI automation that did not save them, so the override URL was probably never stored and the key went to OpenAI's own API. With saved settings, the override reached the proxy and ran Agent turns with custom models (S1 to S3)."
     },
     {
       "case": "Same override, built-in name GPT-5.2 mapped to Luna by a gateway alias",
       "send_prompt": "Invalid API key. Unauthorized User API key",
-      "gateway_requests": 0
+      "gateway_requests": 0,
+      "superseded_by": "ide-realkey-round.json test S. These fields were filled by UI automation that did not save them, so the override URL was probably never stored and the key went to OpenAI's own API. With saved settings, the override reached the proxy and ran Agent turns with custom models (S1 to S3)."
     },
     {
       "case": "Control: no API key enabled, built-in GPT-5.2",
@@ -38,26 +40,30 @@
     {
       "case": "Azure OpenAI slot test 1: bare tunnel host, deployment foundry-luna, dummy key, GPT-5.2",
       "send_prompt": "Rate limited by model provider, retrying... then Network Error - We're having trouble connecting to the model provider",
-      "stub_requests": 0
+      "stub_requests": 0,
+      "superseded_by": "ide-realkey-round.json: same unsaved-settings problem as tests A to H. The slot works with saved settings (K, L, N, R)."
     },
     {
       "case": "Azure OpenAI slot test 2: <resource>.openai.azure.com without scheme, real deployment, dummy key",
       "send_prompt": "Same Network Error",
-      "azure_monitor": "No new requests; 401 responses are not recorded there, so inconclusive"
+      "azure_monitor": "No new requests; 401 responses are not recorded there, so inconclusive",
+      "superseded_by": "ide-realkey-round.json: same unsaved-settings problem as tests A to H. The slot works with saved settings (K, L, N, R)."
     },
     {
       "case": "Azure OpenAI slot test 3: https://<tunnel host>, deployment cursor-poc-gpt-6-luna, dummy key",
       "enable_dialog": "Are you sure you want to enable your own Azure OpenAI API key? Several of Cursor's features require custom models (Tab, Apply from Chat, Agent), which cannot be billed to an API key.",
       "send_prompt": "Same Network Error",
-      "stub_requests": 0
+      "stub_requests": 0,
+      "superseded_by": "ide-realkey-round.json: same unsaved-settings problem as tests A to H. The slot works with saved settings (K, L, N, R)."
     },
     {
       "case": "Azure OpenAI slot test 4: https://<resource>.openai.azure.com, real deployment, dummy key",
       "send_prompt": "Same Network Error",
-      "azure_monitor": "No new requests; inconclusive for the same reason"
+      "azure_monitor": "No new requests; inconclusive for the same reason",
+      "superseded_by": "ide-realkey-round.json: same unsaved-settings problem as tests A to H. The slot works with saved settings (K, L, N, R)."
     }
   ],
-  "ide_reading": "With the Azure slot on, GPT-5.2 was no longer blocked by the plan gate and was sent to the own-key path, which then failed on the dummy key. Non-Azure hosts never received a request. A run with a real key was not made because it needs the owner's approval to store a Foundry key in Cursor.",
+  "ide_reading": "Superseded by ide-realkey-round.json. Kept for the record: With the Azure slot on, GPT-5.2 was no longer blocked by the plan gate and was sent to the own-key path, which then failed on the dummy key. Non-Azure hosts never received a request. A run with a real key was not made because it needs the owner's approval to store a Foundry key in Cursor.",
   "capture_log_review": "The capture logs for the whole round hold 8 requests, all sent by the tester: four local checks with PowerShell and four requests through the tunnel. Two of the tunnel requests set User-Agent: Cursor/1.0 by hand to mimic the documented Cursor caller (curl-style headers, no Accept-Encoding, sent before any key was saved in Cursor). None came from Cursor's servers.",
   "cli": {
     "agent_about": "Premium",
@@ -71,5 +77,6 @@
     "case": "Agents Window, Cloud environment, model foundry-luna",
     "send_prompt": "Model Not Available - The AI model you selected isn't available...",
     "gateway_requests": 0
-  }
+  },
+  "superseded": "The IDE cases in this round were affected by a UI-automation defect (fields shown on screen were not saved). See ide-realkey-round.json, automation_defect, for the corrected results. The CLI and Cloud results are unaffected: they did not depend on IDE settings."
 }
