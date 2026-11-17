@@ -43,6 +43,37 @@ class PageStructure(HTMLParser):
 
 
 class SiteBuildTests(unittest.TestCase):
+    def test_citations_link_individually_in_superscript_but_not_in_code_or_links(self):
+        parser = build.make_parser()
+        tokens = parser.parse("Claim [C1, F1 to F2]. `[C1]` [label [C1]](https://example.com)\n\n```\n[C1]\n```")
+        build.link_citations(tokens, {"C1": "Official <docs>", "F1": "First", "F2": "Second"}, "docs/cli.md")
+        page = parser.renderer.render(tokens, parser.options, {})
+        self.assertEqual(page.count('<sup class="citation">'), 1)
+        for key in ("c1", "f1", "f2"):
+            self.assertIn(f'href="../SOURCES.md#source-{key}"', page)
+        self.assertIn("Official &lt;docs&gt;", page)
+        self.assertIn(">[C1]</code>", page)
+        self.assertIn('href="https://example.com">label [C1]</a>', page)
+        self.assertIn("[C1]\n</code>", page)
+
+    def test_unknown_and_invalid_range_citations_fail_build(self):
+        for text in ("[C99]", "[F2 to F1]", "[F1 to C2]"):
+            with self.subTest(text=text), self.assertRaises(build.LinkError):
+                build.link_citations(build.make_parser().parse(text), {"F1": "One"}, "docs/cli.md")
+
+    def test_source_rows_supply_targets_for_all_citation_links(self):
+        parser = build.make_parser()
+        _, _, ids, body, _ = build.render_page(parser, "SOURCES.md", [])
+        self.assertIn("source-c1", ids)
+        self.assertIn('<tr id="source-c1">', body)
+        checks = []
+        _, _, _, page, _ = build.render_page(parser, "docs/cli.md", checks)
+        self.assertIn('<sup class="citation">', page)
+        self.assertTrue(checks)
+        for _, output, fragment in checks:
+            if output == "sources.html" and fragment.startswith("source-"):
+                self.assertIn(fragment, ids)
+
     def test_sections_preserve_every_heading_and_copyable_code_block(self):
         parser = build.make_parser()
         for source, *_ in build.PAGES:

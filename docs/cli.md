@@ -5,8 +5,10 @@ model calls to Foundry, so nothing here resembles Claude Code's Foundry mode
 [A3]. `--endpoint` points at Cursor's own service, `--model` accepts only
 Cursor's catalog, and provider environment variables are ignored. The fallback
 is to keep Cursor's model and let the CLI agent call Foundry deployments as
-**MCP tools**. That was **verified end to end**, but the agent still runs on
-Cursor.
+**MCP tools**. That was **verified end to end in the earlier arithmetic
+proof**, but the agent still runs on Cursor. New development sessions could
+not discover the native tools; the [development study](development.md)
+separates that failure from a shell-invoked MCP-client workaround.
 
 | You want to... | Status |
 | --- | --- |
@@ -14,11 +16,11 @@ Cursor.
 | Point `--endpoint` at Foundry | Doesn't work: it is Cursor's own protobuf service |
 | Use your own provider key, the way the IDE does | Not supported by the CLI [F25]; still refused on Premium |
 | Put a gateway such as LiteLLM in front of Foundry and pick it in the CLI | **Refused**: "Cannot use this model", 0 requests at the gateway |
-| Let the CLI agent call Foundry OpenAI and Claude models as tools | **Verified**, [steps below](#fallback-foundry-models-as-mcp-tools) |
+| Let the CLI agent call Foundry OpenAI and Claude models as tools | Earlier arithmetic proof verified; native dispatch failed in the new development sessions. See [the practical study](development.md) before relying on it |
 
 > **Tested with:** Cursor CLI `2026.11.13-eacade1` on Windows 11, first on a
 > Free account and again on an individual **Premium** plan (17 November 2026).
-> The results didn't change. The MCP fallback needs [Foundry setup](setup.md)
+> The full-switch results didn't change. The MCP fallback needs [Foundry setup](setup.md)
 > steps 1 to 7.
 
 ## Why there is no switch
@@ -243,8 +245,18 @@ match new audit records. The recorded run is in
 
 ### 5. Use it in your own project
 
-1. Copy `demo/.cursor/mcp.json` to `<your-project>/.cursor/mcp.json`, or to
-   `~/.cursor/mcp.json` to make the tools available in every project.
+For a complete coding workflow rather than the arithmetic proof, see
+[MCP for real development](development.md), including the generated application,
+token comparison and context-handoff test.
+
+1. Merge the `foundry-models` entry from `demo/.cursor/mcp.json` into
+   `<your-project>/.cursor/mcp.json` **at the Git repository root**, preserving
+   other servers. Alternatively, merge it into `~/.cursor/mcp.json` to make
+   the tools available in every project. In the development study, the
+   installed CLI ignored a nested working directory's config until that
+   workspace became an independent Git repository. Verify discovery with
+   `agent mcp list-tools foundry-models`, then one actual agent tool call before
+   running a task. Listing succeeded even when native dispatch failed here.
 2. Allow the two tools in `<your-project>/.cursor/cli.json`:
 
    ```json

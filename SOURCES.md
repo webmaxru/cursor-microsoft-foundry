@@ -25,6 +25,8 @@ forum content can change after the observation date.
 | C15 | [Cursor CLI product page](https://cursor.com/cli) | Product scope and links to automation/headless documentation; not proof of BYOK support |
 | C16 | [Network configuration](https://cursor.com/docs/enterprise/network-configuration) | Zero data retention doesn't apply when requests use your own API keys |
 | C17 | [Models and pricing](https://cursor.com/docs/models-and-pricing) | The $0.25 per million tokens Cursor Token Rate that applies to own-key use on Teams and Enterprise |
+| C18 | [CLI output formats](https://cursor.com/docs/cli/reference/output-format) | NDJSON tool start/completion events, terminal results and session IDs. The tested CLI also emitted usage counters; the documented example does not define their cache-accounting semantics |
+| C19 | [Cursor rules](https://cursor.com/docs/rules) | Persistent project instructions in `.cursor/rules/*.mdc` or `AGENTS.md`; referenced file contents are not automatically inlined. Rules guide the Cursor host, not a separate Foundry call |
 
 ## Requested forum threads and related community evidence
 
@@ -102,6 +104,7 @@ shared with a community proxy. The author's code was not incorporated.
 | Key | Source | How it was used |
 | --- | --- | --- |
 | S1 | [Official MCP Python SDK, supported v1 line](https://github.com/modelcontextprotocol/python-sdk/tree/v1.x) | FastMCP server and stdio client; installed versions are pinned in the lockfile |
+| S2 | [MCP tools specification](https://modelcontextprotocol.io/specification/latest/server/tools) | Model-controlled tools return results to the host model. Calling a tool is not replacement of that model or automatic sharing of its conversation |
 | L1 | [LiteLLM Azure Anthropic provider](https://docs.litellm.ai/docs/providers/azure/azure_anthropic) | Maintained translator for Foundry Claude. Versions 1.108.4 (pip) and 1.109.1 (Docker) passed the 15 gateway probes here; Cursor never called them |
 | L2 | [LiteLLM: use with Cursor](https://docs.litellm.ai/docs/tutorials/cursor_integration) | Base URL `<proxy>/cursor`, reachable from the internet because Cursor calls it from its servers with `User-Agent: Cursor/1.0`; Agent mode since LiteLLM 1.97.0; "Cursor gates custom API keys by mode and model on its side". Documents an Azure-slot fallback verified on Cursor 3.17.21, which did not reach a gateway on 3.30.14 here. Its CLI relay (1.112) only relays Cursor's own sessions and is not a model route |
 | G1 | [sherkevin/cursor-agent-byok](https://github.com/sherkevin/cursor-agent-byok) | Claims to run the Cursor Agent CLI with your own OpenAI- or Anthropic-compatible key. Source read, not run: it impersonates Cursor's API host with a local certificate and forwards to `127.0.0.1:18090`, which nothing in the repository serves, and the provider URL and key you enter are never passed on. 3 stars, MIT |
@@ -161,3 +164,8 @@ shared with a community proxy. The author's code was not incorporated.
   the code first.
 - The Premium round used one individual plan. Team and Enterprise plans, and
   other Cursor versions, may behave differently.
+- The later [development study](docs/development.md) could not reproduce native
+  CLI MCP dispatch in new Auto or pinned-model sessions, despite successful
+  local tool listing. Its measured workaround uses a shell-invoked MCP client.
+  Earlier arithmetic evidence is historical, not a guarantee of current
+  native-tool availability. The discovery failure's root cause is unresolved.

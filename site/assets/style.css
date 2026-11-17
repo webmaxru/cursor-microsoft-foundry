@@ -53,6 +53,11 @@ body {
 a { color: var(--accent); text-decoration-thickness: 1px; text-underline-offset: 0.2em; }
 a:hover { text-decoration-thickness: 2px; }
 :focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
+.citation { font-size: 0.72em; line-height: 0; vertical-align: super; }
+.citation a { text-decoration: none; padding: 0.15em 0.08em; }
+.citation a:hover { text-decoration: underline; }
+tr[id^="source-"] { scroll-margin-top: 2rem; }
+tr[id^="source-"]:target { background: var(--bg-soft); outline: 2px solid var(--accent); }
 button, summary, a { -webkit-tap-highlight-color: transparent; }
 .skip-link {
   position: fixed;

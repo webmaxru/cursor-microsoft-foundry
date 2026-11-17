@@ -25,6 +25,16 @@ jobs:
         run: pip install -r requirements.lock.txt
       - name: Run offline unit tests
         run: python -m unittest discover -s tests -v
+      - name: Test Cursor-only research artifact
+        run: python -m unittest discover -s examples/ledger-lab/cursor-only -v
+      - name: Test Foundry-assisted research artifact with documented encoding
+        env:
+          PYTHONIOENCODING: utf-8
+        run: python -m unittest discover -s examples/ledger-lab/foundry-heavy -v
+      - name: Check Cursor-only artifact against planned acceptance
+        run: python scripts/development_acceptance.py examples/ledger-lab/cursor-only --stage 3
+      - name: Check Foundry-assisted artifact against planned acceptance
+        run: python scripts/development_acceptance.py examples/ledger-lab/foundry-heavy --stage 3
       - name: Check the site builds
         if: matrix.os == 'ubuntu-latest'
         run: |

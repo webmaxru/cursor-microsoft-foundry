@@ -19,8 +19,9 @@ none exists. Status as of November 2026.
 - [Cursor CLI](cli.md){.card-link} [No switch]{.status .status-none}
 
   The `agent` command in your terminal. `--endpoint` is Cursor's own service
-  and `--model` takes only Cursor's catalog. Foundry models work as MCP tools,
-  verified end to end.
+  and `--model` takes only Cursor's catalog. The earlier MCP connectivity
+  proof passed; the development study exposes a native-discovery failure
+  and tests an explicit shell-client alternative.
 
 - [Cloud Agents](cloud.md){.card-link} [No switch]{.status .status-none}
 
@@ -64,6 +65,8 @@ and every disadvantage of the IDE route.
 {.general-links}
 - [Full switch](fullswitch.md): can Cursor fully switch to Foundry, with the
   Claude Code comparison and community evidence.
+- [MCP for real development](development.md): a greenfield application,
+  Cursor-versus-Foundry token accounting and a fresh-session context handoff.
 - [Foundry setup](setup.md): deploy an OpenAI and a Claude model, grant
   access, install the bridge and test it without Cursor.
 - [Findings](../FINDINGS.md): results by surface, API formats, forum
@@ -90,11 +93,23 @@ calls the Foundry deployment you configured, so the Azure credential never
 leaves your machine. Prompts and answers that pass through the tools are
 visible to both Cursor and Foundry.
 
+Beyond connectivity: [does this work for real development?](development.md)
+The separate study compares a Cursor-only workflow with Foundry-heavy
+implementation and review on the same small application. Both completed the
+planned features, but the shell-MCP workflow took **24.9 versus 13.0 minutes**
+and used **52.4% more Cursor output tokens**. Additional checks found validation
+and encoding gaps: useful bounded assistance, not a full switch or a savings claim.
+
 ## Proof from the live runs
 
 Verification scripts asked Cursor to call both tools with fresh random
 arithmetic tasks. Each run passed only after Cursor's answers matched new
 audit records written when Azure responded.
+
+These are historical arithmetic results, not a production-readiness claim.
+Native tool dispatch failed in the later development sessions even though
+tool listing succeeded. The [development study](development.md) distinguishes
+that failure from the shell-invoked MCP client used for the coding comparison.
 
 | Surface | Tool | Foundry deployment | Azure response ID | Tokens (in / out) |
 | --- | --- | --- | --- | --- |

@@ -204,6 +204,12 @@ The local `foundry-models` MCP server gives Cursor's agent two tools,
 Use it when a surface has no switch, for Claude on Foundry, or next to the
 Azure slot when you want both.
 
+For practical limits rather than another connectivity proof, see
+[MCP for real development](development.md): a greenfield project, follow-up
+changes, a new-session handoff, and separate Cursor/Foundry usage.
+The measured shell-client workaround completed the planned features but
+increased Cursor output usage and elapsed time; native CLI discovery failed.
+
 ---
 
 Source keys such as [A3] and [F23] refer to [Sources](../SOURCES.md).

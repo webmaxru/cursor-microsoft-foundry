@@ -1,7 +1,10 @@
-...........Processing request of type CallToolRequest
+...........Executing <Task pending name='Task-2' coro=<McpValidation.test_invalid_tool_arguments_never_reach_azure() running at ~\Downloads\projects\cursor-foundry\tests\test_clients.py:131> wait_for=<Future pending cb=[Task.task_wakeup()] created at ~\scoop\apps\python312\current\Lib\asyncio\base_events.py:448> cb=[_run_until_complete_cb() at ~\scoop\apps\python312\current\Lib\asyncio\base_events.py:181] created at ~\scoop\apps\python312\current\Lib\asyncio\runners.py:100> took 0.171 seconds
+Executing <Task pending name='mcp.client.stdio.stdio_client.<locals>.stdout_reader' coro=<TaskHandle._run_coro() running at ~\Downloads\projects\cursor-foundry\.venv\Lib\site-packages\anyio\_core\_tasks.py:327> wait_for=<Future pending cb=[Task.task_wakeup()] created at ~\scoop\apps\python312\current\Lib\asyncio\base_events.py:448> cb=[TaskGroup._spawn.<locals>.task_done() at ~\Downloads\projects\cursor-foundry\.venv\Lib\site-packages\anyio\_backends\_asyncio.py:894] created at ~\Downloads\projects\cursor-foundry\.venv\Lib\site-packages\anyio\_backends\_asyncio.py:968> took 0.110 seconds
+Executing <Task pending name='Task-2' coro=<McpValidation.test_invalid_tool_arguments_never_reach_azure() running at ~\Downloads\projects\cursor-foundry\tests\test_clients.py:133> wait_for=<Future pending cb=[Task.task_wakeup()] created at ~\scoop\apps\python312\current\Lib\asyncio\base_events.py:448> cb=[_run_until_complete_cb() at ~\scoop\apps\python312\current\Lib\asyncio\base_events.py:181] created at ~\scoop\apps\python312\current\Lib\asyncio\runners.py:100> took 0.125 seconds
 Processing request of type CallToolRequest
-..
+Processing request of type CallToolRequest
+.......
 ----------------------------------------------------------------------
-Ran 13 tests in 11.321s
+Ran 18 tests in 20.996s
 
 OK

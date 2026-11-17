@@ -1,0 +1,70 @@
+{
+  "scope": "Offline probes added after the timed comparison; not part of its prewritten acceptance suite or token totals.",
+  "inputs": {
+    "unclosed_amount_quote": "date,category,amount\n2026-01-01,x,\"1\n",
+    "leading_zero_amount": "date,category,amount\n2026-01-01,x,00.50\n",
+    "date_trailing_space": "date,category,amount\n2026-01-01 ,x,1\n"
+  },
+  "encoding_note": "Explicit UTF-8 and CP1252 stdio reproduce the environment dependency; CP1252 is a Windows legacy encoding, not an inference failure.",
+  "runs": {
+    "cursor-only": {
+      "api_probes": {
+        "unclosed_amount_quote": {
+          "error": "ValueError",
+          "message": "malformed CSV: unexpected end of data"
+        },
+        "leading_zero_amount": {
+          "returned": {
+            "x": "0.50"
+          }
+        },
+        "date_trailing_space": {
+          "error": "ValueError",
+          "message": "row 2: invalid date '2026-01-01 '; expected YYYY-MM-DD"
+        }
+      },
+      "generated_suite_by_stdio_encoding": {
+        "utf-8": {
+          "exit_code": 0,
+          "tests_run": 20,
+          "unicode_decode_error": false
+        },
+        "cp1252": {
+          "exit_code": 0,
+          "tests_run": 20,
+          "unicode_decode_error": false
+        }
+      }
+    },
+    "foundry-heavy": {
+      "api_probes": {
+        "unclosed_amount_quote": {
+          "returned": {
+            "x": "1.00"
+          }
+        },
+        "leading_zero_amount": {
+          "error": "ValueError",
+          "message": "data row 1: invalid amount '00.50'"
+        },
+        "date_trailing_space": {
+          "returned": {
+            "x": "1.00"
+          }
+        }
+      },
+      "generated_suite_by_stdio_encoding": {
+        "utf-8": {
+          "exit_code": 0,
+          "tests_run": 41,
+          "unicode_decode_error": false
+        },
+        "cp1252": {
+          "exit_code": 1,
+          "tests_run": 41,
+          "unicode_decode_error": true
+        }
+      }
+    }
+  }
+}

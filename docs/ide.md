@@ -434,6 +434,12 @@ and use keys you can revoke.
 
 ## Fallback: Foundry models as MCP tools
 
+For code generation, regression tests and multi-turn work, see
+[Does the MCP fallback work for real development?](development.md).
+That comparison used a shell-invoked MCP client with the same bridge after
+native CLI dispatch failed. It was not repeated through the IDE UI and does
+not establish IDE development reliability or token savings.
+
 Keep Cursor's own model as the agent and let it call Foundry deployments as
 tools. This is **not** a switch: the agent still runs on Cursor and Cursor
 sees every tool argument and result. It works with both GPT and Claude

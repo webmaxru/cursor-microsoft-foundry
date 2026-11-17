@@ -79,9 +79,21 @@ Azure-signed attestations.
 
 ## Deployments and tests
 
+The [development study](development.md) distinguishes new native-dispatch
+failures from the earlier arithmetic proofs.
+[`development-study.json`](../evidence-snapshot/development-study.json) contains
+the completed three-stage comparison: eight successful shell-MCP calls, separate
+Cursor/Foundry counters, acceptance outcomes and artifact hashes.
+[`development-pilot.json`](../evidence-snapshot/development-pilot.json) records
+excluded setup attempts and three native-discovery diagnostics without
+publishing session IDs, local paths or complete conversations.
+[`development-followup.json`](../evidence-snapshot/development-followup.json)
+records additional validation and encoding gaps found after the timed study;
+the generated files were not silently repaired.
+
 | File | What it shows |
 | --- | --- |
 | [`deployment-created.json`](../evidence-snapshot/deployment-created.json) | The Luna deployment created by `Deploy-OpenAIModel.ps1`: DataZoneStandard, capacity 10, 10 requests and 10,000 tokens per minute. |
 | [`deployment.json`](../evidence-snapshot/deployment.json) | A later run of the same script found the matching deployment and changed nothing. |
 | [`deployment-inventory.json`](../evidence-snapshot/deployment-inventory.json) | Both deployments used: Luna (OpenAI format) and the existing Claude Haiku 5.5 deployment (Anthropic format, version 2, GlobalStandard). |
-| [`unit-tests.txt`](../evidence-snapshot/unit-tests.txt) | All thirteen unit tests passed. |
+| [`unit-tests.txt`](../evidence-snapshot/unit-tests.txt) | All eighteen offline tests passed, including transport verification, interrupted-run accounting and proposal-path guards for the development study. |

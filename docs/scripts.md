@@ -1,11 +1,12 @@
 # Scripts and configuration reference
 
-All scripts read `config/foundry.json` and use your Azure CLI login. The
+Inference scripts read `config/foundry.json` and use your Azure CLI login. The
 everyday scripts and the bridge never use an API key. The few research scripts
 marked **(key)** read the Foundry resource key from `FOUNDRY_API_KEY` or from
 `az` in memory, and never print or write it. Scripts marked **Live** call
-Foundry models and are billed per token. They use very small prompts, so a
-full run costs a few hundred tokens.
+Foundry models and are billed per token. Smoke tests use small prompts;
+the development study repeatedly generates and reviews code and consumes
+substantially more tokens, plus Cursor usage.
 
 Run Python scripts with the virtual environment's interpreter, created by
 `Setup.ps1`:
@@ -46,6 +47,11 @@ bridge.
 
 | Script | What it checks | Calls Azure | Writes |
 | --- | --- | --- | --- |
+| [`scripts/run_development_study.py`](../scripts/run_development_study.py) | Creates an isolated synthetic Ledger Lab Git workspace, runs three real Cursor development stages, resumes stage 2 and starts a fresh session for stage 3. `--arm cursor-only\|foundry-heavy --out evidence/<new-directory> [--model auto] [--transport native\|shell-mcp]`. Runs independent acceptance checks with at most one external repair turn per stage. Requires evidence of the selected MCP transport; direct SDK substitution fails validation. Each Cursor phase has a 900-second limit. | **Live** for Foundry-heavy; both use Cursor | Generated project, private transcripts, metrics and acceptance reports under `--out` |
+| [`scripts/development_worker.py`](../scripts/development_worker.py) | Explicit shell-invoked MCP client, not native Cursor dispatch. `--model openai\|claude --prompt .foundry/requests/<file> --out <new-name> [--max-output-tokens 1800]`. Calls the existing MCP server and saves a proposal under the current workspace's `.foundry/proposals/`. Refuses path escape and overwrites. Never executes the response. | **Live**, through MCP | Proposal plus local metadata in `.foundry/calls.jsonl` |
+| [`scripts/probe_development_artifacts.py`](../scripts/probe_development_artifacts.py) | Offline checks added after the timed experiment: malformed quoting, contract drift and generated tests under UTF-8 versus CP1252. `--out evidence/<report>.json`. Reports observed behavior, including known defects; it is not a quality gate and does not repair the artifacts. | No | Identifier-free follow-up report |
+| [`scripts/development_acceptance.py`](../scripts/development_acceptance.py) | Independent stdlib tests for an experiment project. Pass its directory and `--stage 1\|2\|3`. Runs the generated code and CLI; no model access. | No | Temporary input CSV, removed afterward |
+| [`scripts/summarize_development_study.py`](../scripts/summarize_development_study.py) | Reads one or more run directories and writes `--out <file>` with allowlisted counters, timings, tool counts, hashes and outcomes. Missing token usage remains unknown, not zero. Does not publish raw conversations, local paths or account identifiers. | No | Summary JSON |
 | [`scripts/verify_model_features.py`](../scripts/verify_model_features.py) | `--api responses --model openai\|claude` or `--api anthropic --model claude`. Checks streaming and a full function-tool round trip on that API. | **Live** | `evidence/<model>-<api>-features.json` |
 | [`scripts/probe_claude_formats.py`](../scripts/probe_claude_formats.py) | Sends one request to the Claude deployment through the Responses API and both Chat Completions routes and records the HTTP status of each. | **Live** | `evidence/claude-api-formats.json` |
 | [`scripts/probe_openai_routes.py`](../scripts/probe_openai_routes.py) | Sends the request shapes that Cursor's IDE key slots can produce to the OpenAI deployment: current and legacy Chat Completions, Chat Completions with `reasoning_effort` and with a Responses-style `reasoning` object, and Responses. Uses Entra ID, never an API key. | **Live** | `evidence/openai-api-routes.json` |
@@ -82,10 +88,17 @@ without an Azure token or any forwarding, and that the CLI probe reads
 provider commands only from the help text's commands section. The tests don't call
 Azure or Cursor.
 
+[`tests/test_development_study.py`](../tests/test_development_study.py) adds
+five tests: missing usage stays unknown, cache/reasoning counters are not
+silently added to input/output totals, direct SDK calls cannot pass MCP
+verification, proposal paths reject escape and overwrite before inference,
+and interrupted turns remain visible without claiming acceptance.
+
 ## Configuration files
 
 | File | Purpose |
 | --- | --- |
+| [`config/foundry-development.mdc`](../config/foundry-development.mdc) | Optional Cursor project rule for bounded Foundry-assisted coding. Copy into your project's `.cursor/rules/`. It guides delegation and context packaging; it is not a provider override or an enforced spending cap. |
 | [`config/foundry.example.json`](../config/foundry.example.json) | Template. Copy it to `config/foundry.json` (gitignored) and fill in your values. The [setup guide](setup.md#2-get-the-code-and-create-your-configuration) explains each key. |
 | `demo/.cursor/mcp.json` | Written by `Setup.ps1` (gitignored, because it holds absolute local paths). The Cursor CLI and IDE both read it. [`mcp.example.json`](../demo/.cursor/mcp.example.json) shows the shape. |
 | [`demo/.cursor/cli.json`](../demo/.cursor/cli.json) | Cursor CLI permissions for the demo: allows only the two Foundry tools and denies shell, file and web tools. |

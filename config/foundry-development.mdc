@@ -1,0 +1,25 @@
+---
+description: Bounded development delegation through the local Foundry MCP bridge
+alwaysApply: true
+---
+
+When the user requests Foundry-assisted development:
+
+- Keep Cursor responsible for repository context, file edits, test execution and integration.
+- Delegate bounded implementation tasks to foundry_openai and independent review or test
+  design to foundry_claude. Prefer one function or small module, not a whole repository.
+- Send only synthetic or explicitly approved non-sensitive code. Never send credentials,
+  configuration secrets, personal data or unrelated files.
+- Each call is stateless. Include the goal, exact interface, relevant current code,
+  invariants, acceptance criteria and any actual failing test output in that call.
+  A file name or "as discussed earlier" does not give the model access to that context.
+- Keep prompts below 8,000 characters and request at most 1,800 output tokens.
+  Split oversized work before calling. The bridge's hard output limit is 2,048 tokens.
+- Treat returned code as a proposal. Inspect it, apply it, run the real tests and send a
+  focused correction request if necessary. Do not treat the tool's claim of passing tests
+  as execution evidence.
+- Report tool failures explicitly. Do not claim Foundry wrote code that Cursor generated.
+- Keep durable interfaces and decisions in the project's existing documentation.
+  Before a new-session handoff, record unresolved issues and the exact test command.
+- Report Cursor and Foundry usage separately when counters are available. Calling these
+  tools does not replace Cursor's model or remove Cursor billing.

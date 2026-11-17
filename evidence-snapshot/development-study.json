@@ -1,0 +1,540 @@
+{
+  "design": "One sequential paired case; three stages per arm; stage 2 resumes, stage 3 starts fresh.",
+  "limits": [
+    "Use each run's model_requested field; Auto pilots are not pinned-model controls.",
+    "Cursor usage counters are reported separately; cache and reasoning counters are not added to input/output.",
+    "Foundry usage covers successful responses correlated by response ID to Cursor tool output.",
+    "Failed provider calls may be billed without a successful audit record.",
+    "Wall time includes tools and local execution; not a controlled inference benchmark.",
+    "Single small Python project, not a statistical cost estimate or production-scale evaluation."
+  ],
+  "runs": [
+    {
+      "arm": "cursor-only",
+      "started_utc": "2026-11-17T15:11:23.092056+00:00",
+      "model_requested": "grok-4.7-medium",
+      "transport": "none",
+      "completed_all_stages": true,
+      "phases": [
+        {
+          "phase": "stage-1",
+          "wall_seconds": 311.0,
+          "timed_out": false,
+          "exit_code": 0,
+          "terminal_present": true,
+          "cursor_model": "Grok 4.7 256K Medium",
+          "cursor_usage": {
+            "inputTokens": 64297,
+            "outputTokens": 19514,
+            "cacheReadTokens": 253696,
+            "cacheWriteTokens": 0,
+            "reasoningTokens": 15584
+          },
+          "mcp_client_call_count": 0,
+          "native_mcp_success_count": 0,
+          "native_mcp_error_count": 0,
+          "session_reused_from_previous": false,
+          "acceptance_exit_code": 0,
+          "completed_tool_counts": {
+            "globToolCall": 5,
+            "readToolCall": 7,
+            "grepToolCall": 1,
+            "editToolCall": 3,
+            "shellToolCall": 2
+          },
+          "shell_outcomes": {
+            "success": 2
+          },
+          "shell_exit_codes": [
+            0,
+            0
+          ],
+          "foundry_calls": []
+        },
+        {
+          "phase": "stage-2",
+          "wall_seconds": 132.672,
+          "timed_out": false,
+          "exit_code": 0,
+          "terminal_present": true,
+          "cursor_model": "Grok 4.7 256K Medium",
+          "cursor_usage": {
+            "inputTokens": 103004,
+            "outputTokens": 8160,
+            "cacheReadTokens": 167680,
+            "cacheWriteTokens": 0,
+            "reasoningTokens": 4625
+          },
+          "mcp_client_call_count": 0,
+          "native_mcp_success_count": 0,
+          "native_mcp_error_count": 0,
+          "session_reused_from_previous": true,
+          "acceptance_exit_code": 0,
+          "completed_tool_counts": {
+            "readToolCall": 3,
+            "editToolCall": 8,
+            "shellToolCall": 2
+          },
+          "shell_outcomes": {
+            "success": 2
+          },
+          "shell_exit_codes": [
+            0,
+            0
+          ],
+          "foundry_calls": []
+        },
+        {
+          "phase": "stage-3",
+          "wall_seconds": 334.844,
+          "timed_out": false,
+          "exit_code": 0,
+          "terminal_present": true,
+          "cursor_model": "Grok 4.7 256K Medium",
+          "cursor_usage": {
+            "inputTokens": 178558,
+            "outputTokens": 18405,
+            "cacheReadTokens": 614656,
+            "cacheWriteTokens": 0,
+            "reasoningTokens": 11076
+          },
+          "mcp_client_call_count": 0,
+          "native_mcp_success_count": 0,
+          "native_mcp_error_count": 0,
+          "session_reused_from_previous": false,
+          "acceptance_exit_code": 0,
+          "completed_tool_counts": {
+            "readToolCall": 6,
+            "globToolCall": 2,
+            "shellToolCall": 20,
+            "editToolCall": 11
+          },
+          "shell_outcomes": {
+            "rejected": 6,
+            "success": 14
+          },
+          "shell_exit_codes": [
+            null,
+            0,
+            null,
+            null,
+            0,
+            0,
+            null,
+            0,
+            null,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            null,
+            0,
+            0,
+            0
+          ],
+          "foundry_calls": []
+        }
+      ],
+      "cursor_usage_totals": {
+        "inputTokens": 345859,
+        "outputTokens": 46079,
+        "cacheReadTokens": 1036032,
+        "cacheWriteTokens": 0,
+        "reasoningTokens": 31285
+      },
+      "foundry_usage_totals": {
+        "input_tokens": 0,
+        "output_tokens": 0
+      },
+      "foundry_calls": 0,
+      "foundry_by_model": {},
+      "wall_seconds": 778.516,
+      "artifacts": {
+        "ledger.py": {
+          "sha256": "7256ef4452a50e72be479ed5325b3990523808bbe1e42f021b07aa5cd154a2d3",
+          "bytes": 7125,
+          "lines": 208
+        },
+        "test_ledger.py": {
+          "sha256": "94b3411b0d33f1913a07e2bc13b55d87ae452c248835ae6220f420bee2143e7e",
+          "bytes": 11027,
+          "lines": 263
+        },
+        "README.md": {
+          "sha256": "d115e3a4600e19d4165bb53b241f3cd7681f49c1ed818151d3575319001971e2",
+          "bytes": 2725,
+          "lines": 56
+        }
+      }
+    },
+    {
+      "arm": "foundry-heavy",
+      "started_utc": "2026-11-17T15:24:26.200530+00:00",
+      "model_requested": "grok-4.7-medium",
+      "transport": "shell-mcp",
+      "completed_all_stages": true,
+      "phases": [
+        {
+          "phase": "stage-1",
+          "wall_seconds": 605.578,
+          "timed_out": false,
+          "exit_code": 0,
+          "terminal_present": true,
+          "cursor_model": "Grok 4.7 256K Medium",
+          "cursor_usage": {
+            "inputTokens": 88019,
+            "outputTokens": 30667,
+            "cacheReadTokens": 1074432,
+            "cacheWriteTokens": 0,
+            "reasoningTokens": 22268
+          },
+          "mcp_client_call_count": 2,
+          "native_mcp_success_count": 0,
+          "native_mcp_error_count": 0,
+          "session_reused_from_previous": false,
+          "acceptance_exit_code": 0,
+          "completed_tool_counts": {
+            "globToolCall": 1,
+            "readToolCall": 10,
+            "grepToolCall": 3,
+            "editToolCall": 5,
+            "shellToolCall": 13
+          },
+          "shell_outcomes": {
+            "success": 8,
+            "rejected": 4,
+            "failure": 1
+          },
+          "shell_exit_codes": [
+            0,
+            0,
+            0,
+            null,
+            1,
+            0,
+            0,
+            0,
+            0,
+            null,
+            null,
+            0,
+            null
+          ],
+          "foundry_calls": [
+            {
+              "route": "Microsoft Foundry / Azure OpenAI Responses API",
+              "configured_model": "gpt-6-luna",
+              "configured_model_version": "2026-09-22",
+              "usage": {
+                "input_tokens": 1044,
+                "input_tokens_details": {
+                  "cache_write_tokens": 1041,
+                  "cached_tokens": 0
+                },
+                "output_tokens": 785,
+                "output_tokens_details": {
+                  "reasoning_tokens": 0
+                },
+                "total_tokens": 1829
+              },
+              "request_sha256": "5a8fc4468e278cb0377995d8c29d2444b9d51f4dd577793f93b612861fa17455",
+              "response_sha256": "a099b7fd73a23009175e9dfab837e4cb93a6cdcab31541b2c6607d1514785d13"
+            },
+            {
+              "route": "Microsoft Foundry / Anthropic Messages API",
+              "configured_model": "claude-haiku-5-5",
+              "configured_model_version": "2",
+              "usage": {
+                "cache_creation": {
+                  "ephemeral_1h_input_tokens": 0,
+                  "ephemeral_5m_input_tokens": 0
+                },
+                "cache_creation_input_tokens": 0,
+                "cache_read_input_tokens": 0,
+                "inference_geo": "global",
+                "input_tokens": 2271,
+                "output_tokens": 1726,
+                "output_tokens_details": {
+                  "thinking_tokens": 0
+                },
+                "server_tool_use": null,
+                "service_tier": "standard",
+                "speed": "standard"
+              },
+              "request_sha256": "d9a45413452ec86e4b68a1675c3a978f3e0880cf247fe97d88092725ae19d4d6",
+              "response_sha256": "89749645b2af4c515c8237342d68b8bc54b79679f9ec01145b4bf6e040bb6ddc"
+            }
+          ]
+        },
+        {
+          "phase": "stage-2",
+          "wall_seconds": 418.625,
+          "timed_out": false,
+          "exit_code": 0,
+          "terminal_present": true,
+          "cursor_model": "Grok 4.7 256K Medium",
+          "cursor_usage": {
+            "inputTokens": 109987,
+            "outputTokens": 16002,
+            "cacheReadTokens": 1386624,
+            "cacheWriteTokens": 0,
+            "reasoningTokens": 9161
+          },
+          "mcp_client_call_count": 3,
+          "native_mcp_success_count": 0,
+          "native_mcp_error_count": 0,
+          "session_reused_from_previous": true,
+          "acceptance_exit_code": 0,
+          "completed_tool_counts": {
+            "readToolCall": 9,
+            "editToolCall": 9,
+            "shellToolCall": 10
+          },
+          "shell_outcomes": {
+            "success": 9,
+            "failure": 1
+          },
+          "shell_exit_codes": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            0
+          ],
+          "foundry_calls": [
+            {
+              "route": "Microsoft Foundry / Azure OpenAI Responses API",
+              "configured_model": "gpt-6-luna",
+              "configured_model_version": "2026-09-22",
+              "usage": {
+                "input_tokens": 1432,
+                "input_tokens_details": {
+                  "cache_write_tokens": 1429,
+                  "cached_tokens": 0
+                },
+                "output_tokens": 1036,
+                "output_tokens_details": {
+                  "reasoning_tokens": 0
+                },
+                "total_tokens": 2468
+              },
+              "request_sha256": "de7f3bd748a6cb6674ec01b31b5a1cc3fdf7a901c79df4d6d878974e8c84a533",
+              "response_sha256": "7123ad50415b81a7a737950669a16e50e35778f7dc456cebef94a127607418df"
+            },
+            {
+              "route": "Microsoft Foundry / Anthropic Messages API",
+              "configured_model": "claude-haiku-5-5",
+              "configured_model_version": "2",
+              "usage": {
+                "cache_creation": {
+                  "ephemeral_1h_input_tokens": 0,
+                  "ephemeral_5m_input_tokens": 0
+                },
+                "cache_creation_input_tokens": 0,
+                "cache_read_input_tokens": 0,
+                "inference_geo": "global",
+                "input_tokens": 373,
+                "output_tokens": 434,
+                "output_tokens_details": {
+                  "thinking_tokens": 0
+                },
+                "server_tool_use": null,
+                "service_tier": "standard",
+                "speed": "standard"
+              },
+              "request_sha256": "8a6566ee63f6f18400469f59702924380a734d8546bc8e023be2dd66e68da7de",
+              "response_sha256": "4064b12104a62309ae0de88a4a54eea4b448cf808b800dbfb0b42a52e63667cd"
+            },
+            {
+              "route": "Microsoft Foundry / Anthropic Messages API",
+              "configured_model": "claude-haiku-5-5",
+              "configured_model_version": "2",
+              "usage": {
+                "cache_creation": {
+                  "ephemeral_1h_input_tokens": 0,
+                  "ephemeral_5m_input_tokens": 0
+                },
+                "cache_creation_input_tokens": 0,
+                "cache_read_input_tokens": 0,
+                "inference_geo": "global",
+                "input_tokens": 1892,
+                "output_tokens": 345,
+                "output_tokens_details": {
+                  "thinking_tokens": 0
+                },
+                "server_tool_use": null,
+                "service_tier": "standard",
+                "speed": "standard"
+              },
+              "request_sha256": "7161097cc694c8f94b2b62391f116b67017cb48a6e422235dc89785e78e976ee",
+              "response_sha256": "4c4c8534228775bff93e135ee512594bf105b8d33a3eb25118244ba6fec2f97c"
+            }
+          ]
+        },
+        {
+          "phase": "stage-3",
+          "wall_seconds": 466.797,
+          "timed_out": false,
+          "exit_code": 0,
+          "terminal_present": true,
+          "cursor_model": "Grok 4.7 256K Medium",
+          "cursor_usage": {
+            "inputTokens": 138770,
+            "outputTokens": 23569,
+            "cacheReadTokens": 1312000,
+            "cacheWriteTokens": 0,
+            "reasoningTokens": 12452
+          },
+          "mcp_client_call_count": 3,
+          "native_mcp_success_count": 0,
+          "native_mcp_error_count": 0,
+          "session_reused_from_previous": false,
+          "acceptance_exit_code": 0,
+          "completed_tool_counts": {
+            "globToolCall": 4,
+            "readToolCall": 20,
+            "grepToolCall": 4,
+            "editToolCall": 8,
+            "shellToolCall": 11
+          },
+          "shell_outcomes": {
+            "success": 10,
+            "failure": 1
+          },
+          "shell_exit_codes": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "foundry_calls": [
+            {
+              "route": "Microsoft Foundry / Azure OpenAI Responses API",
+              "configured_model": "gpt-6-luna",
+              "configured_model_version": "2026-09-22",
+              "usage": {
+                "input_tokens": 1894,
+                "input_tokens_details": {
+                  "cache_write_tokens": 1891,
+                  "cached_tokens": 0
+                },
+                "output_tokens": 1179,
+                "output_tokens_details": {
+                  "reasoning_tokens": 0
+                },
+                "total_tokens": 3073
+              },
+              "request_sha256": "768b3a366bf3bfc686bc44ee7cfc02e494b5fedb13c824ebf6414a436359193c",
+              "response_sha256": "6d5ada0bc64411e70fcfb582f6df08c35d0f606d6e9dac7057bb7ce1c371ae37"
+            },
+            {
+              "route": "Microsoft Foundry / Anthropic Messages API",
+              "configured_model": "claude-haiku-5-5",
+              "configured_model_version": "2",
+              "usage": {
+                "cache_creation": {
+                  "ephemeral_1h_input_tokens": 0,
+                  "ephemeral_5m_input_tokens": 0
+                },
+                "cache_creation_input_tokens": 0,
+                "cache_read_input_tokens": 0,
+                "inference_geo": "global",
+                "input_tokens": 2736,
+                "output_tokens": 1337,
+                "output_tokens_details": {
+                  "thinking_tokens": 0
+                },
+                "server_tool_use": null,
+                "service_tier": "standard",
+                "speed": "standard"
+              },
+              "request_sha256": "fe9cb018a1083fd0dcf7612c7bf8055455f4125f2dc6df448926e6e0cff024eb",
+              "response_sha256": "9836ca50cca490efe9238a1d5a68a4622db15f766f2e18f1b787b89afd27acc2"
+            },
+            {
+              "route": "Microsoft Foundry / Azure OpenAI Responses API",
+              "configured_model": "gpt-6-luna",
+              "configured_model_version": "2026-09-22",
+              "usage": {
+                "input_tokens": 1505,
+                "input_tokens_details": {
+                  "cache_write_tokens": 1502,
+                  "cached_tokens": 0
+                },
+                "output_tokens": 1169,
+                "output_tokens_details": {
+                  "reasoning_tokens": 0
+                },
+                "total_tokens": 2674
+              },
+              "request_sha256": "2ef1f967c8cb6cc38ea6ba70e5b53ac37d66fcc89529bb8283ba8851a1a8dba5",
+              "response_sha256": "2f28715106641522eb056a9213776dc11381fcfdbd621a2e3070d1a4fd19b710"
+            }
+          ]
+        }
+      ],
+      "cursor_usage_totals": {
+        "inputTokens": 336776,
+        "outputTokens": 70238,
+        "cacheReadTokens": 3773056,
+        "cacheWriteTokens": 0,
+        "reasoningTokens": 43881
+      },
+      "foundry_usage_totals": {
+        "input_tokens": 13147,
+        "output_tokens": 8011
+      },
+      "foundry_calls": 8,
+      "foundry_by_model": {
+        "claude-haiku-5-5": {
+          "calls": 4,
+          "usage": {
+            "input_tokens": 7272,
+            "output_tokens": 3842
+          }
+        },
+        "gpt-6-luna": {
+          "calls": 4,
+          "usage": {
+            "input_tokens": 5875,
+            "output_tokens": 4169
+          }
+        }
+      },
+      "wall_seconds": 1491.0,
+      "artifacts": {
+        "ledger.py": {
+          "sha256": "2f28715106641522eb056a9213776dc11381fcfdbd621a2e3070d1a4fd19b710",
+          "bytes": 4859,
+          "lines": 139
+        },
+        "test_ledger.py": {
+          "sha256": "3b1298a5e215e195cf1215d9bd23fa8ace6e569de5720518ad34bb1e938cd4c7",
+          "bytes": 15879,
+          "lines": 395
+        },
+        "README.md": {
+          "sha256": "91714685f8d1e29657caa2cbf9f12faba120db6fc9ebbd926b39a7981f61764d",
+          "bytes": 3213,
+          "lines": 66
+        }
+      }
+    }
+  ],
+  "preflights": []
+}

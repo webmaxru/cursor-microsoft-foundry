@@ -7,10 +7,26 @@ Code sets `CLAUDE_CODE_USE_FOUNDRY=1` and calls Foundry directly from your
 machine [A3]. Cursor sends model calls from its own servers, and its three
 surfaces differ in how much of that you can redirect:
 
+**Development-study update:** the earlier native MCP arithmetic proof did not
+reproduce in new CLI coding sessions: tool listing worked, but runtime dispatch
+could not find the server. The [separate practical study](docs/development.md)
+reports that failure, excludes an agent's direct-SDK substitution, and evaluates
+an explicitly labeled shell-invoked MCP client. Connectivity evidence alone
+is not a claim of dependable development integration.
+
+The completed shell-MCP comparison used eight successful Foundry responses
+(13,147 input / 8,011 output tokens). Cursor still reported 336,776 input and
+70,238 output tokens, versus 345,859 / 46,079 in the control. Elapsed time rose
+from 13.0 to 24.9 minutes. Both workflows passed the planned three-stage
+acceptance checks; additional probes found malformed-CSV acceptance,
+contract drift and a Windows encoding dependency in the delegated artifact.
+The [study](docs/development.md) publishes the unchanged files, limits and
+separate usage counters rather than claiming production readiness or savings.
+
 | Surface | Full switch to Foundry? | Fallback: Foundry models as MCP tools | Details |
 | --- | --- | --- | --- |
 | **Cursor IDE** | **Partial: OpenAI deployments only, through the Azure OpenAI slot.** Chat and Agent, your own resource key, a paid plan; requests pass through Cursor's servers. Reported working by staff and users [F31, F8]. On Premium the slot moved GPT-5.2 past the plan gate to the own-key path with a dummy key; **not run with a real key**. A LiteLLM gateway behind the OpenAI override was **refused**, with 0 requests. Claude has no route. | **Verified** with both models in IDE 3.30.14 | [IDE](docs/ide.md) |
-| **Cursor CLI** | **No.** `--endpoint` is Cursor's own service, `--model` accepts only Cursor's catalog, and provider environment variables are ignored. On Premium a custom model was refused: "Cannot use this model". | **Verified** with GPT-6 Luna and Claude Haiku 5.5 | [CLI](docs/cli.md) |
+| **Cursor CLI** | **No.** `--endpoint` is Cursor's own service, `--model` accepts only Cursor's catalog, and provider environment variables are ignored. On Premium a custom model was refused: "Cannot use this model". | Earlier arithmetic proof verified; new native-dispatch sessions failed. See the [development study](docs/development.md) | [CLI](docs/cli.md) |
 | **Cloud Agents** | **No, by design.** Cursor staff say own keys are attached by the IDE client, which headless runs don't have. On Premium a custom model gave "Model Not Available". | Possible through a remote HTTP MCP service: blueprint, not run | [Cloud](docs/cloud.md) |
 
 **No Cursor request reached the LiteLLM gateway, or a stub in its place, on any
@@ -422,7 +438,7 @@ HTTP MCP for separating server credentials from the agent VM. [C7, C13]
 | Cursor's use of the gateway, all surfaces, Premium | `premium-round.json` | **0 requests** from Cursor; IDE override refused custom models; CLI "Cannot use this model"; Cloud "Model Not Available" |
 | IDE Azure OpenAI slot, Premium, dummy key | `premium-round.json` | Passed the plan gate; failed on the dummy key; a stub host logged nothing; **not run with a real key** |
 | Azure Monitor usage check | `usage-check-selftest.json` | A direct request showed up as one `200` |
-| Input, destination, missing-config, error, audit, MCP rejection, transcript-correlation, capture-proxy and probe tests | `unit-tests.txt` | Thirteen tests passed, including multiple edge cases |
+| Input, destination, missing-config, error, audit, MCP rejection, transcript-correlation, capture-proxy, probe and development-study guards | `unit-tests.txt` | Eighteen tests passed, including direct-SDK substitution rejection and interrupted-run accounting |
 | Live Cloud Agent with MCP | Plan and API-key requirements | Not run; no Cursor API key or public MCP service was created |
 | IDE Azure OpenAI, OpenAI and Anthropic key slots | Screenshots in `docs/assets/` | Fields captured |
 | Public community proxy | Research only | Not invoked |

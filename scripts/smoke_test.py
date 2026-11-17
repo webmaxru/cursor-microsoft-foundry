@@ -25,7 +25,7 @@ def challenge():
     return prompt, f"NONCE_{nonce}:{left + right}"
 
 
-async def via_mcp(prompt, model):
+async def via_mcp(prompt, model, max_output_tokens=256):
     parameters = StdioServerParameters(
         command=sys.executable,
         args=[str(Path(__file__).with_name("foundry_mcp.py"))],
@@ -35,7 +35,7 @@ async def via_mcp(prompt, model):
             await session.initialize()
             tools = await session.list_tools()
             assert {tool.name for tool in tools.tools} == set(TOOLS.values()), "Unexpected MCP tools."
-            response = await session.call_tool(TOOLS[model], {"prompt": prompt, "max_output_tokens": 256})
+            response = await session.call_tool(TOOLS[model], {"prompt": prompt, "max_output_tokens": max_output_tokens})
             if response.isError:
                 raise RuntimeError(f"MCP call failed: {response.content}")
             if response.structuredContent is not None:

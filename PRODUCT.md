@@ -36,6 +36,12 @@ They need practical instructions and verifiable results, not promotional claims.
   request from any surface on Premium. The Cloud MCP path is an unexecuted
   blueprint.
 - Preserve those confidence distinctions, source citations, and all evidence.
+- Render bracketed source citations as linked superscripts; each key resolves
+  to its annotated bibliography row and original source link.
+- Distinguish the arithmetic connectivity proof from the greenfield development
+  study, and report Cursor and Foundry usage separately with measurement limits.
+- Identify native-dispatch failures separately from the shell-MCP workaround;
+  preserve generated research artifacts and disclose post-study defects.
 - Publish static HTML on GitHub Pages, generated from Markdown with Python.
 - Keep old guide links and anchors working. Do not require JavaScript to read
   the guides or navigate the website.

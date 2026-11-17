@@ -22,6 +22,7 @@ from string import Template
 from urllib.parse import urlsplit
 
 from markdown_it import MarkdownIt
+from markdown_it.token import Token
 from mdit_py_plugins.anchors import anchors_plugin
 from mdit_py_plugins.attrs import attrs_block_plugin, attrs_plugin
 
@@ -38,13 +39,15 @@ PAGES = [
     ("docs/index.md", "index.html", "Home", None,
      "Can Cursor fully switch to Microsoft Foundry like Claude Code? Tested answers for the Cursor IDE, CLI and Cloud Agents with OpenAI and Claude models, plus the MCP fallback."),
     ("docs/cli.md", "cli.html", "CLI", "surface",
-     "The Cursor CLI has no switch to Microsoft Foundry: tested evidence, plus the verified MCP fallback for OpenAI and Claude models."),
+     "The Cursor CLI has no switch to Microsoft Foundry: historical MCP proof, a fresh native-dispatch failure and an explicit shell-MCP development workaround."),
     ("docs/ide.md", "ide.html", "IDE", "surface",
      "The Cursor IDE's partial switch to Microsoft Foundry through your own API key: routes, all the disadvantages, and the verified MCP fallback."),
     ("docs/cloud.md", "cloud.html", "Cloud", "surface",
      "Cursor Cloud Agents can't switch to Microsoft Foundry by design; blueprint for reaching Foundry models through an authenticated HTTP MCP service."),
     ("docs/fullswitch.md", "fullswitch.html", "Full switch", "shared",
      "Can Cursor fully switch to Microsoft Foundry the way Claude Code does? Per-surface verdicts, a Claude Code comparison and what the community reports."),
+    ("docs/development.md", "development.html", "MCP for development", "shared",
+     "A real greenfield coding comparison: Cursor-only versus Foundry-heavy MCP delegation, token usage, tests and context handoffs."),
     ("docs/setup.md", "setup.html", "Foundry setup", "shared",
      "Deploy OpenAI and Claude models in Microsoft Foundry, grant Entra ID or API-key access and test the MCP bridge before connecting Cursor."),
     ("FINDINGS.md", "findings.html", "Findings", "shared",
@@ -175,12 +178,94 @@ def inline_text(token) -> str:
     return "".join(c.content for c in token.children or [] if c.type in ("text", "code_inline"))
 
 
+CITATION = re.compile(r"\[([A-Z]\d+(?:(?:,\s*|\s+to\s+|[–-])[A-Z]\d+)*)\]")
+
+
+def source_entries(tokens):
+    """Read keyed bibliography rows without interpreting their prose as markup."""
+    for i, token in enumerate(tokens):
+        if token.type != "tr_open":
+            continue
+        cells = []
+        for child in tokens[i + 1:]:
+            if child.type == "tr_close":
+                break
+            if child.type == "inline":
+                cells.append(child)
+        if len(cells) >= 2 and re.fullmatch(r"[A-Z]\d+", inline_text(cells[0])):
+            yield token, inline_text(cells[0]), inline_text(cells[1])
+
+
+def citation_keys(group):
+    keys = []
+    for part in re.split(r",\s*", group):
+        bounds = re.split(r"\s+to\s+|[–-]", part)
+        if len(bounds) == 1:
+            keys.append(part)
+        else:
+            first, last = bounds
+            if first[0] != last[0] or int(first[1:]) > int(last[1:]):
+                raise LinkError(f"Invalid source range: [{part}]")
+            keys.extend(f"{first[0]}{n}" for n in range(int(first[1:]), int(last[1:]) + 1))
+    return keys
+
+
+def link_citations(tokens, references, source):
+    bibliography = "../SOURCES.md" if source.startswith("docs/") else "SOURCES.md"
+    for token in tokens:
+        if token.type != "inline":
+            continue
+        children = []
+        link_depth = 0
+        for child in token.children or []:
+            if child.type == "link_open":
+                link_depth += 1
+            if child.type == "link_close":
+                link_depth -= 1
+            if child.type != "text" or link_depth:
+                children.append(child)
+                continue
+            end = 0
+            for match in CITATION.finditer(child.content):
+                children.append(Token("text", "", 0, content=child.content[end:match.start()]))
+                children.append(Token("sup_open", "sup", 1, attrs={"class": "citation"}))
+                children.append(Token("text", "", 0, content="["))
+                for index, key in enumerate(citation_keys(match.group(1))):
+                    if key not in references:
+                        raise LinkError(f"{source}: unknown citation [{key}]")
+                    if index:
+                        children.append(Token("text", "", 0, content=", "))
+                    children.append(Token("link_open", "a", 1, attrs={
+                        "href": f"{bibliography}#source-{key.lower()}",
+                        "title": references[key],
+                        "aria-label": f"Source {key}: {references[key]}",
+                    }))
+                    children.append(Token("text", "", 0, content=key))
+                    children.append(Token("link_close", "a", -1))
+                children.append(Token("text", "", 0, content="]"))
+                children.append(Token("sup_close", "sup", -1))
+                end = match.end()
+            children.append(Token("text", "", 0, content=child.content[end:]))
+        token.children = children
+
+
 def render_page(md: MarkdownIt, source: str, fragment_checks: list):
     text = (ROOT / source).read_text(encoding="utf-8")
     env: dict = {}
     tokens = md.parse(text, env)
 
     title, toc, ids = None, [], set()
+    references = {
+        key: label for _, key, label in source_entries(
+            md.parse((ROOT / "SOURCES.md").read_text(encoding="utf-8"))
+        )
+    }
+    if source == "SOURCES.md":
+        for row, key, _ in source_entries(tokens):
+            anchor = f"source-{key.lower()}"
+            row.attrSet("id", anchor)
+            ids.add(anchor)
+    link_citations(tokens, references, source)
     for i, token in enumerate(tokens):
         if token.type == "heading_open":
             heading_id = token.attrGet("id")
