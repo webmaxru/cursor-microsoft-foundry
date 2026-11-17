@@ -1,0 +1,34 @@
+{
+  "test": "mcp",
+  "model": "openai",
+  "passed": true,
+  "prompt": "Compute 442 + 156. Reply with exactly NONCE_9700ef2601ac597a: followed by the sum. No spaces.",
+  "expected": "NONCE_9700ef2601ac597a:598",
+  "result": {
+    "observed_at_utc": "2026-11-16T23:49:42.452965+00:00",
+    "route": "Microsoft Foundry / Azure OpenAI Responses API",
+    "authentication": "Microsoft Entra ID via Azure CLI",
+    "deployment": "cursor-poc-gpt-6-luna",
+    "configured_model": "gpt-6-luna",
+    "configured_model_version": "2026-09-22",
+    "model": "cursor-poc-gpt-6-luna",
+    "response_id": "resp_0a834698be0dad24016afb969667a8819691d82b01425450d4",
+    "azure_request_id": "9c95396a-5eab-4a2a-823b-a632ed4e038b",
+    "status": "completed",
+    "request_sha256": "acb74d87fc39ec141caf194d9cd142148111c3385b975ada3a39c0623a7b0279",
+    "usage": {
+      "input_tokens": 36,
+      "input_tokens_details": {
+        "cache_write_tokens": 0,
+        "cached_tokens": 0
+      },
+      "output_tokens": 17,
+      "output_tokens_details": {
+        "reasoning_tokens": 0
+      },
+      "total_tokens": 53
+    },
+    "response_sha256": "3edef4350a37982d861f9c590f74a27b2bf1ac64fd77deba935e194b10b25dce",
+    "text": "NONCE_9700ef2601ac597a:598"
+  }
+}

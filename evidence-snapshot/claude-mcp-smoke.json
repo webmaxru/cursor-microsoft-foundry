@@ -1,0 +1,39 @@
+{
+  "test": "mcp",
+  "model": "claude",
+  "passed": true,
+  "prompt": "Compute 330 + 416. Reply with exactly NONCE_8852b856bfef420d: followed by the sum. No spaces.",
+  "expected": "NONCE_8852b856bfef420d:746",
+  "result": {
+    "observed_at_utc": "2026-11-16T23:50:03.457765+00:00",
+    "route": "Microsoft Foundry / Anthropic Messages API",
+    "authentication": "Microsoft Entra ID via Azure CLI",
+    "deployment": "claude-haiku-5-5",
+    "configured_model": "claude-haiku-5-5",
+    "configured_model_version": "2",
+    "model": "claude-haiku-5-5",
+    "response_id": "msg_011Ch7W9DSYvtXA8yYP6TyMW",
+    "azure_request_id": "req_011Ch7W9D9vopbCqvG7AAjmu",
+    "stop_reason": "end_turn",
+    "request_sha256": "700fe4439b25dc1d836138b791c36260f0d4ffaeeca8be35578c4d553ea8e137",
+    "usage": {
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 0,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "inference_geo": "global",
+      "input_tokens": 50,
+      "output_tokens": 18,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "server_tool_use": null,
+      "service_tier": "standard",
+      "speed": "standard"
+    },
+    "response_sha256": "32a990268ac127dd52e6b30bf3c901ea6afd20c12a57d4a58b51adc147e1e3b9",
+    "text": "NONCE_8852b856bfef420d:746"
+  }
+}

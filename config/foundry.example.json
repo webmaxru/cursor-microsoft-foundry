@@ -1,0 +1,17 @@
+{
+  "subscription_id": "00000000-0000-0000-0000-000000000000",
+  "resource_group": "rg-my-foundry",
+  "account_name": "my-foundry-resource",
+  "project_name": "my-foundry-project",
+  "project_endpoint": "https://my-foundry-resource.services.ai.azure.com/api/projects/my-foundry-project",
+  "base_url": "https://my-foundry-resource.openai.azure.com/openai/v1/",
+  "deployment_name": "cursor-poc-gpt-6-luna",
+  "model_name": "gpt-6-luna",
+  "model_version": "2026-09-22",
+  "sku_name": "DataZoneStandard",
+  "capacity": 10,
+  "anthropic_base_url": "https://my-foundry-resource.services.ai.azure.com/anthropic",
+  "claude_deployment_name": "claude-haiku-5-5",
+  "claude_model_name": "claude-haiku-5-5",
+  "claude_model_version": "2"
+}

@@ -1,0 +1,23 @@
+{
+  "observed_at_utc": "2026-11-16T23:20:52.672070+00:00",
+  "endpoint_override": {
+    "exit_code": 1,
+    "requests": [
+      {
+        "method": "POST",
+        "path": "/auth/exchange_user_api_key",
+        "content_type": "application/json"
+      }
+    ],
+    "output": "\u001b[33m\u26a0 Warning: The provided API key is invalid.\u001b[0m\nPlease check you have the right key, create a new one, or authenticate without it.",
+    "credential": "Deliberately invalid synthetic Cursor key; no Azure key used."
+  },
+  "provider_environment_override": {
+    "exit_code": 1,
+    "local_provider_request_count": 0,
+    "requests": [],
+    "output": "",
+    "stderr": "ActionRequiredError: Model unavailable on Free Free includes Grok 4.7, Grok 4.6, and Auto with fixed settings. Switch to an included model to continue.",
+    "scope": "These variables did not redirect this Composer run; this is not an exhaustive provider test."
+  }
+}

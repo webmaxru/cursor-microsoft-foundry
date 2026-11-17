@@ -1,0 +1,9 @@
+{
+  "observed_at_utc": "2026-11-16T23:27:00.0944590Z",
+  "cursor_version": "2026.11.13-eacade1",
+  "azure_cli_version": "2.93.0",
+  "cursor_api_key_environment_present": false,
+  "tested_cursor_model": "auto",
+  "paid_model_probe": "Composer 2.5 refused: Model unavailable on Free",
+  "cloud_live_run": "Not attempted: no Cursor API key and observed Free-plan restriction"
+}

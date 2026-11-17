@@ -1,0 +1,71 @@
+{
+  "passed": true,
+  "cursor_orchestrator": "auto (Cursor-routed, not the Foundry deployment)",
+  "exit_code": 0,
+  "expected": {
+    "openai": "NONCE_6e0b258437b2c4b7:1243",
+    "claude": "NONCE_9b6d197e8af6ed08:1265"
+  },
+  "cursor_output": "{\"type\":\"result\",\"subtype\":\"success\",\"is_error\":false,\"duration_ms\":18697,\"duration_api_ms\":18697,\"result\":\"I'll discover the foundry-models tool schemas, then call each model once with your exact prompts.Calling both Foundry models with your exact prompts.**foundry_openai**\\n- **text:** `NONCE_6e0b258437b2c4b7:1243`\\n- **deployment:** `cursor-poc-gpt-6-luna`\\n- **model:** `cursor-poc-gpt-6-luna`\\n- **response_id:** `resp_08c09992e1416134016afb96dcb23481979dd02741f3a63f86`\\n\\n**foundry_claude**\\n- **text:** `NONCE_9b6d197e8af6ed08:1265`\\n- **deployment:** `claude-haiku-5-5`\\n- **model:** `claude-haiku-5-5`\\n- **response_id:** `msg_011Ch7WD7WDz7GtAkBPwrgc7`\",\"session_id\":\"0979a37e-f780-49b3-9545-2c2adc77940c\",\"request_id\":\"e91462cc-c32c-4bdb-a28c-383f1c741a2a\",\"usage\":{\"inputTokens\":23874,\"outputTokens\":658,\"cacheReadTokens\":19200,\"cacheWriteTokens\":0,\"reasoningTokens\":249}}",
+  "stderr": "",
+  "correlated_local_azure_audit": [
+    {
+      "observed_at_utc": "2026-11-16T23:50:52.842065+00:00",
+      "route": "Microsoft Foundry / Azure OpenAI Responses API",
+      "authentication": "Microsoft Entra ID via Azure CLI",
+      "deployment": "cursor-poc-gpt-6-luna",
+      "configured_model": "gpt-6-luna",
+      "configured_model_version": "2026-09-22",
+      "model": "cursor-poc-gpt-6-luna",
+      "response_id": "resp_08c09992e1416134016afb96dcb23481979dd02741f3a63f86",
+      "azure_request_id": "67778c35-a71b-4a08-b1e6-8a3bb596ef50",
+      "status": "completed",
+      "request_sha256": "8882214a2b8cdbc3626fb5c07570a903ce8bbf14360455254f46c7bda63dce83",
+      "usage": {
+        "input_tokens": 40,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 22,
+        "output_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "total_tokens": 62
+      },
+      "response_sha256": "d8be9444f21185bd88c13905cb32679edfcde70d062e513c31f409dc772aeba5"
+    },
+    {
+      "observed_at_utc": "2026-11-16T23:50:56.274449+00:00",
+      "route": "Microsoft Foundry / Anthropic Messages API",
+      "authentication": "Microsoft Entra ID via Azure CLI",
+      "deployment": "claude-haiku-5-5",
+      "configured_model": "claude-haiku-5-5",
+      "configured_model_version": "2",
+      "model": "claude-haiku-5-5",
+      "response_id": "msg_011Ch7WD7WDz7GtAkBPwrgc7",
+      "azure_request_id": "req_011Ch7WD73vkWfvpEfR8M4pS",
+      "stop_reason": "end_turn",
+      "request_sha256": "9e8ed10f5b8b6b3f79ca98a9b22f5a1bb3e8f3801d7768666e3722460ef0f391",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 53,
+        "output_tokens": 22,
+        "output_tokens_details": {
+          "thinking_tokens": 0
+        },
+        "server_tool_use": null,
+        "service_tier": "standard",
+        "speed": "standard"
+      },
+      "response_sha256": "0da4febc6ffac96073ca9e48c03331b6bffaee0782f75f181d558fb0ce30467d"
+    }
+  ],
+  "interpretation": "Cursor orchestrates; only the two MCP tool inferences are billed to Foundry."
+}

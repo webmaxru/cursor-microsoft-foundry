@@ -1,0 +1,17 @@
+{
+  "name": "Foundry inference tool experiment",
+  "prompt": {
+    "text": "Use only synthetic data. Call the foundry-models MCP tools foundry_openai and foundry_claude, asking each to add 17 and 25. Report each response_id, deployment, model, and answer. Do not claim that the Cloud Agent's own model runs on Foundry."
+  },
+  "autoCreatePR": false,
+  "mcpServers": [
+    {
+      "name": "foundry-models",
+      "type": "http",
+      "url": "https://foundry-mcp.example.invalid/mcp",
+      "headers": {
+        "Authorization": "Bearer REPLACE_WITH_YOUR_MCP_SERVICE_TOKEN_NOT_AN_AZURE_KEY"
+      }
+    }
+  ]
+}

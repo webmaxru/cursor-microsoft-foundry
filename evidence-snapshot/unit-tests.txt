@@ -1,0 +1,7 @@
+......Processing request of type CallToolRequest
+Processing request of type CallToolRequest
+.
+----------------------------------------------------------------------
+Ran 7 tests in 10.431s
+
+OK

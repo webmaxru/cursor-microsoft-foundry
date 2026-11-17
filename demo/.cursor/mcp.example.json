@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "foundry-models": {
+      "type": "stdio",
+      "command": "/absolute/path/to/cursor-microsoft-foundry/.venv/bin/python",
+      "args": ["/absolute/path/to/cursor-microsoft-foundry/scripts/foundry_mcp.py"]
+    }
+  }
+}

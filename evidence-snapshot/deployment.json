@@ -1,0 +1,48 @@
+{
+  "observed_at_utc": "2026-11-16T23:48:51.0293036Z",
+  "created_by_this_invocation": false,
+  "project_id": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-my-foundry/providers/Microsoft.CognitiveServices/accounts/my-foundry-resource/projects/my-foundry-project",
+  "project_endpoint": "https://my-foundry-resource.services.ai.azure.com/api/projects/my-foundry-project",
+  "deployment_id": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-my-foundry/providers/Microsoft.CognitiveServices/accounts/my-foundry-resource/deployments/cursor-poc-gpt-6-luna",
+  "deployment_name": "cursor-poc-gpt-6-luna",
+  "model": {
+    "callRateLimit": null,
+    "format": "OpenAI",
+    "name": "gpt-6-luna",
+    "publisher": null,
+    "source": null,
+    "sourceAccount": null,
+    "version": "2026-09-22"
+  },
+  "sku": {
+    "capacity": 10,
+    "family": null,
+    "name": "DataZoneStandard",
+    "size": null,
+    "tier": null
+  },
+  "state": "Succeeded",
+  "rate_limits": [
+    {
+      "count": 10.0,
+      "dynamicThrottlingEnabled": null,
+      "key": "request",
+      "matchPatterns": null,
+      "minCount": null,
+      "renewalPeriod": 60.0
+    },
+    {
+      "count": 10000.0,
+      "dynamicThrottlingEnabled": null,
+      "key": "token",
+      "matchPatterns": null,
+      "minCount": null,
+      "renewalPeriod": 60.0
+    }
+  ],
+  "existing_deployments_before": [
+    "cursor-poc-gpt-6-luna",
+    "claude-haiku-5-5"
+  ],
+  "other_deployments_omitted": 3
+}

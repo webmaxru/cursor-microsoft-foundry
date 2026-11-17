@@ -1,0 +1,66 @@
+[
+  {
+    "deployment": "cursor-poc-gpt-6-luna",
+    "format": "OpenAI",
+    "model": "gpt-6-luna",
+    "rateLimits": [
+      {
+        "count": 10.0,
+        "dynamicThrottlingEnabled": null,
+        "key": "request",
+        "matchPatterns": null,
+        "minCount": null,
+        "renewalPeriod": 60.0
+      },
+      {
+        "count": 10000.0,
+        "dynamicThrottlingEnabled": null,
+        "key": "token",
+        "matchPatterns": null,
+        "minCount": null,
+        "renewalPeriod": 60.0
+      }
+    ],
+    "sku": {
+      "capacity": 10,
+      "family": null,
+      "name": "DataZoneStandard",
+      "size": null,
+      "tier": null
+    },
+    "state": "Succeeded",
+    "version": "2026-09-22"
+  },
+  {
+    "deployment": "claude-haiku-5-5",
+    "format": "Anthropic",
+    "model": "claude-haiku-5-5",
+    "rateLimits": [
+      {
+        "count": 80.0,
+        "dynamicThrottlingEnabled": null,
+        "key": "request",
+        "matchPatterns": null,
+        "minCount": null,
+        "renewalPeriod": 60.0
+      },
+      {
+        "count": 80000.0,
+        "dynamicThrottlingEnabled": null,
+        "key": "token",
+        "matchPatterns": null,
+        "minCount": null,
+        "renewalPeriod": 60.0
+      }
+    ],
+    "sku": {
+      "capacity": 80,
+      "family": null,
+      "name": "GlobalStandard",
+      "size": null,
+      "tier": null
+    },
+    "state": "Succeeded",
+    "version": "2"
+  }
+]

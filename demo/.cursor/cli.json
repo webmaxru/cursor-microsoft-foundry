@@ -1,0 +1,6 @@
+{
+  "permissions": {
+    "allow": ["Mcp(foundry-models:foundry_openai)", "Mcp(foundry-models:foundry_claude)"],
+    "deny": ["Shell(*)", "Read(**)", "Write(**)", "WebFetch(*)"]
+  }
+}

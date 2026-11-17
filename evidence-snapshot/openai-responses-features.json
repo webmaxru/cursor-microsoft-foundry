@@ -1,0 +1,83 @@
+{
+  "model": "openai",
+  "api": "OpenAI Responses",
+  "stream": {
+    "passed": true,
+    "text": "STREAM_fe6b26fb8b5b177e",
+    "response_id": "resp_04f3a66d4838c832016afb96f841a481969b36f65418fc4fb9",
+    "model_returned": "cursor-poc-gpt-6-luna",
+    "events": [
+      "response.completed",
+      "response.content_part.added",
+      "response.content_part.done",
+      "response.created",
+      "response.in_progress",
+      "response.output_item.added",
+      "response.output_item.done",
+      "response.output_text.delta",
+      "response.output_text.done"
+    ],
+    "usage": {
+      "input_tokens": 21,
+      "input_tokens_details": {
+        "cache_write_tokens": 0,
+        "cached_tokens": 0
+      },
+      "output_tokens": 16,
+      "output_tokens_details": {
+        "reasoning_tokens": 0
+      },
+      "total_tokens": 37
+    }
+  },
+  "tool_round_trip": {
+    "passed": true,
+    "first_response_id": "resp_04e18372409c5b7a016afb96f8f4e0819385cbf5b5c073bd5a",
+    "call_id": "call_sMViiVYN224h2KBzLJOC9Qn5",
+    "arguments": {
+      "a": 986,
+      "b": 440
+    },
+    "result": {
+      "observed_at_utc": "2026-11-16T23:51:21.572791+00:00",
+      "route": "Microsoft Foundry / Azure OpenAI Responses API",
+      "authentication": "Microsoft Entra ID via Azure CLI",
+      "deployment": "cursor-poc-gpt-6-luna",
+      "configured_model": "gpt-6-luna",
+      "configured_model_version": "2026-09-22",
+      "model": "cursor-poc-gpt-6-luna",
+      "response_id": "resp_04e18372409c5b7a016afb96f9dc9c8193a0aae0cb16e2234e",
+      "azure_request_id": "f4514f12-25fe-484b-a7b7-ec20c1380935",
+      "status": "completed",
+      "request_sha256": "b26149e383fc0f73848903c3680e703c7fddbfdb89f392490762f4c3fcc5deb1",
+      "usage": {
+        "input_tokens": 163,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 20,
+        "output_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "total_tokens": 183
+      },
+      "response_sha256": "7f508d5889cf3121ed5e061b75f5308e96cd15847bb8fb7737028073d0770f12",
+      "text": "TOOL_6556506c0a9585b0:1426"
+    },
+    "first_usage": {
+      "input_tokens": 90,
+      "input_tokens_details": {
+        "cache_write_tokens": 0,
+        "cached_tokens": 0
+      },
+      "output_tokens": 21,
+      "output_tokens_details": {
+        "reasoning_tokens": 0
+      },
+      "total_tokens": 111
+    }
+  },
+  "passed": true,
+  "observed_at_utc": "2026-11-16T23:51:21.575030+00:00"
+}

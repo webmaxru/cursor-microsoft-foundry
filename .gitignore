@@ -1,0 +1,21 @@
+.venv/
+__pycache__/
+*.pyc
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+.cursor-probe/
+
+# Local, account-specific files (never publish)
+config/foundry.json
+demo/.cursor/mcp.json
+evidence/
+
+# Generated site output
+_site/
+site/_site/
+
+# Local tooling caches
+.impeccable/

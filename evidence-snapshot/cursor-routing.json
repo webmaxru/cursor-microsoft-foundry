@@ -1,0 +1,23 @@
+{
+  "observed_at_utc": "2026-11-16T23:22:08.861111+00:00",
+  "endpoint_override": {
+    "exit_code": 1,
+    "requests": [
+      {
+        "method": "POST",
+        "path": "/auth/exchange_user_api_key",
+        "content_type": "application/json"
+      }
+    ],
+    "output": "\u001b[33m\u26a0 Warning: The provided API key is invalid.\u001b[0m\nPlease check you have the right key, create a new one, or authenticate without it.",
+    "credential": "Deliberately invalid synthetic Cursor key; no Azure key used."
+  },
+  "provider_environment_override": {
+    "exit_code": 0,
+    "local_provider_request_count": 0,
+    "requests": [],
+    "output": "{\"type\":\"result\",\"subtype\":\"success\",\"is_error\":false,\"duration_ms\":3313,\"duration_api_ms\":3313,\"result\":\"CURSOR_NATIVE_ROUTE_OK\",\"session_id\":\"bca5ba29-f7a3-4afe-bcc8-6c38cb25bb3e\",\"request_id\":\"6ed5ddb2-addf-4d16-ab05-10b58581ee1a\",\"usage\":{\"inputTokens\":9374,\"outputTokens\":45,\"cacheReadTokens\":3968,\"cacheWriteTokens\":0,\"reasoningTokens\":38}}",
+    "stderr": "",
+    "scope": "These variables did not redirect this Auto run; this is not an exhaustive provider test."
+  }
+}

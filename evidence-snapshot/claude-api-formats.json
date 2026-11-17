@@ -1,0 +1,126 @@
+{
+  "observed_at_utc": "2026-11-16T23:52:02.550466+00:00",
+  "routes": [
+    {
+      "url": "https://my-foundry-resource.openai.azure.com/openai/v1/chat/completions",
+      "http_status": 404,
+      "request_id": "d7ece47a-f141-460d-819d-efc6803666b9",
+      "body": {
+        "error": {
+          "code": "api_not_supported",
+          "message": "Requested API is currently not supported",
+          "details": "Requested API is currently not supported"
+        }
+      }
+    },
+    {
+      "url": "https://my-foundry-resource.openai.azure.com/openai/v1/responses",
+      "http_status": 200,
+      "request_id": "8bdf87f6-f1eb-43fb-87f0-5fbf94b7b9a7",
+      "body": {
+        "id": "resp_0c61023f4bf53dbf016afb972250d88190bc6ec57611f935a3",
+        "object": "response",
+        "created_at": 1794873122,
+        "status": "completed",
+        "access_programs": null,
+        "background": false,
+        "completed_at": 1794873123,
+        "content_filters": null,
+        "error": null,
+        "frequency_penalty": 0.0,
+        "incomplete_details": null,
+        "instructions": null,
+        "max_output_tokens": 128,
+        "max_tool_calls": null,
+        "model": "claude-haiku-5-5",
+        "moderation": null,
+        "output": [
+          {
+            "id": "msg_0c61023f4bf53dbf016afb972302248190bd5e4443be53583f",
+            "type": "message",
+            "status": "completed",
+            "content": [
+              {
+                "type": "output_text",
+                "annotations": [],
+                "logprobs": [],
+                "text": "CLAUDE_FORMAT_OK"
+              }
+            ],
+            "role": "assistant"
+          }
+        ],
+        "parallel_tool_calls": false,
+        "presence_penalty": 0.0,
+        "previous_response_id": null,
+        "prompt_cache_key": null,
+        "prompt_cache_retention": "in_memory",
+        "reasoning": {
+          "context": null,
+          "effort": "medium",
+          "summary": null
+        },
+        "safety_identifier": null,
+        "service_tier": "auto",
+        "store": false,
+        "temperature": 1.0,
+        "text": {
+          "format": {
+            "type": "text"
+          },
+          "verbosity": "medium"
+        },
+        "tool_choice": "auto",
+        "tool_usage": {
+          "image_gen": {
+            "input_tokens": 0,
+            "input_tokens_details": {
+              "image_tokens": 0,
+              "text_tokens": 0
+            },
+            "output_tokens": 0,
+            "output_tokens_details": {
+              "image_tokens": 0,
+              "text_tokens": 0
+            },
+            "total_tokens": 0
+          },
+          "web_search": {
+            "num_requests": 0
+          }
+        },
+        "tools": [],
+        "top_logprobs": 0,
+        "top_p": 1.0,
+        "truncation": "disabled",
+        "usage": {
+          "input_tokens": 26,
+          "input_tokens_details": {
+            "cache_write_tokens": 0,
+            "cached_tokens": 0
+          },
+          "output_tokens": 17,
+          "output_tokens_details": {
+            "reasoning_tokens": 0
+          },
+          "total_tokens": 43
+        },
+        "user": null,
+        "metadata": {}
+      }
+    },
+    {
+      "url": "https://my-foundry-resource.services.ai.azure.com/anthropic/v1/chat/completions",
+      "http_status": 404,
+      "request_id": "5921b22f-7cce-4772-982d-9678022c6804",
+      "body": {
+        "error": {
+          "type": "not_found_error",
+          "code": "api_not_supported",
+          "message": "Requested API is currently not supported",
+          "details": "Requested API is currently not supported"
+        }
+      }
+    }
+  ]
+}

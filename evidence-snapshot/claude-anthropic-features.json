@@ -1,0 +1,86 @@
+{
+  "model": "claude",
+  "api": "Native Anthropic Messages",
+  "stream": {
+    "passed": true,
+    "text": "STREAM_b77c2c542fde367f",
+    "response_id": "msg_011Ch7WHGP8HefzB1C1TgLXo",
+    "model_returned": "claude-haiku-5-5",
+    "usage": {
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 0,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "inference_geo": "global",
+      "input_tokens": 28,
+      "output_tokens": 17,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "server_tool_use": null,
+      "service_tier": "standard",
+      "speed": "standard"
+    }
+  },
+  "tool_round_trip": {
+    "passed": true,
+    "first_response_id": "msg_011Ch7WHKBoHxkZFBZeewMFr",
+    "tool_use_id": "toolu_01EsFz4sUnXHUFVfSG8R9AVJ",
+    "arguments": {
+      "a": 972,
+      "b": 187
+    },
+    "result": {
+      "observed_at_utc": "2026-11-16T23:51:53.888825+00:00",
+      "route": "Microsoft Foundry / Anthropic Messages API",
+      "authentication": "Microsoft Entra ID via Azure CLI",
+      "deployment": "claude-haiku-5-5",
+      "configured_model": "claude-haiku-5-5",
+      "configured_model_version": "2",
+      "model": "claude-haiku-5-5",
+      "response_id": "msg_011Ch7WHNA9TTr68fqiXnq3T",
+      "azure_request_id": "req_011Ch7WHMtGPEz9ruk2raJPq",
+      "stop_reason": "end_turn",
+      "request_sha256": "4a9a5e71a556176bf1fa11ad03fe81c4747d7a265c81fb7de3a088adb8f85598",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 576,
+        "output_tokens": 20,
+        "output_tokens_details": {
+          "thinking_tokens": 0
+        },
+        "server_tool_use": null,
+        "service_tier": "standard",
+        "speed": "standard"
+      },
+      "text": "TOOL_c2469d5af8cea939:1159"
+    },
+    "first_usage": {
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 0,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "inference_geo": "global",
+      "input_tokens": 576,
+      "output_tokens": 51,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "server_tool_use": null,
+      "service_tier": "standard",
+      "speed": "standard"
+    }
+  },
+  "passed": true,
+  "observed_at_utc": "2026-11-16T23:51:53.890827+00:00"
+}

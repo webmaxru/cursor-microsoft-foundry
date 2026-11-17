@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  $base
+  <title>$page_title</title>
+  <meta name="description" content="$description">
+  <meta property="og:title" content="$page_title">
+  <meta property="og:description" content="$description">
+  <meta property="og:type" content="article">
+  <meta name="color-scheme" content="light dark">
+  <link rel="stylesheet" href="assets/style.css">
+  <script src="assets/site.js" defer></script>
+  $mermaid
+</head>
+<body>
+  <a class="skip-link" href="#content">Skip to content</a>
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="brand" href="index.html">Cursor <span aria-hidden="true">+</span> Microsoft Foundry</a>
+      <nav class="site-nav" aria-label="Main">
+        $nav
+      </nav>
+    </div>
+  </header>
+  <div class="layout $layout">
+    $toc
+    <main id="content" class="content">
+$content
+      <p class="page-source"><a href="$source_url" rel="noopener">View this page's source on GitHub</a></p>
+    </main>
+  </div>
+  <footer class="site-footer">
+    <p>Independent research, tested in November 2026. Not affiliated with or endorsed by Anysphere (Cursor) or Microsoft.
+      Product behavior can change; check the linked sources.</p>
+    <p><a href="$repo_url" rel="noopener">Source on GitHub</a> · MIT License</p>
+  </footer>
+</body>
+</html>

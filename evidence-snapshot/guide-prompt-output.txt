@@ -1,0 +1,9 @@
+**foundry_openai**
+- **text:** A Python list comprehension is a concise way to create a list by transforming or filtering items from an iterable in a single expression.
+- **deployment:** `cursor-poc-gpt-6-luna`
+- **response_id:** `resp_0c6f4d57c8f858d0016afb99a9766c81958a84539c773a7180`
+
+**foundry_claude**
+- **text:** A Python list comprehension is a concise syntax for creating a new list by applying an expression to each item in an iterable, optionally filtering items with a condition, as in `[x * 2 for x in range(5) if x % 2 == 0]`.
+- **deployment:** `claude-haiku-5-5`
+- **response_id:** `msg_011Ch7X7ugJReAnRB6NoRKdT`

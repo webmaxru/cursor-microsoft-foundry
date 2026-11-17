@@ -1,0 +1,5 @@
+azure-identity>=1.25,<2
+openai>=2,<3
+mcp>=1.28,<2
+anthropic>=0.76,<1
+httpx>=0.28,<1
