@@ -226,5 +226,21 @@ class CliProbe(unittest.TestCase):
         self.assertEqual(probe_cli_fullswitch.commands_from_help(help_text), ["persist", "status", "bedrock", "help"])
 
 
+class KeyRouteProbe(unittest.TestCase):
+    def test_cases_cover_both_models_and_both_claude_headers_without_a_key(self):
+        import probe_key_routes
+        config = {"account_name": "res", "deployment_name": "gpt-dep", "claude_deployment_name": "claude-dep",
+                  "anthropic_base_url": "https://res.services.ai.azure.com/anthropic"}
+        cases = probe_key_routes.cases(config)
+        self.assertEqual(len(cases), 10)
+        slot_style = [c for c in cases if c[1].startswith("legacy Azure")]
+        self.assertEqual({c[0] for c in slot_style}, {"GPT", "Claude"})
+        self.assertTrue(all(c[4] == {"api-key": None} for c in cases if c[3].get("messages") and "openai" in c[2]))
+        messages = {c[1]: c[4] for c in cases if c[2].endswith("/v1/messages")}
+        self.assertIn("x-api-key", messages["Anthropic Messages (x-api-key)"])
+        self.assertIn("api-key", messages["Anthropic Messages (api-key)"])
+        self.assertTrue(all(value is None or value == "2023-06-01" for h in messages.values() for value in h.values()))
+
+
 if __name__ == "__main__":
     unittest.main()

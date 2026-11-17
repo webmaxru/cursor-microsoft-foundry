@@ -14,7 +14,9 @@ none exists. Status as of November 2026.
   The Azure OpenAI key slot can send chat and Agent requests to a Foundry
   OpenAI deployment, through Cursor's servers, on a paid plan. Reported
   working; on Premium the slot passed the plan gate, but no real key was
-  used here. A gateway was refused, and Claude has no route.
+  used here, and the run is prepared. A gateway was refused, and Claude has no
+  native route; a translating proxy works when called directly but received no
+  request from Cursor.
 
 - [Cursor CLI](cli.md){.card-link} [No switch]{.status .status-none}
 
@@ -39,8 +41,10 @@ none exists. Status as of November 2026.
 - **Gateways were refused.** On Premium, Cursor refused custom models behind
   the OpenAI base URL override, and sent **no request** to a working LiteLLM
   gateway from any surface.
-- **Claude on Foundry has no route.** Cursor's Anthropic slot has no base URL,
-  Foundry rejects Claude on Chat Completions, and the gateway alias was
+- **Claude on Foundry has no native route.** Cursor's Anthropic slot has no
+  base URL, and Foundry rejects Claude on Chat Completions, which the Azure
+  slot uses. A proxy can translate the format, as a LiteLLM gateway did in 15
+  of 15 direct cases, but Cursor sent it no request, and the gateway alias was
   refused.
 - **The CLI and Cloud Agents have no switch.** Where none exists, the fallback
   is MCP: Cursor's model stays the agent and calls Foundry deployments as
@@ -119,11 +123,13 @@ that failure from the shell-invoked MCP client used for the coding comparison.
 | IDE | `foundry_claude` | `claude-haiku-5-5` (Claude Haiku 5.5) | `msg_011Ch7ZcVhwms1HNAQKsBk9e` | 53 / 22 |
 
 The switch was tested on a Premium plan. Foundry accepted 12 of 12 probes
-with a resource API key, and a LiteLLM gateway passed 15 of 15 Cursor-shaped
-cases for both models. Cursor then sent that gateway nothing: the IDE refused
-the custom models, the CLI said "Cannot use this model" and Cloud Agents said
-"Model Not Available". The IDE's Azure slot passed the plan gate with a dummy
-key; a run with a real Foundry key is [left to you](ide.md#check-it-with-your-own-key).
+with a resource API key, a second key probe confirmed that Claude has no Chat
+Completions route while GPT has, and a LiteLLM gateway passed 15 of 15
+Cursor-shaped cases for both models. Cursor then sent that gateway nothing: the
+IDE refused the custom models, the CLI said "Cannot use this model" and Cloud
+Agents said "Model Not Available". The IDE's Azure slot passed the plan gate
+with a dummy key; a run with a real Foundry key needs its owner to enter the
+key, and the [steps are prepared](ide.md#check-it-with-your-own-key).
 
 See the [evidence index](evidence.md) for every recorded result. All code is
 on [GitHub](https://github.com/webmaxru/cursor-microsoft-foundry) under the

@@ -6,20 +6,26 @@ here; for Claude, none.** The only native IDE route to a Foundry model is the
 and users report it working in the Agent, including with a Luna model
 [F31], [F8]. On a Premium plan I confirmed that turning the slot on sends a
 GPT model to your endpoint instead of Cursor's plan gate. I did not run it with
-a real Foundry key. It covers chat and the Agent, not Tab, and only OpenAI
-deployments.
+a real Foundry key: saving a key in Cursor's settings hands it to Cursor's
+servers, so it needs the key owner's explicit go-ahead at the moment of entry,
+and I didn't have one. Everything short of that is done, and the
+[real-key run](#check-it-with-your-own-key) is prepared step by step. The slot
+covers chat and the Agent, not Tab, and only OpenAI deployments.
 
 The gateway route that LiteLLM documents, an OpenAI key with **Override OpenAI
 Base URL**, was refused by Cursor before any request left: zero requests
-reached the gateway. Claude on Foundry has no IDE route, so use the
-[MCP fallback](#fallback-foundry-models-as-mcp-tools).
+reached the gateway. Claude on Foundry has no native IDE route. A proxy that
+turns Chat Completions into Claude's Responses or Messages API
+[works when called directly](#can-a-proxy-bring-claude-to-the-ide), but Cursor
+sent it nothing. Use the [MCP fallback](#fallback-foundry-models-as-mcp-tools)
+for Claude.
 
 | Part | Status on 17 November 2026 |
 | --- | --- |
-| [Azure OpenAI slot to Foundry](#main-option-the-azure-openai-slot), OpenAI deployment | **Main option.** Reported working by staff and users [F31], [F8]. Here the plan gate was bypassed, and a dummy key then failed as expected. **Not run with a real key**; [check it with yours](#check-it-with-your-own-key) |
+| [Azure OpenAI slot to Foundry](#main-option-the-azure-openai-slot), OpenAI deployment | **Main option.** Reported working by staff and users [F31], [F8]. Here the plan gate was bypassed, and a dummy key then failed as expected. **Not run with a real key**: the key must be entered by its owner, so [the run is prepared](#check-it-with-your-own-key). The same key and deployment, called directly, return 200 on the route the slot uses ([probe](#what-the-route-probe-shows)) |
 | [OpenAI key with Override Base URL to a LiteLLM gateway](#gateway-route-refused-by-cursor) | **Refused by Cursor.** The custom models are listed. Selecting one gives "This model does not support custom API keys"; sending gives "Invalid API key. Unauthorized User API key". **0 requests** reached the gateway |
 | Azure OpenAI slot to a gateway or other non-Azure host | **0 requests** in two tests. LiteLLM documents this working on Cursor 3.17.21 [L2]; it didn't on 3.30.14 |
-| Claude Haiku 5.5 on Foundry | **No route.** The Anthropic slot has no base URL [C11], and the gateway alias was refused like the GPT one |
+| Claude Haiku 5.5 on Foundry | **No native route.** The Anthropic slot has no base URL [C11], and Foundry returns **404** to a Claude deployment on Chat Completions, which is what the Azure slot sends. A [translating proxy](#can-a-proxy-bring-claude-to-the-ide) passed 15 of 15 cases when called directly; Cursor sent it **0 requests** |
 | The LiteLLM gateway itself, both models, called directly | **Verified**: 15 of 15 Cursor-shaped cases on Docker 1.109.1 and on pip 1.108.4 |
 | [Foundry models as MCP tools](#fallback-foundry-models-as-mcp-tools) | **Verified** end to end. Not a switch |
 
@@ -32,7 +38,7 @@ reached the gateway. Claude on Foundry has no IDE route, so use the
 
 | Route | Foundry models | What you do | Status |
 | --- | --- | --- | --- |
-| [Main: Azure OpenAI slot](#main-option-the-azure-openai-slot) | OpenAI deployments | Fill three fields in **Models > API Keys > Azure OpenAI** | Reported working; plan gate passed here; real key not run |
+| [Main: Azure OpenAI slot](#main-option-the-azure-openai-slot) | OpenAI deployments | Fill three fields in **Models > API Keys > Azure OpenAI** | Reported working; plan gate passed here; real key run prepared, not done |
 | [Gateway: Override OpenAI Base URL](#gateway-route-refused-by-cursor) | GPT and Claude through LiteLLM | Run a public gateway, set the override, add custom models | Refused by Cursor 3.30.14 |
 | [Fallback: MCP tools](#fallback-foundry-models-as-mcp-tools) | GPT and Claude | Cursor's model calls Foundry as a tool | **Verified**; not a switch |
 
@@ -114,13 +120,27 @@ What this shows:
 
 ### Check it with your own key
 
-This is the one step the evidence still lacks. It puts your Foundry key into
-Cursor, so it is your decision, and it is cheap to undo.
+This is the one step the evidence still lacks. It puts a Foundry key into
+Cursor, which then sends it to Cursor's servers with every request, so only the
+key's owner should enter it. It is cheap to undo. Everything before the paste
+is already tested: the same key and deployment return 200 on the route the slot
+uses ([probe](#what-the-route-probe-shows)).
 
-1. Fill the slot as above with **key 2**, turn it on, and confirm the dialog.
-2. Start a new Agent chat in a test folder, choose the model, and send a small
-   task such as "Read README.md and summarize it in one sentence."
-3. Within ten minutes, in the repository with the [Foundry setup](setup.md):
+1. In the repository with the [Foundry setup](setup.md), copy **key 2** to the
+   clipboard without printing it:
+
+   ```powershell
+   az cognitiveservices account keys list -g <resource-group> -n <resource> --query key2 -o tsv | Set-Clipboard
+   ```
+
+2. In **Cursor Settings > Models > API Keys > Azure OpenAI**, fill **Base URL**
+   and **Deployment Name** as above, click the **API Key** field and paste.
+   Turn **Use Azure OpenAI** on and confirm the dialog. Then clear the
+   clipboard (`Set-Clipboard -Value ' '`).
+3. Start a new Agent chat in a test folder, choose a built-in **GPT** model
+   (not Auto, Composer or Grok), and send a small task such as "Read README.md
+   and summarize it in one sentence."
+4. Within ten minutes:
 
    ```powershell
    $py = if ($IsWindows) { './.venv/Scripts/python.exe' } else { './.venv/bin/python' }
@@ -129,10 +149,21 @@ Cursor, so it is your decision, and it is cheap to undo.
 
    The script reads the `ModelRequests` metric of your deployment from Azure
    Monitor with your `az login`. Rows with status `200` mean Foundry served
-   Cursor's requests. Metrics can lag a few minutes, and rejected keys (401)
-   are never recorded.
-4. **Regenerate key 2** in the portal when you finish, unless you keep using
-   the slot.
+   Cursor's requests, and the API name in each row shows whether Cursor sent Chat
+   Completions or Responses, which also settles whether a Claude deployment
+   could ever work in this slot. Metrics can lag a few minutes, and rejected
+   keys (401) are never recorded.
+5. Clear the **API Key** field, turn **Use Azure OpenAI** off, and
+   **regenerate key 2**:
+
+   ```powershell
+   az cognitiveservices account keys regenerate -g <resource-group> -n <resource> --key-name Key2
+   ```
+
+**What would count as a pass:** the Agent answers, and the usage check shows
+`200` rows for your deployment within minutes. **A fail** is the same "Network
+Error" as with the dummy key and no `200` rows. Then the slot is blocked for
+this account or version, and the forum history below applies.
 
 ### What has broken before
 
@@ -261,18 +292,53 @@ requests from Cursor in the log. Don't fake that header in tests. If you
 already did, tell the requests apart by their headers: my client sent no
 `Accept-Encoding`, and both checks came before any key was saved in Cursor.
 
-## Claude on Foundry: no IDE route
+## Claude on Foundry: no native IDE route
 
 - Cursor sends every `claude-*` model to its **Anthropic API Key** slot, which
   has no base URL [C11], and users have asked for one since May 2026 [F3].
 - Foundry serves Claude on the Anthropic Messages route and the Responses API,
-  but returns **404** on Chat Completions
-  ([the probe](#what-the-route-probe-shows)).
+  but returns **404** `api_not_supported` on Chat Completions, on both the
+  legacy Azure route and the current `/openai/v1` route. I confirmed this with
+  a resource key ([the probe](#what-the-route-probe-shows)).
+- So putting a Claude deployment name into the **Azure slot** fails if Cursor
+  sends Chat Completions, which is what staff describe for this slot [F9]. If
+  Cursor sent the Responses API for that model, Foundry would accept it
+  (200 in the probe), but I have no evidence that it does. The usage check in
+  [the real-key run](#check-it-with-your-own-key) shows which API Cursor uses.
 - The gateway alias `foundry-haiku` was refused like `foundry-luna`.
 
+## Can a proxy bring Claude to the IDE?
+
+**Technically yes for the translation; not yet for Cursor.** The question
+splits into four parts, and only the last one is blocked.
+
+| Part | Needed | Status |
+| --- | --- | --- |
+| Convert the format | Chat Completions (what the Azure slot sends) and Responses-shaped bodies into Claude's Messages API, and back, including streamed tool calls | **Works.** LiteLLM did this in 15 of 15 cases on 1.108.4 (pip, rerun on 17 November) and 1.109.1 (Docker), for both models, with plain text, tool calls, tool-result round trips and streaming ([evidence](../evidence-snapshot/litellm-gateway.json)) |
+| Convert the URL | Accept the Azure slot's path `/openai/deployments/<name>/chat/completions` and an `api-key` header, then call Foundry's Messages route, which wants `x-api-key` | **Works.** One of the 15 cases per alias is exactly this route and header. The key probe confirms why the proxy must translate the header: Foundry's Messages route returns **401** for `api-key` and **200** for `x-api-key` |
+| Reach the proxy | A public HTTPS address, because Cursor's servers make the call, not your laptop [L2] | **Possible** with a tunnel or a small cloud host. A truly local proxy on `localhost` can't be reached |
+| Get Cursor to call it | Cursor accepts a non-Azure host in a key slot and sends the request | **Not observed.** On 3.30.14, a stub behind a public tunnel received 0 requests from the Azure slot, and the OpenAI override refused custom models |
+
+Two things the proxy cannot change:
+
+- **Cursor decides where requests go.** Of the two ways to point a slot at
+  your proxy, neither delivered a request to it on 3.30.14: the Azure slot
+  showed a network error and the OpenAI override refused custom models. LiteLLM
+  documents the Azure-slot route working on 3.17.21 [L2], so it may depend on
+  the version.
+- **The proxy is a gateway you operate.** Cursor's servers would still receive
+  your proxy key with every request, and you'd run a public service in front of
+  Foundry. Give it a virtual key limited to the two aliases, with a budget and
+  an expiry, and never the master key.
+
+**What would settle it:** the [real-key run](#check-it-with-your-own-key) shows
+whether the slot reaches a real `*.openai.azure.com` host at all. If it does,
+the next experiment is the same slot pointed at the proxy over a tunnel, and
+the capture proxy and [gateway setup](#set-up-the-gateway) above already
+support it. If the slot also fails with a real key, the cause is Cursor's
+client, and no proxy can fix it.
+
 Use the [MCP fallback](#fallback-foundry-models-as-mcp-tools) for Claude.
-Untested: whether the Azure slot, which uses the Responses API for some GPT
-models [F9], would work with a Claude deployment name.
 
 ## What the route probe shows
 
@@ -317,6 +383,25 @@ Two results matter for the Agent. Luna refuses tools on Chat Completions unless
 why the gateway sends Luna through the Responses API and Claude through the
 Anthropic route.
 
+`scripts/probe_key_routes.py` repeated the call on the routes the Azure slot
+can use, for **both** deployments, with the same resource key
+([`key-route-probe.json`](../evidence-snapshot/key-route-probe.json)). Each
+request asks for the reply `KEY_ROUTE_OK`:
+
+| Route and header | GPT (Luna) | Claude Haiku 5.5 |
+| --- | --- | --- |
+| Legacy `/openai/deployments/<name>/chat/completions`, `api-key`, `max_tokens` | **400** `unsupported_parameter`: use `max_completion_tokens` | **404** `api_not_supported` |
+| The same with `max_completion_tokens` | 200 | **404** `api_not_supported` |
+| Current `/openai/v1/chat/completions`, `api-key` | 200 | **404** `api_not_supported` |
+| Current `/openai/v1/responses`, `api-key` | 200 | 200 |
+| `/anthropic/v1/messages`, `x-api-key` | n/a | 200 |
+| `/anthropic/v1/messages`, `api-key` | n/a | **401** |
+
+This is where the Claude boundary sits: the Chat Completions routes that the
+Azure slot is known to use don't exist for Claude, while the Responses and
+Messages routes do. It also shows that the Azure slot's `api-key` header works
+on the OpenAI routes but not on Claude's Messages route.
+
 ## What stays on Cursor
 
 Even when the Azure slot works:
@@ -354,8 +439,9 @@ for each.
 - **Chat and the Agent only.** Tab, Apply, Auto, Composer and Cursor's models
   stay on Cursor; the CLI and Cloud Agents don't use keys
   ([above](#what-stays-on-cursor)).
-- **OpenAI deployments only.** Claude on Foundry has no IDE route
-  ([above](#claude-on-foundry-no-ide-route)).
+- **OpenAI deployments only.** Claude on Foundry has no native IDE route
+  ([above](#claude-on-foundry-no-native-ide-route)); a proxy is
+  [unproven in Cursor](#can-a-proxy-bring-claude-to-the-ide).
 - **One deployment at a time.** There is one Azure slot, and on it the
   Deployment Name decides the model [L2]. There is no per-model base URL or
   per-model parameters such as reasoning effort [F20], [F29].

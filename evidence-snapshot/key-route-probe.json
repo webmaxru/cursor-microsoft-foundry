@@ -1,0 +1,86 @@
+{
+  "observed_at_utc": "2026-11-17T16:11:04.730796+00:00",
+  "authentication": "resource API key",
+  "results": [
+    {
+      "target": "GPT",
+      "case": "legacy Azure chat/completions, max_tokens",
+      "route": "https://<resource>.openai.azure.com/openai/deployments/cursor-poc-gpt-6-luna/chat/completions",
+      "http_status": 400,
+      "error_code": "unsupported_parameter",
+      "error_message": "Unsupported parameter: 'max_tokens' is not supported with this model. Use 'max_completion_tokens' instead."
+    },
+    {
+      "target": "GPT",
+      "case": "legacy Azure chat/completions, max_completion_tokens",
+      "route": "https://<resource>.openai.azure.com/openai/deployments/cursor-poc-gpt-6-luna/chat/completions",
+      "http_status": 200,
+      "model": "gpt-6-luna-2026-09-22",
+      "text": "KEY_ROUTE_OK"
+    },
+    {
+      "target": "GPT",
+      "case": "v1 chat/completions",
+      "route": "https://<resource>.openai.azure.com/openai/v1/chat/completions",
+      "http_status": 200,
+      "model": "gpt-6-luna-2026-09-22",
+      "text": "KEY_ROUTE_OK"
+    },
+    {
+      "target": "GPT",
+      "case": "v1 responses",
+      "route": "https://<resource>.openai.azure.com/openai/v1/responses",
+      "http_status": 200,
+      "model": "cursor-poc-gpt-6-luna",
+      "text": "KEY_ROUTE_OK"
+    },
+    {
+      "target": "Claude",
+      "case": "legacy Azure chat/completions, max_tokens",
+      "route": "https://<resource>.openai.azure.com/openai/deployments/claude-haiku-5-5/chat/completions",
+      "http_status": 404,
+      "error_code": "api_not_supported",
+      "error_message": "Requested API is currently not supported"
+    },
+    {
+      "target": "Claude",
+      "case": "legacy Azure chat/completions, max_completion_tokens",
+      "route": "https://<resource>.openai.azure.com/openai/deployments/claude-haiku-5-5/chat/completions",
+      "http_status": 404,
+      "error_code": "api_not_supported",
+      "error_message": "Requested API is currently not supported"
+    },
+    {
+      "target": "Claude",
+      "case": "v1 chat/completions",
+      "route": "https://<resource>.openai.azure.com/openai/v1/chat/completions",
+      "http_status": 404,
+      "error_code": "api_not_supported",
+      "error_message": "Requested API is currently not supported"
+    },
+    {
+      "target": "Claude",
+      "case": "v1 responses",
+      "route": "https://<resource>.openai.azure.com/openai/v1/responses",
+      "http_status": 200,
+      "model": "claude-haiku-5-5",
+      "text": "KEY_ROUTE_OK"
+    },
+    {
+      "target": "Claude",
+      "case": "Anthropic Messages (x-api-key)",
+      "route": "https://<resource>.services.ai.azure.com/anthropic/v1/messages",
+      "http_status": 200,
+      "model": "claude-haiku-5-5",
+      "text": "KEY_ROUTE_OK"
+    },
+    {
+      "target": "Claude",
+      "case": "Anthropic Messages (api-key)",
+      "route": "https://<resource>.services.ai.azure.com/anthropic/v1/messages",
+      "http_status": 401,
+      "error_code": "401",
+      "error_message": "Access denied due to invalid subscription key or wrong API endpoint. Make sure to provide a valid key for an active subscription and use a correct regional API "
+    }
+  ]
+}
