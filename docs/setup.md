@@ -9,7 +9,7 @@ connect the surface you use:
 | Surface | Steps on this page you need | Then continue with |
 | --- | --- | --- |
 | Cursor CLI (MCP fallback) | 1 to 7 | [Cursor CLI](cli.md#fallback-foundry-models-as-mcp-tools) |
-| Cursor IDE, partial switch with your own key | 1 to 3, then [API-key access](#optional-api-key-access-for-the-ide-full-switch) | [Cursor IDE, route 1](ide.md#route-1-the-azure-openai-slot) |
+| Cursor IDE, Azure OpenAI slot with your own key (OpenAI models only) | 1 to 3, then [API-key access](#optional-api-key-access-for-the-ide-full-switch) | [Cursor IDE, main option](ide.md#main-option-the-azure-openai-slot) |
 | Cursor IDE, Foundry models as MCP tools | 1 to 7 | [Cursor IDE fallback](ide.md#fallback-foundry-models-as-mcp-tools) |
 | Cursor Cloud Agents (MCP blueprint) | 1 to 5 | [Cursor Cloud Agents](cloud.md#fallback-foundry-models-as-mcp-tools) |
 
@@ -43,11 +43,11 @@ is created, copied or stored, and the Azure credential never reaches Cursor.
 > a switch: Cursor's own agent model still runs on Cursor's service and is
 > billed by Cursor, and your Foundry models do the work you delegate to them
 > through the tools. As of November 2026, no Cursor surface can send its
-> **main** model traffic to Foundry Claude, and only the IDE has a setting
-> (with your own API key, on a paid plan) for Foundry OpenAI-format models.
-> [Full switch](fullswitch.md) compares Cursor with Claude Code's Foundry
-> mode, and the [IDE page](ide.md#route-1-the-azure-openai-slot) has the key
-> routes.
+> **main** model traffic to Foundry Claude, and only the IDE's Azure OpenAI
+> slot (with your own API key, on a paid plan) can send it to Foundry OpenAI
+> deployments. [Full switch](fullswitch.md) compares Cursor with Claude
+> Code's Foundry mode, and the [IDE page](ide.md#main-option-the-azure-openai-slot)
+> has the key route.
 
 ## 1. Prerequisites
 
@@ -273,9 +273,9 @@ Fix any failure here before you connect Cursor; see
 
 ## Optional: API-key access for the IDE full switch
 
-Everything above uses Entra ID, which Cursor can't use. The IDE's own-key
-routes need a **resource API key** instead, and Cursor sends that key to its
-own servers with every request (see
+Everything above uses Entra ID, which Cursor can't use. The IDE's Azure
+OpenAI slot needs a **resource API key** instead, and Cursor sends that key to
+its own servers with every request (see
 [all the disadvantages](ide.md#all-the-disadvantages)). Skip this section if
 you only use the MCP fallback.
 
@@ -288,19 +288,28 @@ az cognitiveservices account show -g <resource-group> -n <resource> --query prop
 
 The test resource already returned `false`, so no change was needed here.
 
-Copy the key to the clipboard without printing it, paste it into Cursor's
-key field, then clear the clipboard:
+Use **key 2** for Cursor, so you can regenerate it later without breaking
+anything that uses key 1. Copy it to the clipboard without printing it, paste
+it into Cursor's key field, then clear the clipboard:
 
 ```powershell
-az cognitiveservices account keys list -g <resource-group> -n <resource> --query key1 -o tsv | Set-Clipboard
+az cognitiveservices account keys list -g <resource-group> -n <resource> --query key2 -o tsv | Set-Clipboard
 # paste into Cursor, then:
 Set-Clipboard -Value ' '
 ```
 
 Treat the key like a password. It works for every deployment on the resource,
 Cursor's servers see it, and anyone holding it bypasses Entra ID access
-control. If it was exposed, rotate it with
-`az cognitiveservices account keys regenerate`.
+control. When you stop using it, or if it was exposed, regenerate it:
+
+```powershell
+az cognitiveservices account keys regenerate -g <resource-group> -n <resource> --key-name Key2 -o none
+```
+
+To see whether Cursor's requests reached your deployment, run
+`scripts/check_foundry_usage.py --minutes 10` after a test prompt. It reads
+Azure Monitor metrics with your `az` login and needs the Monitoring Reader
+role; the [IDE page](ide.md#check-it-with-your-own-key) has the steps.
 
 To confirm Foundry accepts the key on the routes Cursor would use, run
 `scripts/probe_fullswitch_routes.py`. It reads the key from `az` (or from the
@@ -324,7 +333,7 @@ on the [CLI](cli.md#troubleshooting) and [IDE](ide.md#troubleshooting) pages.
 | Key auth: HTTP 401 | The key is wrong or was rotated, or key access is disabled (`disableLocalAuth` is `true`). Both the `api-key` and `Authorization: Bearer` headers accept the key on OpenAI routes. |
 | Key auth: HTTP 400 mentioning `max_completion_tokens` | The model rejects the legacy `max_tokens` field on Chat Completions. Use `max_completion_tokens`. |
 | Key auth: HTTP 400 mentioning function tools and `reasoning_effort` | Luna rejects tools on Chat Completions unless `reasoning_effort` is `none`. Use Responses or set `none`. |
-| Key auth: HTTP 404 `api_not_supported` for Claude on `/openai/v1/chat/completions` | Claude isn't served on Chat Completions. Use `/anthropic/v1/messages` or a [gateway](ide.md#route-3-claude-through-a-gateway). |
+| Key auth: HTTP 404 `api_not_supported` for Claude on `/openai/v1/chat/completions` | Claude isn't served on Chat Completions. Use `/anthropic/v1/messages`. Cursor has no route to it; see [Claude on Foundry](ide.md#claude-on-foundry-no-ide-route). |
 | Windows: "The system cannot find the path specified" | Run `./scripts/Setup.ps1` again to rewrite absolute paths. |
 
 ## 9. Clean up

@@ -60,9 +60,24 @@ forum content can change after the observation date.
 | F28 | [Azure AI API models still unreliable in Cursor](https://forum.cursor.com/t/azure-ai-api-models-still-unreliable-in-cursor-please-prioritize-a-native-fix/150606) | February to March 2026: user reports plus staff pointing at tool-schema problems for file operations and missing Responses API support on Azure |
 | F29 | [When will Cursor fully support BYOK?](https://forum.cursor.com/t/when-will-cursor-fully-support-byok/164375) | June 2026, 8 posts: no per-model base URL or parameters; "no concrete timeline" |
 | F30 | [Override OpenAI Base URL not working](https://forum.cursor.com/t/override-openai-base-url-not-working/168323) and [The custom override of the OpenAI base URL is unusable](https://forum.cursor.com/t/the-custom-override-of-the-openai-base-url-is-unusable/152675) | August 2026 and February 2026 user reports only; not reproduced here |
+| F31 | [Using Azure OpenAI API Key](https://forum.cursor.com/t/using-azure-openai-api-key/162214) | June to August 2026, 13 posts. Staff, 29 July: the Base URL must be only `https://<resource>.openai.azure.com`, "Cursor appends the rest", with the real deployment name, and a Foundry project endpoint (`*.services.ai.azure.com`) is not supported; the user confirmed it worked. Staff, 30 July: with an OpenAI key or the override on, credentials go with every request, so Cursor-only models fail and Auto works. A user ran GPT-5.6 Luna through the Azure slot autonomously in August |
+| F32 | [Not able to use azure api key](https://forum.cursor.com/t/not-able-to-use-azure-api-key/149185) | January to July 2026, 33 posts. `model is required` traced to Cursor; a custom model named after the deployment worked for some; staff recommended a community proxy [G3] in April; image attachments bypass the custom URL; fixed in July |
+| F33 | [Azure GPT-5 API Key Not Working, Internal Server Error](https://forum.cursor.com/t/azure-gpt-5-api-key-not-working-internal-server-error/128572) | August to September 2025, 42 posts. With the Azure slot on only Auto worked; closed without a fix |
+| F34 | [BYOK with Azure OpenAI no longer works since 12 hours](https://forum.cursor.com/t/byok-with-azure-openai-no-longer-works-since-12-hours/161692) | May to June 2026. A 502 whose cause was a misspelled Base URL |
+| F35 | [Azure OpenAI model with key stopped working, works from curl](https://forum.cursor.com/t/azure-open-ai-model-with-key-stop-working-works-from-curl/165482) | July 2026. `400 invalid_input: model is required` on 3.11.19; staff: requests were built without the model and rejected before Azure; fixes merged 22 July |
+| F36 | [Azure OpenAI with GPT-5.6 Terra fails with "Request higher limits"](https://forum.cursor.com/t/azure-openai-with-gpt-5-6-terra-fails-with-request-higher-limits-in-cursor-3-15-6/168107) | August 2026 staff reply: on pooled Team and Enterprise plans own-key requests count toward usage limits and the block happens before Azure; a wrong deployment name can show the same error |
+| F37 | [Azure OpenAI BYOK in Cursor Agent fails with "model is required"](https://forum.cursor.com/t/azure-openai-byok-in-cursor-agent-fails-with-model-is-required-even-though-the-same-azure-deployment-works-with-curl/162417) | June to July 2026. The model field was dropped; staff: own-key requests go to the provider and Cursor credits don't affect them; fixed 8 July |
 
 The public proxy endpoint in F6 was not invoked. No Azure credentials were
 shared with a community proxy. The author's code was not incorporated.
+
+### Other public discussion
+
+| Key | Source | Relevance |
+| --- | --- | --- |
+| H1 | [Hacker News comment, May 2025](https://news.ycombinator.com/item?id=43907187) | In a Gemini 2.5 Pro thread: run Cursor through a LiteLLM proxy for per-project keys, budgets and traces; mentions LLemonStack [G11] |
+| H2 | [Hacker News comment, August 2025](https://news.ycombinator.com/item?id=44830915) | On the Cursor CLI launch: even with your own key, requests are routed through Cursor's servers |
+| Q1 | [Why doesn't my Azure OpenAI model show up in Cursor?](https://stackoverflow.com/questions/79544040/why-doesnt-my-azure-openai-model-show-up-in-cursor) | March 2025 question; the answer says the Deployment Name must match the Azure deployment exactly. Old model list; the naming advice still matches F31 |
 
 ## Microsoft / Anthropic primary sources
 
@@ -87,11 +102,19 @@ shared with a community proxy. The author's code was not incorporated.
 | Key | Source | How it was used |
 | --- | --- | --- |
 | S1 | [Official MCP Python SDK, supported v1 line](https://github.com/modelcontextprotocol/python-sdk/tree/v1.x) | FastMCP server and stdio client; installed versions are pinned in the lockfile |
-| L1 | [LiteLLM Azure Anthropic provider](https://docs.litellm.ai/docs/providers/azure/azure_anthropic) | Maintained Chat Completions translator for Foundry Claude. Version 1.108.4 was installed in a separate environment and tested locally, not through Cursor |
-| L2 | [LiteLLM: use with Cursor](https://docs.litellm.ai/docs/tutorials/cursor_integration) | The gateway must be reachable from the internet because Cursor calls it from its servers; Agent mode needs LiteLLM 1.97.0 or later |
-| G1 | [sherkevin/cursor-agent-byok](https://github.com/sherkevin/cursor-agent-byok) | Unofficial bridge for the Cursor agent with your own provider. Not evaluated or run; 3 stars, MIT. Listed so readers know it exists, not as a recommendation |
-| G2 | [leookun/cursor-byok](https://github.com/leookun/cursor-byok) | Unofficial BYOK project, archived 20 October 2026. Not evaluated |
-| G3 | [gabrii/Cursor-Azure-GPT-5](https://github.com/gabrii/Cursor-Azure-GPT-5) | Community proxy for Azure OpenAI models in Cursor. Not evaluated |
+| L1 | [LiteLLM Azure Anthropic provider](https://docs.litellm.ai/docs/providers/azure/azure_anthropic) | Maintained translator for Foundry Claude. Versions 1.108.4 (pip) and 1.109.1 (Docker) passed the 15 gateway probes here; Cursor never called them |
+| L2 | [LiteLLM: use with Cursor](https://docs.litellm.ai/docs/tutorials/cursor_integration) | Base URL `<proxy>/cursor`, reachable from the internet because Cursor calls it from its servers with `User-Agent: Cursor/1.0`; Agent mode since LiteLLM 1.97.0; "Cursor gates custom API keys by mode and model on its side". Documents an Azure-slot fallback verified on Cursor 3.17.21, which did not reach a gateway on 3.30.14 here. Its CLI relay (1.112) only relays Cursor's own sessions and is not a model route |
+| G1 | [sherkevin/cursor-agent-byok](https://github.com/sherkevin/cursor-agent-byok) | Claims to run the Cursor Agent CLI with your own OpenAI- or Anthropic-compatible key. Source read, not run: it impersonates Cursor's API host with a local certificate and forwards to `127.0.0.1:18090`, which nothing in the repository serves, and the provider URL and key you enter are never passed on. 3 stars, MIT |
+| G2 | [leookun/cursor-byok](https://github.com/leookun/cursor-byok) | Local replacement for Cursor's backend, intercepting the IDE's traffic with a local certificate authority. About 3,200 stars, MIT, archived October 2026; Tab completion defaults to the author's service. Read, not run |
+| G3 | [gabrii/Cursor-Azure-GPT-5](https://github.com/gabrii/Cursor-Azure-GPT-5) | Flask gateway that turns the IDE override's requests into Azure Responses API calls; needs a paid plan and a public endpoint. Recommended by Cursor staff in April 2026 [F32]. 75 stars, MIT, last push July 2026. Read, not run |
+| G4 | [rosch100/AI-Model-proxy](https://github.com/rosch100/AI-Model-proxy) | Archived copy of G3 with newer model mappings, including Luna |
+| G5 | [xFurti/cursor-custom-provider](https://github.com/xFurti/cursor-custom-provider) | Model-name rewriting gateway with an automatic HTTPS tunnel for the IDE override. 19 stars, MIT |
+| G6 | [0xSero/factory-cursor-bridge](https://github.com/0xSero/factory-cursor-bridge) | IDE override gateway translating between OpenAI and Anthropic formats. 85 stars, no license |
+| G7 | [bcat95/Cursor-Azure-Claude](https://github.com/bcat95/Cursor-Azure-Claude) | OpenAI-to-Anthropic gateway for Azure-hosted Claude; the author used it mainly with Ctrl+K [F6]. 11 stars, no license |
+| G8 | [Alorse/llm-proxy](https://github.com/Alorse/llm-proxy) | Aliases any OpenAI-compatible model under a name Cursor accepts. 24 stars, MIT, last push July 2025 |
+| G9 | [hainuoli/cursor-byok](https://github.com/hainuoli/cursor-byok) | Backend replacement like G2, active (v1.1.0, 14 November 2026). 55 stars, MIT. Not run |
+| G10 | [Yimikami/cursor-byok](https://github.com/Yimikami/cursor-byok) | Desktop app that turns the IDE into an own-key client "without Pro account". 57 stars, AGPL-3.0. Not run |
+| G11 | [LLemonStack](https://github.com/LLemonStack/llemonstack) | Local stack that packages LiteLLM with Langfuse tracing [H1]. 146 stars, AGPL-3.0 |
 | X1 | [OpenCode providers](https://opencode.ai/docs/providers) | Documents `azure` provider modes for chat and responses. Configuration docs only; not tested |
 | X2 | [Codex advanced configuration](https://developers.openai.com/codex/config-advanced) | Documents an Azure provider and per-provider tuning. Configuration docs only; not tested |
 | B1 | [Cursor BYOK guide, BYOKList](https://byoklist.com/guides/cursor-byok) | Secondary cross-check on IDE setup/privacy; not treated as authoritative CLI or Cloud evidence |
@@ -105,9 +128,13 @@ shared with a community proxy. The author's code was not incorporated.
   the current Cursor documentation says your key and requests pass through
   Cursor's servers [C11, C16]. The documentation is treated as authoritative.
 - Staff cite `*.cognitiveservices.azure.com` endpoints for Foundry [F8], while
-  the Azure OpenAI slot's placeholder shows `*.openai.azure.com`. Both host
-  names exist on a Foundry resource. Which forms the slot accepts was not
-  tested.
+  another staff reply and the slot's placeholder use `*.openai.azure.com`
+  [F31]. Both host names exist on a Foundry resource. Neither was tested here
+  with a real key.
+- LiteLLM documents the Azure slot reaching a LiteLLM gateway on Cursor
+  3.17.21 [L2]. On 3.30.14 two non-Azure hosts in the slot received no
+  requests. Cursor may have restricted the slot since, or it may differ by
+  plan; this was not resolved.
 - Third-party proxy documentation can list `/chat/completions` because the
   proxy implements it. That does not make it an Azure-native endpoint.
 - Generic statements that Claude requires a separate Anthropic API are useful
@@ -121,9 +148,16 @@ shared with a community proxy. The author's code was not incorporated.
 
 ## Coverage limits
 
-- Community evidence comes from the Cursor forum, read through its public
-  JSON API. No Reddit, Hacker News, X or Stack Overflow posts were opened.
+- Community evidence comes mostly from the Cursor forum, read through its
+  public JSON API, plus two Hacker News comments [H1, H2] and one Stack
+  Overflow question [Q1]. Reddit and X could not be read without signing in
+  and are not covered.
 - Claude Code was compared through its documentation [A3] and not run.
   OpenCode and Codex were read through their configuration documentation
   [X1, X2]. Cline, Roo Code, Continue and GitHub Copilot were not checked.
-- The unofficial bridges [G1, G2, G3] were not evaluated.
+- The community bridges [G1 to G11] were read, not run. Backend replacements
+  [G2, G9, G10] install a local certificate authority and impersonate Cursor's
+  servers; running them is a security decision, so read Cursor's terms and
+  the code first.
+- The Premium round used one individual plan. Team and Enterprise plans, and
+  other Cursor versions, may behave differently.

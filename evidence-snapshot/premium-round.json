@@ -1,0 +1,75 @@
+{
+  "observed_on": "2026-11-17",
+  "plan": "Cursor individual Premium",
+  "versions": {
+    "cursor_ide": "3.30.14",
+    "cursor_cli": "2026.11.13-eacade1",
+    "litellm_docker": "1.109.1",
+    "litellm_venv": "1.108.4",
+    "os": "Windows 11"
+  },
+  "method": "Each surface was driven with the gateway or a stub listening behind a temporary public tunnel. A request counts as 'reached' only if the capture proxy logged it. UI messages are quoted as shown. Hosts are replaced with placeholders; the tunnel was deleted afterwards.",
+  "gateway": {
+    "aliases": [
+      "foundry-luna -> Foundry GPT-6 Luna through the Responses API",
+      "foundry-haiku -> Foundry Claude Haiku 5.5 through the Anthropic route"
+    ],
+    "direct_probe": "15 of 15 cases as expected on both gateways (litellm-gateway-docker.json, litellm-gateway.json)"
+  },
+  "ide": [
+    {
+      "case": "OpenAI API Key slot + Override OpenAI Base URL -> gateway /cursor, custom models foundry-luna and foundry-haiku",
+      "saving_the_key": "No request reached the gateway when the key, the override or the custom models were saved",
+      "enable_dialog": "Are you sure you want to enable your own OpenAI API key? Several of Cursor's features require custom models (Tab, Apply from Chat, Agent), which cannot be billed to an API key.",
+      "picker": "Custom models are listed in the IDE and Agents Window pickers",
+      "select_with_slash_command": "Bad Request - This model does not support custom API keys.",
+      "send_prompt": "Invalid API key. Unauthorized User API key",
+      "gateway_requests": 0
+    },
+    {
+      "case": "Same override, built-in name GPT-5.2 mapped to Luna by a gateway alias",
+      "send_prompt": "Invalid API key. Unauthorized User API key",
+      "gateway_requests": 0
+    },
+    {
+      "case": "Control: no API key enabled, built-in GPT-5.2",
+      "send_prompt": "GPT-5.2 is not included in your weekly usage. Buy credits or switch to a Grok model to continue."
+    },
+    {
+      "case": "Azure OpenAI slot test 1: bare tunnel host, deployment foundry-luna, dummy key, GPT-5.2",
+      "send_prompt": "Rate limited by model provider, retrying... then Network Error - We're having trouble connecting to the model provider",
+      "stub_requests": 0
+    },
+    {
+      "case": "Azure OpenAI slot test 2: <resource>.openai.azure.com without scheme, real deployment, dummy key",
+      "send_prompt": "Same Network Error",
+      "azure_monitor": "No new requests; 401 responses are not recorded there, so inconclusive"
+    },
+    {
+      "case": "Azure OpenAI slot test 3: https://<tunnel host>, deployment cursor-poc-gpt-6-luna, dummy key",
+      "enable_dialog": "Are you sure you want to enable your own Azure OpenAI API key? Several of Cursor's features require custom models (Tab, Apply from Chat, Agent), which cannot be billed to an API key.",
+      "send_prompt": "Same Network Error",
+      "stub_requests": 0
+    },
+    {
+      "case": "Azure OpenAI slot test 4: https://<resource>.openai.azure.com, real deployment, dummy key",
+      "send_prompt": "Same Network Error",
+      "azure_monitor": "No new requests; inconclusive for the same reason"
+    }
+  ],
+  "ide_reading": "With the Azure slot on, GPT-5.2 was no longer blocked by the plan gate and was sent to the own-key path, which then failed on the dummy key. Non-Azure hosts never received a request. A run with a real key was not made because it needs the owner's approval to store a Foundry key in Cursor.",
+  "capture_log_review": "The capture logs for the whole round hold 8 requests, all sent by the tester: four local checks with PowerShell and four requests through the tunnel. Two of the tunnel requests set User-Agent: Cursor/1.0 by hand to mimic the documented Cursor caller (curl-style headers, no Accept-Encoding, sent before any key was saved in Cursor). None came from Cursor's servers.",
+  "cli": {
+    "agent_about": "Premium",
+    "agent_models": "About 300 Cursor-hosted models, no own-key or custom models",
+    "agent_p_model_foundry_luna": "Cannot use this model: foundry-luna. Available models: ...",
+    "agent_bedrock": "configure, enable, status, test, clear, disable. AWS Bedrock only. status: Enabled no, Mode access-key, Region us-east-1, 16 Bedrock models",
+    "agent_worker": "Self-hosted worker for Cloud Agents; tool calls run on the machine, inference stays with Cursor",
+    "gateway_requests": 0
+  },
+  "cloud": {
+    "case": "Agents Window, Cloud environment, model foundry-luna",
+    "send_prompt": "Model Not Available - The AI model you selected isn't available...",
+    "gateway_requests": 0
+  }
+}

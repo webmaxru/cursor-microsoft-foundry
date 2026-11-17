@@ -184,6 +184,33 @@ class CaptureProxy(unittest.TestCase):
             self.assertEqual((wrong.status_code, missing.status_code), (401, 401))
             self.assertNotIn("wrong-secret", log.read_text(encoding="utf-8"))
 
+    def test_stub_answers_locally_without_azure_token_or_forwarding(self):
+        import contextlib
+        import io
+        import threading
+        import capture_proxy
+        config = load_config(EXAMPLE_CONFIG_PATH)
+        with tempfile.TemporaryDirectory() as directory, contextlib.redirect_stdout(io.StringIO()):
+            log = Path(directory) / "capture.jsonl"
+            with patch("capture_proxy.AzureCliCredential") as credential:
+                server = capture_proxy.Server(("127.0.0.1", 0), config, "right-secret", log, None, stub=True)
+                threading.Thread(target=server.serve_forever, daemon=True).start()
+                try:
+                    with patch.object(server.http, "send") as forward:
+                        url = f"http://127.0.0.1:{server.server_address[1]}/chat/completions"
+                        reply = httpx.post(url, json={"model": "foundry-luna", "messages": [{"role": "user", "content": "distinct-prompt-7f3"}]},
+                                           headers={"Authorization": "Bearer right-secret"})
+                finally:
+                    server.shutdown()
+                    server.server_close()
+                credential.assert_not_called()
+                forward.assert_not_called()
+            self.assertEqual(reply.status_code, 200)
+            self.assertEqual(reply.json()["model"], "foundry-luna")
+            entry = json.loads(log.read_text(encoding="utf-8").splitlines()[-1])
+            self.assertTrue(entry["result"]["stub"])
+            self.assertNotIn("distinct-prompt-7f3", log.read_text(encoding="utf-8"))
+
 
 class CliProbe(unittest.TestCase):
     def test_command_names_come_from_the_commands_section_only(self):

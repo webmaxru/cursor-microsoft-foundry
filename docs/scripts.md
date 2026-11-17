@@ -1,9 +1,11 @@
 # Scripts and configuration reference
 
-All scripts read `config/foundry.json` and use your Azure CLI login. None of
-them read, create or store an API key. Scripts marked **Live** call Foundry
-models and are billed per token. They use very small prompts, so a full run
-costs a few hundred tokens.
+All scripts read `config/foundry.json` and use your Azure CLI login. The
+everyday scripts and the bridge never use an API key. The few research scripts
+marked **(key)** read the Foundry resource key from `FOUNDRY_API_KEY` or from
+`az` in memory, and never print or write it. Scripts marked **Live** call
+Foundry models and are billed per token. They use very small prompts, so a
+full run costs a few hundred tokens.
 
 Run Python scripts with the virtual environment's interpreter, created by
 `Setup.ps1`:
@@ -50,8 +52,10 @@ bridge.
 | [`scripts/probe_cursor_routing.py`](../scripts/probe_cursor_routing.py) | Black-box test of Cursor CLI: points `--endpoint` at a local listener that discards request bodies, then runs Cursor with fake OpenAI and Azure provider variables to see whether they change routing. | No (uses Cursor) | `evidence/cursor-routing.json` |
 | [`scripts/probe_fullswitch_routes.py`](../scripts/probe_fullswitch_routes.py) | Sends the request shapes an IDE key slot would use to your deployments with a **resource API key**: Bearer and `api-key` headers, a wrong key, legacy and current token limits, tools with and without `reasoning_effort`, streaming, and Claude on Chat Completions, Responses and Messages. Prints 12 pass or fail checks. The key is read from `FOUNDRY_API_KEY` or `az` in memory and never printed or written. Needs key access on the resource ([setup](setup.md#optional-api-key-access-for-the-ide-full-switch)). | **Live** (key) | `evidence/fullswitch-key-routes.json` |
 | [`scripts/probe_cli_fullswitch.py`](../scripts/probe_cli_fullswitch.py) | Checks whether the Cursor CLI can use another provider: `--endpoint` at a local listener that records method, path and header names only, `--model` with a name outside Cursor's catalog, and a search of `agent --help` for provider commands. Sends no Foundry credential. Your Cursor login token does reach the local listener, which discards it. | No (uses Cursor) | `evidence/cli-fullswitch.json` |
-| [`scripts/probe_litellm_gateway.py`](../scripts/probe_litellm_gateway.py) | Starts a local [LiteLLM](https://docs.litellm.ai/) proxy in front of the Claude deployment and sends what an IDE agent produces: text, tool call, tool-result round trip and streaming, with both token-limit spellings. LiteLLM isn't a dependency; install it in a separate environment and pass `--litellm <path>`. Uses a resource key from `az` in memory. | **Live** (key) | `evidence/litellm-gateway.json` |
-| [`scripts/capture_proxy.py`](../scripts/capture_proxy.py) | A request-capture proxy for testing what the Cursor IDE sends to a custom base URL. It checks a throwaway shared secret, swaps in your Entra token, forwards the body unchanged to Foundry and records the request shape, so you never paste a real Foundry key into Cursor. Bind it to localhost behind a tunnel you delete afterwards. Its logs hold the secret and request bodies: don't publish them. See [Verify what Cursor sends](ide.md#verify-what-cursor-sends). | **Live** (when used) | Local logs you choose |
+| [`scripts/litellm_gateway.py`](../scripts/litellm_gateway.py) | Runs a [LiteLLM](https://docs.litellm.ai/) gateway with two aliases: `foundry-luna` (the OpenAI deployment, always through the Responses API) and `foundry-haiku` (the Claude deployment, through the Anthropic route). `render` prints the config, which holds no secret. `serve --litellm <path> [--host] [--port]` runs a pip-installed LiteLLM on 127.0.0.1:4000. `register --url <gateway>` adds the aliases to a running gateway that keeps models in its database, such as LiteLLM's Docker quickstart. Needs `LITELLM_MASTER_KEY` (starting with `sk-`, at least 24 characters). See [Gateway route](ide.md#gateway-route-refused-by-cursor). | No (the gateway does, when called) | Nothing |
+| [`scripts/probe_litellm_gateway.py`](../scripts/probe_litellm_gateway.py) | Sends 15 Cursor-shaped cases through a LiteLLM gateway: the model list, then for each alias plain text, a tool call and a tool-result round trip on LiteLLM's `/cursor` route with both Chat Completions and Responses-shaped bodies (streamed), and the Azure slot's deployment route with an `api-key` header; then a `-thinking-high` model-name suffix and a wrong gateway key. Without `--base-url` it starts its own LiteLLM (`--litellm <path>`) with a throwaway key; with `--base-url` it tests a running gateway, using `LITELLM_API_KEY` or `LITELLM_MASTER_KEY`. `--version` records the LiteLLM version, `--out` names the evidence file. LiteLLM isn't a dependency of this repository. | **Live** (key) | `evidence/litellm-gateway.json` or the `--out` name |
+| [`scripts/capture_proxy.py`](../scripts/capture_proxy.py) | A request-capture proxy for testing what Cursor sends to a custom base URL. It checks a throwaway shared secret and records the request shape, never the prompt text, so you never paste a real Foundry key into Cursor. Three modes: by default it swaps in your Entra token and forwards the body unchanged to Foundry; `--forward-to <gateway>` fronts a local gateway such as LiteLLM and exposes only model routes; `--stub` answers model routes with a canned reply and contacts nothing. Bind it to localhost behind a tunnel you delete afterwards. Its logs can hold the secret and, with `--save-bodies`, request bodies: don't publish them. See [Verify what Cursor sends](ide.md#verify-what-cursor-sends). | **Live** (default and `--forward-to`) | `evidence/proxy-capture.jsonl` or `--log` |
+| [`scripts/check_foundry_usage.py`](../scripts/check_foundry_usage.py) | Reads Azure Monitor request metrics for one deployment, per minute, status code and API, to prove a client really reached it. `--minutes` (default 30), `--deployment`, `--metric ModelRequests\|AzureOpenAIRequests`, `--out`. Needs Monitoring Reader on the resource. Metrics appear after 1 to 3 minutes, and failed key authentication (401) is not counted. See [Check it with your own key](ide.md#check-it-with-your-own-key). | Control plane (metrics) | `--out` file, if given |
 | [`scripts/snapshot_evidence.py`](../scripts/snapshot_evidence.py) | Copies `evidence/` to `evidence-snapshot/`, replacing the subscription, resource group, resource and project names, local paths and unrelated deployment names with the values from `config/foundry.example.json`. Fails if a private value remains. | No | `evidence-snapshot/` |
 | [`scripts/cursor_runtime.py`](../scripts/cursor_runtime.py) | Helper that starts Cursor CLI from Python. On Windows it runs the installed version's Node entry point directly; elsewhere it runs `agent`. | No | Nothing |
 
@@ -64,17 +68,18 @@ limit.
 & $py -m unittest discover -s tests -v
 ```
 
-[`tests/test_clients.py`](../tests/test_clients.py) has twelve offline tests.
+[`tests/test_clients.py`](../tests/test_clients.py) has thirteen offline tests.
 They check input limits, rejection of non-Azure destinations and credentials
 in URLs, the missing-config message, that incomplete or empty responses fail,
 that audit records hold no prompt or answer, that provider errors are redacted
 and not retried, that invalid MCP arguments never reach Azure, and that a
 Cursor transcript counts as proof only when it shows response IDs whose audit
-records match the expected answers for both deployments. The other four check
+records match the expected answers for both deployments. The other five check
 that the capture proxy records request shape but not prompt text, that it
 summarizes errors and stream usage, that a wrong shared secret is rejected
-before any Azure token is requested, and that the CLI probe reads provider
-commands only from the help text's commands section. The tests don't call
+before any Azure token is requested, that `--stub` mode answers locally
+without an Azure token or any forwarding, and that the CLI probe reads
+provider commands only from the help text's commands section. The tests don't call
 Azure or Cursor.
 
 ## Configuration files
@@ -85,7 +90,7 @@ Azure or Cursor.
 | `demo/.cursor/mcp.json` | Written by `Setup.ps1` (gitignored, because it holds absolute local paths). The Cursor CLI and IDE both read it. [`mcp.example.json`](../demo/.cursor/mcp.example.json) shows the shape. |
 | [`demo/.cursor/cli.json`](../demo/.cursor/cli.json) | Cursor CLI permissions for the demo: allows only the two Foundry tools and denies shell, file and web tools. |
 | [`config/cloud-agent.request.example.json`](../config/cloud-agent.request.example.json) | Shape of a Cursor Cloud Agents API request that adds a remote HTTP MCP server. **Blueprint only**; the host name and token are placeholders. |
-| [`config/litellm.config.example.yaml`](../config/litellm.config.example.yaml) | Example LiteLLM gateway that exposes the Foundry Claude deployment as an OpenAI-format model for the IDE's Override OpenAI Base URL route. Tested locally with [`probe_litellm_gateway.py`](../scripts/probe_litellm_gateway.py), **not through Cursor**; the key and alias are placeholders. |
+| [`config/litellm.config.example.yaml`](../config/litellm.config.example.yaml) | Example LiteLLM config with the `foundry-luna` and `foundry-haiku` aliases, the same as `litellm_gateway.py render` prints. Passed 15 of 15 cases with LiteLLM 1.108.4 (pip) and 1.109.1 (Docker). **Cursor 3.30.14 sent it no request** on a Premium plan. The resource name is a placeholder; keys come from environment variables. |
 | [`requirements.txt`](../requirements.txt), [`requirements.lock.txt`](../requirements.lock.txt) | Direct dependencies and the exact tested versions. |
 
 The `evidence/` folder holds raw local results and is gitignored. The

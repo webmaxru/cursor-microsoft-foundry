@@ -1,0 +1,167 @@
+{
+  "observed_at_utc": "2026-11-17T11:44:26.166748+00:00",
+  "gateway": "LiteLLM, existing LiteLLM proxy on 127.0.0.1",
+  "aliases": [
+    "foundry-luna",
+    "foundry-haiku"
+  ],
+  "upstreams": {
+    "foundry-luna": "openai/responses/cursor-poc-gpt-6-luna on the Foundry OpenAI v1 Responses route",
+    "foundry-haiku": "azure_ai/claude-haiku-5-5 on the Foundry Anthropic Messages route"
+  },
+  "upstream_authentication": "Foundry resource API key (never recorded)",
+  "client_authentication": "Gateway key (never recorded)",
+  "error": null,
+  "cases": [
+    {
+      "model": "*",
+      "case": "GET /cursor/models lists both aliases",
+      "http_status": 200,
+      "as_expected": true,
+      "models": [
+        "foundry-haiku",
+        "foundry-luna"
+      ]
+    },
+    {
+      "model": "foundry-luna",
+      "case": "Chat Completions text",
+      "http_status": 200,
+      "as_expected": true,
+      "finish_reason": "stop",
+      "usage_reported": true,
+      "error": null
+    },
+    {
+      "model": "foundry-luna",
+      "case": "Cursor route, Chat Completions body, tool call",
+      "http_status": 200,
+      "as_expected": true,
+      "tool_call": "read_file",
+      "tool_arguments": {
+        "path": "README.md"
+      },
+      "finish_reason": "tool_calls",
+      "error": null
+    },
+    {
+      "model": "foundry-luna",
+      "case": "Cursor route, tool-result round trip",
+      "http_status": 200,
+      "as_expected": true,
+      "finish_reason": "stop",
+      "error": null
+    },
+    {
+      "model": "foundry-luna",
+      "case": "Cursor route, Responses-shaped body, streamed tool call",
+      "http_status": 200,
+      "as_expected": true,
+      "tool_call": "read_file",
+      "tool_arguments": {
+        "path": "README.md"
+      },
+      "stream_events": 8,
+      "finish_reason": "tool_calls",
+      "usage_reported": false,
+      "error": null
+    },
+    {
+      "model": "foundry-luna",
+      "case": "Cursor route, Responses-shaped tool-result round trip",
+      "http_status": 200,
+      "as_expected": true,
+      "finish_reason": "stop",
+      "error": null
+    },
+    {
+      "model": "foundry-luna",
+      "case": "Azure slot route with api-key header, streamed tool call",
+      "http_status": 200,
+      "as_expected": true,
+      "tool_call": "read_file",
+      "tool_arguments": {
+        "path": "README.md"
+      },
+      "usage_reported": true,
+      "error": null
+    },
+    {
+      "model": "foundry-haiku",
+      "case": "Chat Completions text",
+      "http_status": 200,
+      "as_expected": true,
+      "finish_reason": "stop",
+      "usage_reported": true,
+      "error": null
+    },
+    {
+      "model": "foundry-haiku",
+      "case": "Cursor route, Chat Completions body, tool call",
+      "http_status": 200,
+      "as_expected": true,
+      "tool_call": "read_file",
+      "tool_arguments": {
+        "path": "README.md"
+      },
+      "finish_reason": "tool_calls",
+      "error": null
+    },
+    {
+      "model": "foundry-haiku",
+      "case": "Cursor route, tool-result round trip",
+      "http_status": 200,
+      "as_expected": true,
+      "finish_reason": "stop",
+      "error": null
+    },
+    {
+      "model": "foundry-haiku",
+      "case": "Cursor route, Responses-shaped body, streamed tool call",
+      "http_status": 200,
+      "as_expected": true,
+      "tool_call": "read_file",
+      "tool_arguments": {
+        "path": "README.md"
+      },
+      "stream_events": 6,
+      "finish_reason": "tool_calls",
+      "usage_reported": true,
+      "error": null
+    },
+    {
+      "model": "foundry-haiku",
+      "case": "Cursor route, Responses-shaped tool-result round trip",
+      "http_status": 200,
+      "as_expected": true,
+      "finish_reason": "stop",
+      "error": null
+    },
+    {
+      "model": "foundry-haiku",
+      "case": "Azure slot route with api-key header, streamed tool call",
+      "http_status": 200,
+      "as_expected": true,
+      "tool_call": "read_file",
+      "tool_arguments": {
+        "path": "README.md"
+      },
+      "usage_reported": true,
+      "error": null
+    },
+    {
+      "model": "foundry-luna",
+      "case": "Cursor -thinking-high suffix resolves to the alias",
+      "http_status": 200,
+      "as_expected": true,
+      "error": null
+    },
+    {
+      "model": "*",
+      "case": "Wrong gateway key is rejected",
+      "http_status": 401,
+      "as_expected": true
+    }
+  ],
+  "passed": true
+}

@@ -30,7 +30,7 @@ Azure-signed attestations.
 
 | File | What it shows |
 | --- | --- |
-| [`ide-mcp-e2e.json`](../evidence-snapshot/ide-mcp-e2e.json) | **IDE proof.** In the Cursor IDE 3.30.14 Agent panel (Grok 4.7, Free plan), the Agent called both tools with a fresh challenge from `verify_ide.py prepare`. `verify_ide.py check` matched the displayed results and response IDs with new audit records. Luna response `resp_0005469135d59969016afba15331588193a4abfce9cfd018c0`; Claude Haiku response `msg_011Ch7ZcVhwms1HNAQKsBk9e`. |
+| [`ide-mcp-e2e.json`](../evidence-snapshot/ide-mcp-e2e.json) | **IDE proof.** In the Cursor IDE 3.30.14 Agent panel (Grok 4.7, on the Free plan before the Premium round), the Agent called both tools with a fresh challenge from `verify_ide.py prepare`. `verify_ide.py check` matched the displayed results and response IDs with new audit records. Luna response `resp_0005469135d59969016afba15331588193a4abfce9cfd018c0`; Claude Haiku response `msg_011Ch7ZcVhwms1HNAQKsBk9e`. |
 | [`ide-transcript.txt`](../evidence-snapshot/ide-transcript.txt) | The Agent's chat copied from the IDE, which the check read. |
 
 ## Foundry calls without Cursor
@@ -67,7 +67,15 @@ Azure-signed attestations.
 | --- | --- |
 | [`fullswitch-key-routes.json`](../evidence-snapshot/fullswitch-key-routes.json) | Twelve checks of a resource API key against the Foundry routes an IDE key slot would use, all as expected. Luna on Chat Completions: **200** with a Bearer header and with the `api-key` header, **401** with a wrong key, **400** for legacy `max_tokens`, **400** for tools without `reasoning_effort: "none"`, **200** with it, and **200** for streaming. Claude: **404 `api_not_supported`** on Chat Completions, **200** on Responses and on Anthropic Messages. This shows what Foundry accepts. It doesn't show what Cursor sends. |
 | [`cli-fullswitch.json`](../evidence-snapshot/cli-fullswitch.json) | With a real Cursor login, `--endpoint` made the CLI call only Cursor's own `/aiserver.v1.*` services (`GetMe`, `GetServerConfig` and others, all `application/proto`), with an `authorization` header, and exit with `[unimplemented]`. `--model` rejected a name outside Cursor's catalog. `agent --help` lists `bedrock` as the only provider command. Only header names were recorded. |
-| [`litellm-gateway.json`](../evidence-snapshot/litellm-gateway.json) | A local LiteLLM 1.108.4 proxy in front of the Claude deployment passed 6 of 6 cases: text with both token-limit spellings, a tool call, the tool-result round trip and streaming with usage. A wrong gateway key was refused. This is **not** verified through Cursor. |
+| [`litellm-gateway.json`](../evidence-snapshot/litellm-gateway.json) | LiteLLM 1.108.4 (pip), started by [`litellm_gateway.py`](../scripts/litellm_gateway.py)'s config with the `foundry-luna` and `foundry-haiku` aliases, passed **15 of 15** Cursor-shaped cases: the model list; for each alias text, a tool call and a tool-result round trip on the `/cursor` route with Chat Completions and Responses-shaped bodies, and the Azure slot's deployment route with an `api-key` header; a `-thinking-high` suffix; and a refused wrong key. This shows the gateway works. It doesn't show that Cursor uses it. |
+| [`litellm-gateway-docker.json`](../evidence-snapshot/litellm-gateway-docker.json) | The same 15 cases, all as expected, against LiteLLM's Docker quickstart (1.109.1) with the aliases added by `litellm_gateway.py register`. |
+
+## Premium round
+
+| File | What it shows |
+| --- | --- |
+| [`premium-round.json`](../evidence-snapshot/premium-round.json) | **Every surface on an individual Premium plan** (Cursor IDE 3.30.14, CLI 2026.11.13-eacade1), with the gateway or a stub behind a temporary public tunnel. A request counts as reached only if the capture proxy logged it, and **none did**. IDE, OpenAI key with Override Base URL: "Bad Request - This model does not support custom API keys" on selecting a custom model with `/model`, "Invalid API key. Unauthorized User API key" on sending. IDE, Azure OpenAI slot with a dummy key: GPT-5.2 moved past the plan gate, then "Rate limited by model provider, retrying..." and "Network Error"; a stub behind the slot logged nothing. CLI: "Cannot use this model: foundry-luna", `bedrock` is AWS only. Cloud: "Model Not Available". Also records my own reachability checks, which are not Cursor requests. |
+| [`usage-check-selftest.json`](../evidence-snapshot/usage-check-selftest.json) | A self-test of [`check_foundry_usage.py`](../scripts/check_foundry_usage.py): one direct request to the Luna deployment appeared in Azure Monitor as one `200` in `ModelRequests`. Use the same script after a real-key test of the Azure slot. |
 
 ## Deployments and tests
 
@@ -76,4 +84,4 @@ Azure-signed attestations.
 | [`deployment-created.json`](../evidence-snapshot/deployment-created.json) | The Luna deployment created by `Deploy-OpenAIModel.ps1`: DataZoneStandard, capacity 10, 10 requests and 10,000 tokens per minute. |
 | [`deployment.json`](../evidence-snapshot/deployment.json) | A later run of the same script found the matching deployment and changed nothing. |
 | [`deployment-inventory.json`](../evidence-snapshot/deployment-inventory.json) | Both deployments used: Luna (OpenAI format) and the existing Claude Haiku 5.5 deployment (Anthropic format, version 2, GlobalStandard). |
-| [`unit-tests.txt`](../evidence-snapshot/unit-tests.txt) | All twelve unit tests passed. |
+| [`unit-tests.txt`](../evidence-snapshot/unit-tests.txt) | All thirteen unit tests passed. |

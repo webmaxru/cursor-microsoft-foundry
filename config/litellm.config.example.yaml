@@ -1,19 +1,43 @@
-# LiteLLM gateway that exposes Foundry Claude to Cursor as an OpenAI Chat Completions model.
-# Tested with LiteLLM 1.108.4 by scripts/probe_litellm_gateway.py. Replace <resource> and the
-# deployment name, and set both environment variables before starting the proxy:
+# LiteLLM gateway that exposes Foundry GPT and Claude deployments to Cursor through one endpoint.
+# This is what `python scripts/litellm_gateway.py render` produces, with <resource> as a placeholder.
+# Tested on 17 November 2026 with LiteLLM 1.108.4 (pip) and 1.109.1 (Docker) by
+# scripts/probe_litellm_gateway.py: 15 of 15 cases as expected on both.
+#
+# Set both environment variables before starting the proxy:
 #   AZURE_AI_API_KEY    the Foundry resource API key (the gateway keeps it; Cursor never sees it)
-#   LITELLM_MASTER_KEY  a long random value starting with sk-; this is the key you give Cursor
+#   LITELLM_MASTER_KEY  a long random value starting with sk-; give clients a virtual key, not this one
 #
-#   litellm --config config/litellm.config.example.yaml --host 0.0.0.0 --port 4000
+#   litellm --config config/litellm.config.example.yaml --host 127.0.0.1 --port 4000
 #
-# Cursor sends requests from its own servers, so the gateway needs a public HTTPS address in front of it.
+# A Docker install that stores models in its database (STORE_MODEL_IN_DB=True) ignores this file's
+# model_list; add the same two entries with `python scripts/litellm_gateway.py register` instead.
+#
+# Cursor sends requests from its own servers, so the gateway needs a public HTTPS address in front of
+# it. On 17 November 2026 Cursor's Agent did not use these aliases on any surface; see docs/ide.md.
 model_list:
-  # The alias must not start with "claude": Cursor sends every claude-* model to its Anthropic key slot.
+  # Aliases must not start with "gpt-" or "claude": Cursor sends claude-* names to its Anthropic key
+  # slot and treats names of its own models as Cursor models.
+  - model_name: foundry-luna
+    litellm_params:
+      # responses/ sends every request, Chat Completions bodies included, to the Responses API.
+      # Foundry GPT models refuse function tools on Chat Completions unless reasoning is off.
+      model: openai/responses/cursor-poc-gpt-6-luna
+      api_base: https://<resource>.openai.azure.com/openai/v1
+      api_key: os.environ/AZURE_AI_API_KEY
+    model_info:
+      # Deployment names are your own, so LiteLLM needs the real model to know it supports tools
+      # and reasoning.
+      base_model: gpt-6-luna
+      supports_reasoning: true
   - model_name: foundry-haiku
     litellm_params:
       model: azure_ai/claude-haiku-5-5
       api_base: https://<resource>.services.ai.azure.com/anthropic
       api_key: os.environ/AZURE_AI_API_KEY
+      # Cursor sends OpenAI-only parameters; drop the ones Claude does not accept.
+      drop_params: true
+    model_info:
+      base_model: azure_ai/claude-haiku-5-5
 
 general_settings:
   master_key: os.environ/LITELLM_MASTER_KEY

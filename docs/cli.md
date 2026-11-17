@@ -12,12 +12,14 @@ Cursor.
 | --- | --- |
 | Make a Foundry deployment the CLI's main model | **Not possible** ([evidence](#why-there-is-no-switch)) |
 | Point `--endpoint` at Foundry | Doesn't work: it is Cursor's own protobuf service |
-| Use your own provider key, the way the IDE does | Not supported by the CLI [F25] |
+| Use your own provider key, the way the IDE does | Not supported by the CLI [F25]; still refused on Premium |
+| Put a gateway such as LiteLLM in front of Foundry and pick it in the CLI | **Refused**: "Cannot use this model", 0 requests at the gateway |
 | Let the CLI agent call Foundry OpenAI and Claude models as tools | **Verified**, [steps below](#fallback-foundry-models-as-mcp-tools) |
 
-> **Tested with:** Cursor CLI `2026.11.13-eacade1` on Windows 11 and a Cursor
-> Free account (17 November 2026). The MCP fallback needs
-> [Foundry setup](setup.md) steps 1 to 7.
+> **Tested with:** Cursor CLI `2026.11.13-eacade1` on Windows 11, first on a
+> Free account and again on an individual **Premium** plan (17 November 2026).
+> The results didn't change. The MCP fallback needs [Foundry setup](setup.md)
+> steps 1 to 7.
 
 ## Why there is no switch
 
@@ -63,7 +65,15 @@ key exchange. The probe doesn't document Cursor's private protocol.
 Cannot use this model: cursor-poc-gpt-6-luna. Available models: auto, gpt-5.3-codex-low, ...
 ```
 
-The names are Cursor's own catalog entries, not your deployments.
+The names are Cursor's own catalog entries, not your deployments. On Premium,
+`agent models` lists about 300 Cursor-hosted models and no custom or own-key
+ones. A custom model added in the IDE and served by a working LiteLLM gateway
+was refused the same way, and the gateway logged no request
+([`premium-round.json`](../evidence-snapshot/premium-round.json)):
+
+```text
+Cannot use this model: foundry-luna. Available models: ...
+```
 
 ### No provider flags, and environment variables are ignored
 
@@ -95,16 +105,35 @@ The names are Cursor's own catalog entries, not your deployments.
 
 ### Bedrock is not Azure
 
-The CLI ships `bedrock` commands, so "the CLI has no bring-your-own model of
-any kind" would be too broad. Bedrock is AWS only and was not configured here.
-It is not evidence of Azure or Foundry support [C9].
+The CLI ships `bedrock` commands (`configure`, `enable`, `status`, `test`,
+`clear`, `disable`), so "the CLI has no bring-your-own model of any kind"
+would be too broad. They take AWS credentials and a region, and list Bedrock
+models only; `agent bedrock status` on Premium showed it off, in access-key
+mode. Bedrock was not configured here, and it is not evidence of Azure or
+Foundry support [C9].
 
-### An unofficial bridge exists
+### `agent worker` doesn't move inference
+
+`agent worker` turns your machine into a self-hosted worker for Cloud Agents.
+Tool calls and file edits run on your machine; planning and model calls stay
+with Cursor [C8]. It is not a model route.
+
+### LiteLLM's CLI relay is not a model route
+
+LiteLLM 1.112 documents a relay for the Cursor CLI. It passes Cursor's own
+sessions through LiteLLM for logging; the models are still Cursor's [L2]. It
+doesn't let the CLI call Foundry.
+
+### An unofficial bridge exists, but its plumbing is incomplete
 
 A community project says it runs the Cursor agent CLI against OpenAI- or
-Anthropic-compatible APIs [G1]. I did not install it or evaluate how it works,
-so I can't say whether it is safe, supported or complete. Weigh it as you would
-any third-party tool that handles your credentials.
+Anthropic-compatible APIs [G1]. I read its source but did not run it. It
+installs a local certificate, answers in place of Cursor's API host and
+forwards requests to a port on your machine that nothing in the repository
+serves. The provider URL and key you enter are saved but never passed on. Other
+projects replace Cursor's backend the same way for the IDE [G2], [G9], [G10];
+they impersonate Cursor and see everything you send. The
+[full-switch page](fullswitch.md#what-the-community-built) compares them.
 
 > Do not use a command such as `cursor chat --endpoint <azure-url>
 > --deployment <name>` copied from an unverified summary. It is not part of
@@ -280,7 +309,7 @@ Problems with Azure, roles or deployments are covered in
 
 | Symptom | Cause and fix |
 | --- | --- |
-| `Model unavailable on Free` | Use `--model auto`. Explicit Composer 2.5 was refused on the Free plan. |
+| `Model unavailable on Free` | Use `--model auto`, or a paid plan. Explicit Composer 2.5 was refused on the Free plan. |
 | `Cannot use this model: <deployment name>` | `--model` takes Cursor catalog names only. Your deployment is reachable through the tools, not as a model. |
 | `Error: [unimplemented]` after setting `--endpoint` | The endpoint isn't a Cursor service. Remove `--endpoint`. |
 | `agent mcp list-tools` can't find `foundry-models` | Run it from the folder that contains `.cursor/mcp.json`. Passing only `--workspace` from the parent folder did not work on Windows. |

@@ -8,13 +8,23 @@ MCP. The difference is that the MCP server must be a **remote, authenticated
 HTTP service**, because the agent runs in a Cursor-hosted VM that can't reach a
 server on your laptop.
 
-This page is a **blueprint. It has not been run.** The test account was on
-Cursor's Free plan, which doesn't include Cloud Agents, and no Cursor API key
-was available [C3, C5].
+The switch was tested on an individual **Premium** plan (17 November 2026,
+Cursor IDE 3.30.14). In the Agents Window's Cloud environment, a custom model
+`foundry-luna`, served by a working LiteLLM gateway in front of Foundry, was
+refused before any request reached the gateway
+([`premium-round.json`](../evidence-snapshot/premium-round.json)):
+
+```text
+Model Not Available - The AI model you selected isn't available...
+```
+
+The MCP fallback below is a **blueprint. It has not been run**: it needs a
+public, authenticated MCP service and a Cursor API key, and neither was
+created [C3].
 
 | Question | Answer | Status |
 | --- | --- | --- |
-| Can a Cloud Agent's own model run on Foundry? | No. No API field or setting exists | Documented by Cursor and confirmed by staff [F23] |
+| Can a Cloud Agent's own model run on Foundry? | No. No API field or setting exists | Documented by Cursor and confirmed by staff [F23]; a custom model gave "Model Not Available" on Premium |
 | Can you bring your own provider key to Cloud Agents? | No | Staff say it is by design [F23]; users keep asking [F24]; OpenAI's guidance agrees [O1] |
 | Can a Cloud Agent call Foundry models as tools? | Yes, through an HTTP MCP server you host | Blueprint; not run |
 | Does the local `foundry-models` stdio server work there? | No. Cloud VMs can't reach `localhost` on your machine | By design |
@@ -110,8 +120,8 @@ shows the current create-agent request with an HTTP MCP server:
 
 ### What is still missing
 
-1. **A Cursor plan with Cloud Agents**, plus a Cursor API key for the API.
-   Free and Plus plans don't include Cloud Agents [C5].
+1. **A Cursor API key** for the API, on a plan that includes Cloud Agents.
+   Free and Plus plans don't [C5].
 2. **A network-reachable MCP service** with the two tools and real
    authentication. The local bridge in this repository is stdio-only and has
    no HTTP authentication.
@@ -122,9 +132,8 @@ shows the current create-agent request with an HTTP MCP server:
    request logs, as [`verify_cursor.py`](cli.md#4-run-the-full-end-to-end-check)
    does for the CLI.
 
-None of this was created for the investigation. There was no plan upgrade, no
-Cursor API key, no public service, no Entra application and no role
-assignment.
+None of this was created for the investigation. There was no Cursor API key,
+no public MCP service, no Entra application and no role assignment.
 
 ## OIDC: useful, but not automatic Azure access
 
