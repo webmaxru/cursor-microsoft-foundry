@@ -185,6 +185,52 @@
       },
       "ended_utc": "2026-11-17T17:44:08Z",
       "error_message": "Invalid API key. Unauthorized User API key"
+    },
+    {
+      "started_utc": "2026-11-17T18:57:58Z",
+      "model": "gpt-4.1",
+      "runtime": "connect",
+      "disposition": "fallback",
+      "reason": "byok-connect-routed",
+      "backend_errors": {
+        "resource_exhausted": 4
+      },
+      "decisions": [
+        "RETRY",
+        "RETRY",
+        "RETRY",
+        "THROW RetriableError"
+      ],
+      "outcome": "failed",
+      "final_grpc_code": {
+        "code": 8,
+        "name": "ResourceExhausted"
+      },
+      "ended_utc": "2026-11-17T18:58:18Z",
+      "error_message": "[resource_exhausted] Error"
+    },
+    {
+      "started_utc": "2026-11-17T19:03:08Z",
+      "model": "gpt-4.1",
+      "runtime": "connect",
+      "disposition": "fallback",
+      "reason": "byok-connect-routed",
+      "backend_errors": {
+        "resource_exhausted": 4
+      },
+      "decisions": [
+        "RETRY",
+        "RETRY",
+        "RETRY",
+        "THROW RetriableError"
+      ],
+      "outcome": "failed",
+      "final_grpc_code": {
+        "code": 8,
+        "name": "ResourceExhausted"
+      },
+      "ended_utc": "2026-11-17T19:03:27Z",
+      "error_message": "[resource_exhausted] Error"
     }
   ]
 }

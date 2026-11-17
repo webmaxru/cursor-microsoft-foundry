@@ -1,15 +1,19 @@
 # Cursor IDE with Microsoft Foundry
 
-**Verdict: the IDE has one documented switch, and with a real key it never
-reached Foundry here.** The only native IDE route to a Foundry model is the
-**Azure OpenAI slot pointed straight at your Foundry resource**. Cursor staff
-and users report it working in the Agent, including with a Luna model
-[F31], [F8]. I ran it with the resource's real key on a Premium plan, in four
-configurations aimed at Foundry, and every prompt ended in "Network Error -
-We're having trouble connecting to the model provider". Foundry recorded **no
+**Verdict: the IDE has one documented switch. It works for others, and in my
+setup it never produced an answer from Foundry.** The only native IDE route to
+a Foundry model is the **Azure OpenAI slot pointed straight at your Foundry
+resource**. Cursor staff and users report it working in the Agent, including
+with a Luna model [F31], [F8]. I ran it with the resource's real key on a
+Premium plan, in five configurations aimed at Foundry, with both host forms
+staff give. Every prompt ended in "Network Error - We're having trouble
+connecting to the model provider", and Foundry recorded **no successful
 request** from Cursor, while the same key, sent directly between the tests,
-returned 200 ([real-key round](#what-happened-with-a-real-key)). The slot covers chat and
-the Agent, not Tab, and only OpenAI deployments.
+returned 200 ([real-key round](#what-happened-with-a-real-key)). Cursor showed
+the **same error for a resource name that doesn't exist**, so the message says
+nothing about what Azure did. This is a failure in one account and setup, not
+proof that the documented option is broken ([what it means](#is-the-documented-option-broken)).
+The slot covers chat and the Agent, not Tab, and only OpenAI deployments.
 
 Claude on Foundry has no native IDE route. I built a
 [translating proxy](#can-a-proxy-bring-claude-to-the-ide) that turns Chat
@@ -21,7 +25,7 @@ route that worked in the IDE is the
 
 | Part | Status on 17 November 2026 |
 | --- | --- |
-| [Azure OpenAI slot to Foundry](#main-option-the-azure-openai-slot), OpenAI deployment, real key | **Failed here in 4 of 4 tests**, with two GPT deployments. "Network Error" after about 19 seconds; **0 requests** in Foundry's metrics and request logs. The key Cursor stored was identical to the resource key, which returned 200 when sent directly ([round](#what-happened-with-a-real-key)). Reported working by staff and users [F31], [F8] |
+| [Azure OpenAI slot to Foundry](#main-option-the-azure-openai-slot), OpenAI deployment, real key | **Failed in my setup in 5 of 5 tests**, with two GPT deployments and both the `openai.azure.com` and `cognitiveservices.azure.com` hosts. "Network Error" after about 19 seconds; **no successful request** in Foundry's metrics or request logs, which don't record 401 or 404. The same error appeared for a resource name that doesn't exist. The key Cursor stored was identical to the resource key, which returned 200 when sent directly ([round](#what-happened-with-a-real-key)). Reported working by staff and users [F31], [F8] |
 | Azure OpenAI slot to the [translating proxy](#can-a-proxy-bring-claude-to-the-ide), Claude deployment | **0 requests** at the proxy, which logs every request it receives |
 | OpenAI key with Override Base URL to the translating proxy | "Invalid API key. Unauthorized User API key" in 2 of 2 tests; **0 requests** at the proxy |
 | [OpenAI key with Override Base URL to a LiteLLM gateway](#gateway-route-refused-by-cursor) | **Refused by Cursor** in the earlier Premium round, the same way; **0 requests** reached the gateway |
@@ -40,7 +44,7 @@ route that worked in the IDE is the
 
 | Route | Foundry models | What you do | Status |
 | --- | --- | --- | --- |
-| [Main: Azure OpenAI slot](#main-option-the-azure-openai-slot) | OpenAI deployments | Fill three fields in **Models > API Keys > Azure OpenAI** | Reported working by others; **failed here with a real key**, 0 requests to Foundry |
+| [Main: Azure OpenAI slot](#main-option-the-azure-openai-slot) | OpenAI deployments | Fill three fields in **Models > API Keys > Azure OpenAI** | Reported working by others; **failed in my setup with a real key**, no successful request in Foundry |
 | [Gateway: Override OpenAI Base URL](#gateway-route-refused-by-cursor) | GPT and Claude through LiteLLM or the translating proxy | Run a public gateway, set the override, add custom models | Refused by Cursor 3.30.14 |
 | [Fallback: MCP tools](#fallback-foundry-models-as-mcp-tools) | GPT and Claude | Cursor's model calls Foundry as a tool | **Verified**; not a switch |
 
@@ -67,7 +71,7 @@ Open **Cursor Settings > Models**, expand **API Keys**, and scroll to
 
 | Field | What to enter for Foundry |
 | --- | --- |
-| **Base URL** | `https://<resource>.openai.azure.com` and **nothing more**. Cursor staff, July 2026: "no /openai/v1 or anything else on the end, Cursor appends the rest", and point it at the `*.openai.azure.com` resource, not the Foundry project endpoint (`*.services.ai.azure.com`), "which we don't currently support" [F31]. Staff later said `*.cognitiveservices.azure.com` endpoints work too [F8] |
+| **Base URL** | `https://<resource>.openai.azure.com` and **nothing more**. Cursor staff, July 2026: "no /openai/v1 or anything else on the end, Cursor appends the rest", and point it at the `*.openai.azure.com` resource, not the Foundry project endpoint (`*.services.ai.azure.com`), "which we don't currently support" [F31]. Staff later said `*.cognitiveservices.azure.com` endpoints work too [F8]. Both forms failed the same way in my setup. Check the spelling: a single wrong character gives the same "Network Error" [F34] |
 | **Deployment Name** | The exact name of your deployment, for example `cursor-poc-gpt-6-luna`. A wrong name can show the same error as a usage-limit block [F36] |
 | **API Key** | A key of the Foundry resource (portal: **Keys and Endpoint**). Use **key 2** for a trial, so you can regenerate it afterwards without breaking anything that uses key 1 |
 | **Use Azure OpenAI** | On, after the three fields are filled. An empty field with the toggle on breaks every model [F12] |
@@ -139,6 +143,8 @@ which logs every request it receives, including rejected ones.
 | C | `<resource>.openai.azure.com` | `cursor-poc-gpt-6-luna` | GPT-5.2 | "Network Error - We're having trouble connecting to the model provider" | **0** in Foundry |
 | D | `<resource>.openai.azure.com` | `cursor-poc-gpt-6-luna` | Custom model named after the deployment | "Network Error" | **0** in metrics and request logs |
 | E | `<resource>.openai.azure.com` | A `gpt-4.1` deployment, the family staff confirmed working [F31] | Custom model `gpt-4.1` | "Network Error - We're having trouble connecting to the model provider" | **0** in metrics and request logs |
+| G | `<resource>.cognitiveservices.azure.com`, the form staff cite for Foundry [F8] | The `gpt-4.1` deployment | Custom model `gpt-4.1` | "Network Error" | **0** in metrics |
+| H, negative control | A resource name that doesn't exist; the host doesn't resolve | The `gpt-4.1` deployment | Custom model `gpt-4.1` | "Network Error - We're having trouble connecting to the model provider. This might be temporary - please try again in a moment." | Nothing can answer |
 
 Controls, sent from the same machine during the round:
 
@@ -147,12 +153,18 @@ Controls, sent from the same machine during the round:
 | Same key, Luna deployment | 200 | Metrics and request log |
 | Same key, `gpt-4.1` deployment, twice on the legacy Azure route | 200 | 2 in metrics, 2 log rows |
 | Same key on `/openai/v1/chat/completions` | 200 | Metrics and request log |
+| Same key, `gpt-4.1` deployment, on the `cognitiveservices.azure.com` host | 200 | Metrics |
 | A wrong key | 401 | **Neither** |
 | A deployment name that doesn't exist | 404 | **Neither** |
 | An unknown `api-version`, or none | 404 | **Neither**, re-checked 27 minutes later |
 
+After the round I read the **Base URL** and **Deployment Name** back from
+Cursor's settings: they matched the resource and deployment exactly, so a typo
+doesn't explain tests A to G.
+
 Cursor's own log tells the same story from the client side. The
-[log summarizer](#verify-what-cursor-sends) found, for every test:
+[log summarizer](#verify-what-cursor-sends) found, for every Azure-slot test,
+including H:
 
 - runtime `connect`, disposition `fallback`, reason `byok-connect-routed`: the
   turn was handed to Cursor's backend, as Cursor documents for own keys [C11];
@@ -164,26 +176,55 @@ Cursor's own log tells the same story from the client side. The
 What this shows:
 
 - **Cursor sent nothing that Foundry served**, with a valid key, two existing
-  deployments, built-in and custom model names, and the base URL with and
-  without a scheme.
+  deployments, built-in and custom model names, both host forms, and the base
+  URL with and without a scheme.
 - **The failure happened before a successful call.** Successful calls are
   always visible, and none appeared. For B, the proxy proves no request was
   made at all.
+- **Cursor's message carries no information from Azure.** Test H gave the
+  identical error and log signature for a host that doesn't exist. A forum
+  user saw the same message with a misspelled Base URL, after staff had first
+  put it down to Cursor's backend [F34].
 
 What it doesn't show:
 
 - **Why.** Cursor's backend made the decision and its reason isn't visible
   from outside. A 401 or 404 from Azure is invisible in metrics and logs, so I
-  can't rule out that Cursor called Foundry on tests A, C, D and E with a URL or
-  `api-version` that Foundry rejected. I can rule it out for B.
+  can't rule out that Cursor called Foundry on tests A, C, D, E and G with a URL
+  or `api-version` that Foundry rejected. I can rule it out for B.
 - **That the slot is broken for everyone.** Staff and users report it working
   [F31], [F8], and earlier failures were Cursor regressions that were later
-  fixed [F35], [F37]. The result may depend on account, plan or version, so
+  fixed [F35], [F37]. The result may depend on account, plan, version or the
+  kind of Azure resource, so
   [check it with your own key](#check-it-with-your-own-key).
 
 Evidence: [`ide-realkey-round.json`](../evidence-snapshot/ide-realkey-round.json),
 [`ide-realkey-cursor-log-summary.json`](../evidence-snapshot/ide-realkey-cursor-log-summary.json),
 [`ide-realkey-diag-rows.json`](../evidence-snapshot/ide-realkey-diag-rows.json).
+
+### Is the documented option broken?
+
+Not as far as this study can show. Cursor documents an Azure OpenAI slot for
+"Models deployed in your Azure OpenAI Service instance" [C11], and staff and
+users report it working with Foundry deployments [F31], [F8]. What failed here
+is that option **in one setup**:
+
+| Variable | In this study | Tested otherwise? |
+| --- | --- | --- |
+| Cursor | IDE 3.30.14 on Windows 11 | No |
+| Plan | Individual Premium | No |
+| Azure resource | One Foundry resource, kind `AIServices`, Sweden Central, public access, key auth on | A classic Azure OpenAI resource (kind `OpenAI`) answered a direct request but wasn't tried in Cursor, because that needs its key saved in Cursor by the key owner |
+| Host form | `openai.azure.com` and `cognitiveservices.azure.com` | Both failed the same way |
+| Deployments | GPT-6 Luna (Data Zone) and `gpt-4.1` | Both failed the same way |
+| Model in Cursor | Built-in GPT-5.2, and custom names | Both failed the same way |
+
+So the honest reading is: **the documented option failed for this account and
+resource, and Cursor gave no reason**. To learn the cause, send Cursor the
+Request IDs of the failed turns: open the conversation's "..." menu, choose
+**Copy Request ID**, and post it on the forum or by email [C20]. Until then,
+don't count on the slot without running the
+[check](#check-it-with-your-own-key) on your own account; if it fails the same
+way, use the MCP fallback.
 
 ### Check it with your own key
 
@@ -370,8 +411,8 @@ already did, tell the requests apart by their headers: my client sent no
 - So putting a Claude deployment name into the **Azure slot** fails if Cursor
   sends Chat Completions, which is what staff describe for this slot [F9].
   Foundry would accept the Responses API for that model (200 in the probe),
-  but in the [real-key round](#what-happened-with-a-real-key) the slot sent no
-  request at all, so I couldn't see which API Cursor uses.
+  but in the [real-key round](#what-happened-with-a-real-key) the slot
+  produced no successful request at all, so I couldn't see which API Cursor uses.
 - Cursor also refuses a custom model named `claude-haiku-5-5`: "The model
   "claude-haiku-5-5" is already available as "Claude Haiku 5.5"". A proxy has
   to serve Claude under another name, such as `foundry-haiku`.
@@ -587,10 +628,10 @@ for each.
 
 **Reliability**
 
-- **It didn't work here.** With a real key on a Premium plan, the slot sent
-  Foundry no request in four tests, and the cause isn't visible from outside
-  ([round](#what-happened-with-a-real-key)). Others report it working [F31],
-  [F8].
+- **It didn't work in my setup.** With a real key on a Premium plan, the slot
+  produced no successful request in Foundry in five tests, and Cursor's error
+  gives no reason ([round](#what-happened-with-a-real-key)). Others report it
+  working [F31], [F8].
 - **A history of regressions.** Cursor updates broke Azure own-key requests
   several times in 2026, for weeks each time
   ([table](#what-has-broken-before)).
@@ -773,7 +814,7 @@ Problems with Azure, roles or deployments are covered in
 | Symptom | Cause and fix |
 | --- | --- |
 | "More models are only available on paid plans" | Own-key models need a paid plan. The MCP fallback works on Free. |
-| "Network Error - We're having trouble connecting to the model provider" with the Azure slot | Check the Base URL is exactly `https://<resource>.openai.azure.com`, the deployment name is exact, and the key is from the same resource [F31]. Non-Azure hosts get no requests on 3.30.14. In my [real-key round](#what-happened-with-a-real-key) it persisted with all of that correct and Foundry recorded nothing; if your usage check also shows no rows, use the MCP fallback. |
+| "Network Error - We're having trouble connecting to the model provider" with the Azure slot | The message is generic: Cursor showed it for a resource name that doesn't exist, and for a misspelled Base URL [F34]. Check the Base URL is exactly `https://<resource>.openai.azure.com`, the deployment name is exact, and the key is from the same resource [F31]. Non-Azure hosts get no requests on 3.30.14. In my [real-key round](#what-happened-with-a-real-key) it persisted with all of that correct and Foundry recorded no successful request; if your usage check also shows no rows, send Cursor the Request ID [C20] and use the MCP fallback. |
 | "The model "claude-haiku-5-5" is already available as "Claude Haiku 5.5"" | Cursor keeps names it maps to its own models. Serve Claude under an alias such as `foundry-haiku` (`--alias` on the proxy). |
 | "This model does not support custom API keys" | The model runs only on Cursor, or Cursor doesn't allow your custom model on this route. Turn the key off to use Cursor's models [F31]. |
 | "Invalid API key. Unauthorized User API key" with the override | Cursor refused the request before calling your base URL; the gateway and the translating proxy logged nothing. The override isn't usable for the Agent on 3.30.14; use the Azure slot or MCP. |

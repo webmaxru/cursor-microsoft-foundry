@@ -27,6 +27,7 @@ forum content can change after the observation date.
 | C17 | [Models and pricing](https://cursor.com/docs/models-and-pricing) | The $0.25 per million tokens Cursor Token Rate that applies to own-key use on Teams and Enterprise |
 | C18 | [CLI output formats](https://cursor.com/docs/cli/reference/output-format) | NDJSON tool start/completion events, terminal results and session IDs. The tested CLI also emitted usage counters; the documented example does not define their cache-accounting semantics |
 | C19 | [Cursor rules](https://cursor.com/docs/rules) | Persistent project instructions in `.cursor/rules/*.mdc` or `AGENTS.md`; referenced file contents are not automatically inlined. Rules guide the Cursor host, not a separate Foundry call |
+| C20 | [Reporting a bug](https://cursor.com/help/troubleshooting/reporting-bugs) | How to copy a Request ID from a conversation's "..." menu and send it through the forum or email; Request IDs are lookup keys for Cursor's backend, and connectivity issues can often be debugged with Privacy Mode on |
 
 ## Requested forum threads and related community evidence
 
@@ -65,7 +66,7 @@ forum content can change after the observation date.
 | F31 | [Using Azure OpenAI API Key](https://forum.cursor.com/t/using-azure-openai-api-key/162214) | June to August 2026, 13 posts. Staff, 29 July: the Base URL must be only `https://<resource>.openai.azure.com`, "Cursor appends the rest", with the real deployment name, and a Foundry project endpoint (`*.services.ai.azure.com`) is not supported; the user confirmed it worked. Staff, 30 July: with an OpenAI key or the override on, credentials go with every request, so Cursor-only models fail and Auto works. A user ran GPT-5.6 Luna through the Azure slot autonomously in August |
 | F32 | [Not able to use azure api key](https://forum.cursor.com/t/not-able-to-use-azure-api-key/149185) | January to July 2026, 33 posts. `model is required` traced to Cursor; a custom model named after the deployment worked for some; staff recommended a community proxy [G3] in April; image attachments bypass the custom URL; fixed in July |
 | F33 | [Azure GPT-5 API Key Not Working, Internal Server Error](https://forum.cursor.com/t/azure-gpt-5-api-key-not-working-internal-server-error/128572) | August to September 2025, 42 posts. With the Azure slot on only Auto worked; closed without a fix |
-| F34 | [BYOK with Azure OpenAI no longer works since 12 hours](https://forum.cursor.com/t/byok-with-azure-openai-no-longer-works-since-12-hours/161692) | May to June 2026. A 502 whose cause was a misspelled Base URL |
+| F34 | [BYOK with Azure OpenAI no longer works since 12 hours](https://forum.cursor.com/t/byok-with-azure-openai-no-longer-works-since-12-hours/161692) | May to June 2026. "Network Error" with the Azure slot. Staff first called it a 502 on Cursor's side that fails "before they ever get sent to Azure"; the user then found a misspelled Base URL and asked for a clearer error message. The same message covered both explanations |
 | F35 | [Azure OpenAI model with key stopped working, works from curl](https://forum.cursor.com/t/azure-open-ai-model-with-key-stop-working-works-from-curl/165482) | July 2026. `400 invalid_input: model is required` on 3.11.19; staff: requests were built without the model and rejected before Azure; fixes merged 22 July |
 | F36 | [Azure OpenAI with GPT-5.6 Terra fails with "Request higher limits"](https://forum.cursor.com/t/azure-openai-with-gpt-5-6-terra-fails-with-request-higher-limits-in-cursor-3-15-6/168107) | August 2026 staff reply: on pooled Team and Enterprise plans own-key requests count toward usage limits and the block happens before Azure; a wrong deployment name can show the same error |
 | F37 | [Azure OpenAI BYOK in Cursor Agent fails with "model is required"](https://forum.cursor.com/t/azure-openai-byok-in-cursor-agent-fails-with-model-is-required-even-though-the-same-azure-deployment-works-with-curl/162417) | June to July 2026. The model field was dropped; staff: own-key requests go to the provider and Cursor credits don't affect them; fixed 8 July |
@@ -133,10 +134,9 @@ shared with a community proxy. The author's code was not incorporated.
 - Staff cite `*.cognitiveservices.azure.com` endpoints for Foundry [F8], while
   another staff reply and the slot's placeholder use `*.openai.azure.com`
   [F31]. Both host names exist on a Foundry resource. With the resource's
-  real key, the `*.openai.azure.com` form gave "Network Error" through Cursor
-  and Foundry recorded no request; the `*.cognitiveservices.azure.com` form
-  wasn't tried. Direct calls with the same key to the `*.openai.azure.com`
-  host succeeded for the GPT deployments.
+  real key, both forms gave the same "Network Error" through Cursor and
+  Foundry recorded no successful request. Direct calls with the same key
+  succeeded on both hosts for the GPT deployments.
 - LiteLLM documents the Azure slot reaching a LiteLLM gateway on Cursor
   3.17.21 [L2]. On 3.30.14 two non-Azure hosts in the slot received no
   requests. Cursor may have restricted the slot since, or it may differ by

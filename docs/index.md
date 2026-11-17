@@ -13,8 +13,10 @@ none exists. Status as of November 2026.
 
   The Azure OpenAI key slot is documented to send chat and Agent requests to a
   Foundry OpenAI deployment, through Cursor's servers, on a paid plan. Others
-  report it working; here, with the resource's real key on Premium, it gave
-  "Network Error" in four tests and Foundry logged no request. A gateway was
+  report it working; in my setup, with the resource's real key on Premium, it
+  gave "Network Error" in five tests and Foundry logged no successful request.
+  Cursor gives the same error for a resource that doesn't exist, so it names no
+  cause. A gateway was
   refused, and Claude has no native route; a translating proxy works when
   called directly but received no request from Cursor.
 
@@ -38,7 +40,8 @@ none exists. Status as of November 2026.
 - **The IDE comes closest, on paper.** The Azure OpenAI key slot, pointed at
   `https://<resource>.openai.azure.com`, is documented to make a Foundry
   OpenAI deployment the chat and Agent model. Tab, Auto and Cursor's own
-  models stay on Cursor. With a real key it sent Foundry nothing here.
+  models stay on Cursor. With a real key it failed in my setup, for a reason
+  Cursor doesn't show ([details](ide.md#is-the-documented-option-broken)).
 - **Gateways were refused.** On Premium, Cursor refused custom models behind
   the OpenAI base URL override, and sent **no request** to a working LiteLLM
   gateway from any surface.
@@ -55,7 +58,7 @@ none exists. Status as of November 2026.
 
 | | Claude Code [A3] | Cursor IDE | Cursor CLI | Cloud Agents |
 | --- | --- | --- | --- | --- |
-| Full switch to Foundry | **Yes**: `CLAUDE_CODE_USE_FOUNDRY=1` | **Partial, on paper**: GPT models through the Azure slot, your own key; failed here with a real key | **No** | **No**, by design |
+| Full switch to Foundry | **Yes**: `CLAUDE_CODE_USE_FOUNDRY=1` | **Partial, on paper**: GPT models through the Azure slot, your own key; failed in my setup with a real key | **No** | **No**, by design |
 | Model calls come from | Your machine | Cursor's servers | Cursor | Cursor |
 | Sign-in | Key, Entra ID or token | Key only | Not applicable | Not applicable |
 | Claude on Foundry | Yes | No | No | No |
@@ -130,8 +133,10 @@ Cursor-shaped cases for both models. Cursor then sent that gateway nothing: the
 IDE refused the custom models, the CLI said "Cannot use this model" and Cloud
 Agents said "Model Not Available". The IDE's Azure slot passed the plan gate
 with a dummy key, then failed with the resource's real key: "Network Error" in
-four tests and no request in Foundry's metrics or request logs
-([real-key round](ide.md#what-happened-with-a-real-key)). A translating Claude
+five tests on both host forms, and no successful request in Foundry's metrics
+or request logs ([real-key round](ide.md#what-happened-with-a-real-key)). That
+doesn't prove the slot is broken for everyone; the error is the same for a
+resource that doesn't exist, and others report it working. A translating Claude
 proxy passed 13 of 13 direct cases, and Cursor sent it nothing too.
 
 See the [evidence index](evidence.md) for every recorded result. All code is

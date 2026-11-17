@@ -25,15 +25,15 @@ separate usage counters rather than claiming production readiness or savings.
 
 | Surface | Full switch to Foundry? | Fallback: Foundry models as MCP tools | Details |
 | --- | --- | --- | --- |
-| **Cursor IDE** | **Partial on paper: OpenAI deployments only, through the Azure OpenAI slot.** Chat and Agent, your own resource key, a paid plan; requests pass through Cursor's servers. Reported working by staff and users [F31, F8]. **With the resource's real key on Premium it failed here**: "Network Error" in 4 of 4 tests and 0 requests in Foundry's metrics and request logs, while the same key returned 200 directly. A LiteLLM gateway behind the OpenAI override was **refused**, with 0 requests. Claude has no native route; a translating proxy built here passed 13 of 13 direct cases and answered through a tunnel, but Cursor sent it nothing. | **Verified** with both models in IDE 3.30.14 | [IDE](docs/ide.md) |
+| **Cursor IDE** | **Partial on paper: OpenAI deployments only, through the Azure OpenAI slot.** Chat and Agent, your own resource key, a paid plan; requests pass through Cursor's servers. Reported working by staff and users [F31, F8]. **With the resource's real key on Premium it failed in my setup**: "Network Error" in 5 of 5 tests aimed at Foundry, across both host forms, and no successful request in Foundry's metrics or request logs, while the same key returned 200 directly. Cursor showed the same error for a resource name that doesn't exist, so the message says nothing about Azure. A LiteLLM gateway behind the OpenAI override was **refused**, with 0 requests. Claude has no native route; a translating proxy built here passed 13 of 13 direct cases and answered through a tunnel, but Cursor sent it nothing. | **Verified** with both models in IDE 3.30.14 | [IDE](docs/ide.md) |
 | **Cursor CLI** | **No.** `--endpoint` is Cursor's own service, `--model` accepts only Cursor's catalog, and provider environment variables are ignored. On Premium a custom model was refused: "Cannot use this model". | Earlier arithmetic proof verified; new native-dispatch sessions failed. See the [development study](docs/development.md) | [CLI](docs/cli.md) |
 | **Cloud Agents** | **No, by design.** Cursor staff say own keys are attached by the IDE client, which headless runs don't have. On Premium a custom model gave "Model Not Available". | Possible through a remote HTTP MCP service: blueprint, not run | [Cloud](docs/cloud.md) |
 
 **No Cursor request reached the LiteLLM gateway, or a stub in its place, on any
 surface during the Premium round**, although the same gateway passed 15 of 15
 Cursor-shaped cases for both models when called directly. **In the real-key
-round no Cursor request reached Foundry or the translating proxy** in seven IDE
-tests.
+round no Cursor request succeeded at Foundry, and none reached the translating
+proxy**, in nine IDE tests.
 
 The cross-surface comparison, community evidence and the research gaps are on
 [Full switch](docs/fullswitch.md). Four separate questions sit behind the table:
@@ -51,7 +51,8 @@ The cross-surface comparison, community evidence and the research gaps are on
    `none`.
 3. **Will Cursor use that endpoint as its main inference provider?** Only the
    IDE's Azure OpenAI slot is documented to reach Foundry, and only for OpenAI
-   deployments; with a real key it sent no request here. The CLI and Cloud
+   deployments; with a real key it produced no successful request in my setup.
+   The CLI and Cloud
    Agents have no setting, and Cursor 3.30.14 refused custom models behind the
    OpenAI override. API compatibility alone does not create a routing setting
    that Cursor doesn't expose.
@@ -185,21 +186,26 @@ Details: [Cursor CLI](docs/cli.md).
   report it working with `https://<resource>.openai.azure.com` and the exact
   deployment name [F31, F8, Q1], and it has broken for weeks at a time after
   Cursor updates [F32, F33, F35, F37].
-- **Real key: the Azure slot sent Foundry nothing.** The key owner entered the
+- **Real key: the Azure slot failed in my setup.** The key owner entered the
   resource's key 2, and I confirmed locally that the key Cursor stored was the
   same key, which returned 200 directly on every route the slot could use. In
-  four tests aimed at the resource, with two GPT deployments
+  five tests aimed at the resource, with two GPT deployments
   (`cursor-poc-gpt-6-luna` and a `gpt-4.1` deployment), built-in and custom
-  model names, and the base URL with and without `https://`, every prompt
+  model names, both the `openai.azure.com` and `cognitiveservices.azure.com`
+  hosts, and the base URL with and without `https://`, every prompt
   ended in "Network Error - We're having trouble connecting to the model
   provider" after about 19 seconds. Foundry's metrics and a temporary
-  `RequestResponse` diagnostic log recorded **0** requests from Cursor, while
-  control requests sent directly between the tests appeared in both. Cursor's
-  own log shows every turn routed to its backend (`byok-connect-routed`), which
-  answered `resource_exhausted` four times before the client gave up. Because
-  401 and 404 responses never appear in Foundry's metrics or logs, an
-  Azure-side rejection of a malformed request can't be fully excluded; the
-  cause is inside Cursor's backend and not visible from outside
+  `RequestResponse` diagnostic log recorded **no successful request** from
+  Cursor, while control requests sent directly between the tests appeared in
+  both. Cursor's own log shows every turn routed to its backend
+  (`byok-connect-routed`), which answered `resource_exhausted` four times
+  before the client gave up. A negative control with a resource name that
+  doesn't exist gave the identical error and log signature, so Cursor's message
+  carries no information from Azure; a forum user saw it for a misspelled Base
+  URL [F34]. Because 401 and 404 responses never appear in Foundry's metrics or
+  logs, an Azure-side rejection of a malformed request can't be excluded; the
+  cause isn't visible from outside. The resource is kind `AIServices`; a
+  classic Azure OpenAI resource wasn't tried through Cursor
   ([`ide-realkey-round.json`](evidence-snapshot/ide-realkey-round.json),
   [`ide-realkey-cursor-log-summary.json`](evidence-snapshot/ide-realkey-cursor-log-summary.json)).
 - **Turning on a key has side effects.** Staff replies describe the key
@@ -440,7 +446,7 @@ Cursor CLI or Cloud Agents.
 | Community bridges, 2025 to 2026 [G1 to G11] | Gateways for the IDE override (G3 to G8, LiteLLM) and backend replacements that intercept Cursor's traffic with a local certificate authority (G2, G9, G10). The CLI bridge's published source doesn't pass on the provider URL or key [G1] | That any of them is safe, supported or works on current Cursor; none was run here |
 | These live experiments, November 2026 | Both models work through local MCP in the CLI and IDE; Haiku Responses works; Haiku Chat Completions fails; Luna rejects a `reasoning` object on Chat Completions and tools without `reasoning_effort: "none"`; the CLI's `--endpoint` and `--model` can't route to Foundry; a LiteLLM gateway serves both models with 15 of 15 Cursor-shaped cases | |
 | Premium round, 17 November 2026 | Cursor sent no request to the working gateway from any surface; the OpenAI override refused custom models; the CLI and Cloud Agents refused them too; the Azure slot passed the plan gate with a dummy key; Claude has no Chat Completions route on Foundry, with 404 on both routes | That a gateway can never work (LiteLLM documents one on Cursor 3.17.21) |
-| Real-key round, 17 November 2026 | With the resource's real key, the Azure slot gave "Network Error" in 4 of 4 tests and Foundry logged 0 requests from Cursor; Cursor's log shows its backend answering `resource_exhausted`; a translating proxy passed 13 of 13 direct cases and got 0 requests from the Azure slot or the OpenAI override | Why Cursor's backend failed, or that the slot fails for every account and release; others report it working [F31, F8] |
+| Real-key round, 17 November 2026 | With the resource's real key, the Azure slot gave "Network Error" in 5 of 5 tests aimed at Foundry, on both host forms, and Foundry logged no successful request from Cursor; the same error came for a resource name that doesn't exist; Cursor's log shows its backend answering `resource_exhausted`; a translating proxy passed 13 of 13 direct cases and got 0 requests from the Azure slot or the OpenAI override | Why Cursor's backend failed, or that the slot fails for every account, release or resource kind; others report it working [F31, F8] |
 
 Do not send Azure credentials to the public Railway endpoint in the community
 post. Its URL is a research reference, not a trusted service for this account.
@@ -456,8 +462,8 @@ No request or credential from this PoC was sent there.
 - **`*.cognitiveservices.azure.com` or `*.openai.azure.com`?** The November
   staff reply [F8] cites the first endpoint form; the July staff reply [F31]
   and the slot's placeholder use the second. Both belong to the same Foundry
-  resource. With a real key, the `*.openai.azure.com` form gave "Network
-  Error" here; the `*.cognitiveservices.azure.com` form wasn't tried.
+  resource. With a real key, both forms gave the same "Network Error" in my
+  setup.
 - **Does the Azure slot reach a gateway?** LiteLLM documents a gateway behind
   the Azure slot on Cursor 3.17.21 [L2]. On 3.30.14 with Premium, a stub
   behind the slot logged nothing.
@@ -508,7 +514,7 @@ HTTP MCP for separating server credentials from the agent VM. [C7, C13]
 | Both models through a LiteLLM gateway | `litellm-gateway.json`, `litellm-gateway-docker.json` | 15 of 15 cases on pip 1.108.4 and Docker 1.109.1 |
 | Cursor's use of the gateway, all surfaces, Premium | `premium-round.json` | **0 requests** from Cursor; IDE override refused custom models; CLI "Cannot use this model"; Cloud "Model Not Available" |
 | IDE Azure OpenAI slot, Premium, dummy key | `premium-round.json` | Passed the plan gate; failed on the dummy key; a stub host logged nothing |
-| IDE Azure OpenAI slot, Premium, the resource's real key | `ide-realkey-round.json`, `ide-realkey-diag-rows.json`, `ide-realkey-cursor-log-summary.json` | **Failed**: "Network Error" in 4 of 4 tests aimed at Foundry; 0 requests in metrics and `RequestResponse` logs; controls sent directly appeared in both; Cursor's backend answered `resource_exhausted` |
+| IDE Azure OpenAI slot, Premium, the resource's real key | `ide-realkey-round.json`, `ide-realkey-diag-rows.json`, `ide-realkey-cursor-log-summary.json` | **Failed in my setup**: "Network Error" in 5 of 5 tests aimed at Foundry, on both host forms; no successful request in metrics or `RequestResponse` logs; controls sent directly appeared in both; the same error for a resource name that doesn't exist; Cursor's backend answered `resource_exhausted` |
 | Translating Claude proxy, direct | `claude-proxy-probe.json` | 13 of 13 cases: text, streaming with usage, a parallel tool round trip, Messages and Responses modes, the Azure route, GPT passthrough and a wrong-secret rejection |
 | Cursor's use of the translating proxy | `ide-realkey-round.json` | **0 requests** from Cursor through the Azure slot (1 test) or the OpenAI override (2 tests); a hand-sent request through the same tunnel was answered |
 | Azure Monitor usage check | `usage-check-selftest.json` | A direct request showed up as one `200` |
@@ -545,8 +551,9 @@ provider's protocol.
    and the key goes to Cursor with every request [C11, C16]. Confirm it with
    `scripts/check_foundry_usage.py` after a test prompt, and regenerate key 2
    when you stop. This path is **reported working by others, but it failed
-   here with a real key**: four tests gave "Network Error" and Foundry logged
-   no request. Check your own result in Foundry's metrics, not in Cursor's
+   in my setup with a real key**: five tests gave "Network Error" and Foundry
+   logged no successful request. If it fails for you, send Cursor the Request
+   ID [C20]. Check your own result in Foundry's metrics, not in Cursor's
    reply; see [What happened with a real key](docs/ide.md#what-happened-with-a-real-key).
 2. **Don't plan on a gateway or proxy between Cursor and Foundry.** The OpenAI
    override with custom models was refused on 3.30.14, and no request reached

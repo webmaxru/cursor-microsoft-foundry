@@ -32,7 +32,9 @@ They need practical instructions and verifiable results, not promotional claims.
 - CLI and IDE MCP paths have recorded end-to-end evidence. For the IDE's Azure
   OpenAI slot, the Foundry side was verified with a key and the slot passed
   Cursor's plan gate on Premium with a dummy key; with the resource's real key
-  it gave "Network Error" and Foundry recorded no request. A LiteLLM gateway
+  it gave "Network Error" in my setup and Foundry recorded no successful
+  request; the same error appeared for a resource that doesn't exist, so the
+  cause is unknown and others report the slot working. A LiteLLM gateway
   and a translating Claude proxy passed every direct case, yet Cursor sent
   them no request. The Cloud MCP path is an unexecuted blueprint.
 - Preserve those confidence distinctions, source citations, and all evidence.

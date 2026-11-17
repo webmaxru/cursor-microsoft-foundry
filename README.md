@@ -8,9 +8,9 @@ source-cited investigation.
 
 **Short answer:** there is no full switch like Claude Code's. The IDE documents
 a partial one: chat and Agent models on your Foundry OpenAI deployment through
-the Azure OpenAI slot, on a paid plan. Others report it working, but here, with
-the resource's real key on a Premium plan, it sent Foundry no request in four
-tests. The CLI and Cloud Agents have none, and Cursor
+the Azure OpenAI slot, on a paid plan. Others report it working, but in my
+setup, with the resource's real key on a Premium plan, it failed in five tests
+and gave no reason. The CLI and Cloud Agents have none, and Cursor
 refused custom models behind a LiteLLM gateway on every surface, even on a
 Premium plan. Claude on Foundry has no native route; a
 [translating proxy](docs/ide.md#can-a-proxy-bring-claude-to-the-ide) built here
@@ -43,7 +43,7 @@ provider counters are published, including the failures.
 
 | Surface | Full switch to Foundry? | Fallback: Foundry models as tools (MCP) | Status |
 | --- | --- | --- | --- |
-| [Cursor IDE](docs/ide.md) | **Partial, on paper.** Chat and Agent models through the Azure OpenAI slot, OpenAI deployments only, paid plan, requests pass through Cursor's servers. With a real key it sent Foundry no request here. A gateway behind the OpenAI base URL override was refused on 3.30.14. Claude has no native route; a translating proxy passed 13 of 13 direct cases, but Cursor sent it nothing. | **Works.** The same MCP server, verified end to end in the Agent panel. | Azure slot with a real key: "Network Error" in 4 of 4 tests, 0 requests in Foundry. Proxy and gateway: 0 requests from Cursor |
+| [Cursor IDE](docs/ide.md) | **Partial, on paper.** Chat and Agent models through the Azure OpenAI slot, OpenAI deployments only, paid plan, requests pass through Cursor's servers. With a real key it failed in my setup, with no successful request in Foundry. A gateway behind the OpenAI base URL override was refused on 3.30.14. Claude has no native route; a translating proxy passed 13 of 13 direct cases, but Cursor sent it nothing. | **Works.** The same MCP server, verified end to end in the Agent panel. | Azure slot with a real key: "Network Error" in 5 of 5 tests aimed at Foundry, no successful request in Foundry, the same error for a resource name that doesn't exist. Proxy and gateway: 0 requests from Cursor |
 | [Cursor CLI](docs/cli.md) | **No.** `--endpoint` is Cursor's service, `--model` takes only Cursor's catalog ("Cannot use this model" on Premium), provider environment variables are ignored. | Historical arithmetic proof passed; native tool discovery failed in new coding sessions. | See the [development study](docs/development.md) for the shell-MCP workaround and measured limits |
 | [Cloud Agents](docs/cloud.md) | **No, by design.** Cursor staff say keys come from the IDE client, which headless runs lack. A custom model gave "Model Not Available" on Premium. | By design, through an authenticated HTTP MCP service in Azure. | No switch; MCP blueprint not run (needs a Cursor API key and a public MCP service) |
 

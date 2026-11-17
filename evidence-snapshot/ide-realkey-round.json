@@ -47,6 +47,18 @@
       "case": "Direct request on /openai/v1/chat/completions",
       "status": 200,
       "visible_in": "metrics and RequestResponse log"
+    },
+    {
+      "time_utc": "18:51",
+      "case": "Direct request with its own key to a separate classic Azure OpenAI resource (kind OpenAI), gpt-4.1 deployment",
+      "status": 200,
+      "visible_in": "direct response; not tested through Cursor"
+    },
+    {
+      "time_utc": "18:52",
+      "case": "Direct request with the same key to <resource>.cognitiveservices.azure.com, gpt-4.1 deployment, legacy Azure chat route",
+      "status": 200,
+      "visible_in": "metrics (1 request at 18:53)"
     }
   ],
   "ide": [
@@ -123,6 +135,28 @@
       "model_picked": "custom model foundry-haiku",
       "send_prompt": "Invalid API key. Unauthorized User API key",
       "proxy_requests_from_cursor": 0
+    },
+    {
+      "test": "G",
+      "time_utc": "18:57",
+      "slot": "Azure OpenAI",
+      "base_url": "<resource>.cognitiveservices.azure.com (the form Cursor staff cite for Foundry in F8)",
+      "deployment": "the gpt-4.1 deployment",
+      "model_picked": "custom model gpt-4.1",
+      "send_prompt": "Network Error",
+      "foundry_requests": 0,
+      "note": "Same Cursor log signature as A to E"
+    },
+    {
+      "test": "H",
+      "time_utc": "19:03",
+      "slot": "Azure OpenAI",
+      "base_url": "a resource name that does not exist (the host does not resolve in DNS)",
+      "deployment": "the gpt-4.1 deployment",
+      "model_picked": "custom model gpt-4.1",
+      "send_prompt": "Network Error - We're having trouble connecting to the model provider. This might be temporary - please try again in a moment.",
+      "purpose": "Negative control: no Azure resource can answer",
+      "note": "Identical Cursor log signature to A to E and G. Cursor's message is therefore the same whether the resource exists with a valid key or does not exist at all"
     }
   ],
   "custom_model_names": {
@@ -132,9 +166,10 @@
   "cursor_log_signature": {
     "source": "ide-realkey-cursor-log-summary.json",
     "no_key_enabled": "runtime managed-local, reason eligible; the turn ran normally",
-    "azure_slot_tests_A_to_E": "runtime connect, disposition fallback, reason byok-connect-routed; the backend answered resource_exhausted four times, the client retried three times, then failed (gRPC 8 ResourceExhausted) after about 19 seconds",
     "openai_override_tests_F_F2": "reason byok-connect-routed; the backend answered unauthenticated once, about 1.5 seconds after the prompt, and the client stopped (gRPC 16 Unauthenticated)",
-    "openai_key_with_cursor_model": "reason byok-connect-routed; invalid_argument, This model does not support custom API keys"
+    "openai_key_with_cursor_model": "reason byok-connect-routed; invalid_argument, This model does not support custom API keys",
+    "azure_slot_tests_A_to_E_and_G": "runtime connect, disposition fallback, reason byok-connect-routed; the backend answered resource_exhausted four times, the client retried three times, then failed (gRPC 8 ResourceExhausted) after about 19 seconds",
+    "azure_slot_test_H_nonexistent_host": "identical to A to E and G"
   },
   "proxy": {
     "script": "scripts/foundry_claude_proxy.py",
@@ -145,7 +180,15 @@
   "community": [
     "F31: staff say the Azure slot needs https://<resource>.openai.azure.com and the exact deployment name; a user confirmed it worked in July 2026",
     "F10, F35, F37: Azure slot failures reported in 2026; staff traced F35 and F37 to Cursor's request building and fixed them in July",
-    "F32: staff pointed users at a community proxy for the OpenAI override"
+    "F32: staff pointed users at a community proxy for the OpenAI override",
+    "F8: staff say Foundry OpenAI deployments, including *.cognitiveservices.azure.com endpoints, should work through the Azure slot (November 2026)",
+    "F34: a user's identical 'Network Error' was first explained by staff as a 502 on Cursor's side that fails before reaching Azure, then turned out to be a misspelled Base URL. The message does not distinguish configuration errors from Cursor-side failures"
   ],
-  "reading": "With a valid key, existing deployments and a proxy that answers through a public tunnel, Cursor IDE 3.30.14 on this account sent no request to Foundry or to the proxy in seven tests. Cursor's own log shows each turn handed to its backend, which returned resource_exhausted for the Azure slot and unauthenticated for the OpenAI override before any outbound call was seen. Wrong keys and wrong api-version values are invisible in Foundry metrics and logs, so an Azure-side rejection cannot be fully excluded for tests A, C, D and E; it can be excluded for B, F and F2, where the proxy logs every request. The cause inside Cursor is not visible from outside. Other users report the same slot working, so the result may depend on account, plan or version."
+  "reading": "With a valid key, existing deployments, both documented host forms and a proxy that answers through a public tunnel, Cursor IDE 3.30.14 on this account produced no successful request in Foundry and no request at the proxy in eight tests. Cursor's own log shows each Azure-slot turn handed to its backend, which returned resource_exhausted; test H gave the identical error for a resource name that does not exist, so the error carries no information from Azure. Wrong keys, unknown deployments and bad api-version values are invisible in Foundry metrics and logs, so an Azure-side rejection cannot be fully excluded for tests A, C, D, E and G; it can be excluded for B, F and F2, where the proxy logs every request. The field values were read back from Cursor's settings and matched the resource and deployment exactly. This does not show that the documented option is broken in general: staff and users report it working (F31, F8), a classic Azure OpenAI resource was not tested through Cursor, and the cause inside Cursor is not visible from outside. It shows that it did not work for this account, version and Foundry resource, and that Cursor's error message cannot tell you why.",
+  "resource": {
+    "kind": "AIServices (a Foundry resource), S0, Sweden Central",
+    "network": "public network access enabled, no firewall rules",
+    "local_auth_enabled": true,
+    "note": "Cursor's help page describes the slot as 'Models deployed in your Azure OpenAI Service instance'. A classic Azure OpenAI resource (kind OpenAI) was created as a control and answered a direct request, but was not tested through Cursor because that needs its key saved in Cursor by the key owner."
+  }
 }
