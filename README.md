@@ -4,7 +4,7 @@
 Includes a tested proof of concept, a step-by-step guide and a source-cited
 investigation of what Cursor supports today.
 
-- **Website:** https://webmaxru.github.io/cursor-microsoft-foundry/
+- **Website:** https://salnikov.no/cursor-microsoft-foundry/
 - **Step-by-step guide:** [docs/guide.md](docs/guide.md)
 - **Full findings:** [FINDINGS.md](FINDINGS.md) · **Sources:** [SOURCES.md](SOURCES.md)
 
