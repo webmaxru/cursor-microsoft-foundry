@@ -15,7 +15,7 @@
   --rail-border: #42576e;
   --verified: #256548;
   --partial: #80520f;
-  --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --none: #8c2f39; -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --mono: ui-monospace, "Cascadia Code", "SF Mono", Menlo, Consolas, monospace;
   --spine-width: 15rem;
   --page-gutter: 3.5rem;
@@ -35,6 +35,7 @@
     --rail-hover: #243a52;
     --verified: #9dcdb4;
     --partial: #e1be83;
+    --none: #eeabb2;
   }
 }
 
@@ -279,8 +280,9 @@ table code.nw { white-space: normal; }
 .page-index .doc-section h2 { font-size: 1.3rem; letter-spacing: -0.015em; }
 .page-index .section-choose-your-cursor-surface { grid-column: 1; grid-row: 2; }
 .page-index .section-the-short-answer { grid-column: 2; grid-row: 2; }
-.page-index .section-for-every-surface { grid-column: 1 / -1; grid-row: 3; }
-.page-index .section-how-the-working-setup-fits-together,
+.page-index .section-how-cursor-compares-with-claude-code { grid-column: 1 / -1; grid-row: 3; }
+.page-index .section-for-every-surface { grid-column: 1 / -1; grid-row: 4; }
+.page-index .section-how-the-mcp-fallback-works,
 .page-index .section-proof-from-the-live-runs,
 .page-index .page-source { grid-column: 1 / -1; }
 .page-index .section-the-short-answer > ul { padding-left: 1.1rem; font-size: 0.88rem; line-height: 1.75; }
@@ -297,6 +299,7 @@ table code.nw { white-space: normal; }
 .status { color: var(--muted); font-size: 0.75rem; font-weight: 500; white-space: nowrap; }
 .status-verified { color: var(--verified); }
 .status-partial { color: var(--partial); }
+.status-none { color: var(--none); }
 .general-links { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); list-style: none; padding: 0; column-gap: 3rem; }
 .content .doc-section .general-links { max-width: none; }
 .content .general-links > li { margin: 0; padding: 1rem 0; border-bottom: 1px solid var(--border); font-size: 0.92rem; }

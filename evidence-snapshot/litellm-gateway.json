@@ -1,0 +1,100 @@
+{
+  "observed_at_utc": "2026-11-17T10:08:42.786749+00:00",
+  "gateway": "LiteLLM 1.108.4 proxy on 127.0.0.1",
+  "alias": "foundry-haiku",
+  "upstream": "azure_ai/claude-haiku-5-5 through the Foundry Anthropic Messages route",
+  "upstream_authentication": "Foundry resource API key (never recorded)",
+  "client_authentication": "Throwaway gateway master key (never recorded)",
+  "error": null,
+  "cases": [
+    {
+      "case": "Text, max_completion_tokens",
+      "http_status": 200,
+      "expected_status": [
+        200
+      ],
+      "as_expected": true,
+      "finish_reason": "stop",
+      "contains_marker": true,
+      "model": "foundry-haiku",
+      "usage": {
+        "completion_tokens": 11,
+        "prompt_tokens": 24,
+        "total_tokens": 35,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0,
+          "text_tokens": 11
+        },
+        "prompt_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": 24,
+          "cache_creation_tokens": 0,
+          "cache_creation_token_details": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 0
+          }
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "speed": "standard",
+        "service_tier": "standard"
+      }
+    },
+    {
+      "case": "Text, legacy max_tokens",
+      "http_status": 200,
+      "expected_status": [
+        200
+      ],
+      "as_expected": true,
+      "model": "foundry-haiku"
+    },
+    {
+      "case": "Tool call",
+      "http_status": 200,
+      "expected_status": [
+        200
+      ],
+      "as_expected": true,
+      "tool_call_name": "read_file",
+      "tool_call_arguments": {
+        "path": "README.md"
+      },
+      "finish_reason": "tool_calls"
+    },
+    {
+      "case": "Tool result round trip",
+      "http_status": 200,
+      "expected_status": [
+        200
+      ],
+      "as_expected": true,
+      "answer_mentions_result": true,
+      "finish_reason": "stop"
+    },
+    {
+      "case": "Streaming with tools and usage",
+      "http_status": 200,
+      "expected_status": [
+        200
+      ],
+      "as_expected": true,
+      "stream_events": 7,
+      "finish_reason": "tool_calls",
+      "usage_reported": true
+    },
+    {
+      "case": "Wrong gateway key is rejected",
+      "http_status": 400,
+      "expected_status": [
+        400,
+        401,
+        403
+      ],
+      "as_expected": true
+    }
+  ],
+  "passed": true
+}

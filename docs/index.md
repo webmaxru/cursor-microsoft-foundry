@@ -1,47 +1,66 @@
 # Use Microsoft Foundry models from Cursor
 
-Connect Cursor to **OpenAI** and **Anthropic Claude** models deployed in
-**Microsoft Foundry**, with keyless Microsoft Entra ID authentication. This
-site has tested proofs of concept, a setup guide for each Cursor surface, and
-a source-cited investigation of what Cursor supports as of November 2026.
+Can Cursor run on **Microsoft Foundry** the way Claude Code can? This site
+tested all three Cursor surfaces with **OpenAI GPT-6 Luna** and **Anthropic
+Claude Haiku 5.5** deployed in Foundry. It shows what a full switch needs,
+where Cursor allows one, what each option costs you, and the fallback where
+none exists. Status as of November 2026.
 
 ## Choose your Cursor surface
 
 {.surfaces}
-- [Cursor CLI](cli.md){.card-link} [Verified]{.status .status-verified}
+- [Cursor IDE](ide.md){.card-link} [Partial switch]{.status .status-partial}
 
-  The `agent` command in your terminal. Foundry OpenAI and Claude models work
-  as MCP tools. `--endpoint` and provider environment variables don't reach
-  Foundry.
+  Chat and Agent models can run on a Foundry OpenAI deployment through your
+  own API key, but only through Cursor's servers, and only on a paid plan.
+  Claude needs a gateway. The Foundry side is verified; Cursor's own request
+  wasn't observed on the Free plan.
 
-- [Cursor IDE](ide.md){.card-link} [Partly verified]{.status .status-partial}
+- [Cursor CLI](cli.md){.card-link} [No switch]{.status .status-none}
 
-  The Agent panel in the editor. The same MCP tools work. The Azure OpenAI key
-  slot can make a Foundry OpenAI deployment the chat model; Claude has no
-  path.
+  The `agent` command in your terminal. `--endpoint` is Cursor's own service
+  and `--model` takes only Cursor's catalog. Foundry models work as MCP tools,
+  verified end to end.
 
-- [Cloud Agents](cloud.md){.card-link} [Blueprint]{.status .status-blueprint}
+- [Cloud Agents](cloud.md){.card-link} [No switch]{.status .status-none}
 
-  Agents in Cursor-hosted VMs. There's no provider setting, but an HTTP MCP
-  service in Azure could reach Foundry. Not run: it needs a paid plan.
+  Agents in Cursor-hosted VMs. Cursor says own keys are not supported by
+  design. An HTTP MCP service in Azure could serve Foundry as tools. Not run:
+  it needs a paid plan.
 
 ## The short answer
 
-- **Cursor can use your Foundry models as tools, in the CLI and the IDE.** A
-  small local MCP server exposes `foundry_openai` (GPT-6 Luna through the
-  OpenAI Responses API) and `foundry_claude` (Claude Haiku 5.5 through the
-  Anthropic Messages API). Both were verified end to end.
-- **Only the IDE can make a Foundry model Cursor's own chat model**, through
-  its Azure OpenAI API-key slot, and only for OpenAI-format deployments.
-  Cursor staff confirm it works; it wasn't tested here with a key.
-- **The CLI and Cloud Agents have no such setting.** The CLI's `--endpoint`
-  flag points at Cursor's own service.
-- **Claude on Foundry as Cursor's chat model** is an open feature request on
-  every surface.
+- **There is no full switch like Claude Code's.** Claude Code sends its own
+  model calls straight to Foundry. Cursor sends model calls from its servers.
+- **The IDE comes closest.** The Azure OpenAI key slot, or the OpenAI key with
+  a base URL override, can make a Foundry OpenAI deployment the chat model.
+  Tab, Auto and Cursor's own models stay on Cursor.
+- **Claude on Foundry isn't a direct option.** Cursor's Anthropic slot has no
+  base URL and Foundry rejects Claude on Chat Completions. A translating
+  gateway works locally but wasn't tested through Cursor.
+- **The CLI and Cloud Agents have no switch.** Where none exists, the fallback
+  is MCP: Cursor's model stays the agent and calls Foundry deployments as
+  tools.
+
+## How Cursor compares with Claude Code
+
+| | Claude Code [A3] | Cursor IDE | Cursor CLI | Cloud Agents |
+| --- | --- | --- | --- | --- |
+| Full switch to Foundry | **Yes**: `CLAUDE_CODE_USE_FOUNDRY=1` | **Partial**: chat models, your own key | **No** | **No**, by design |
+| Model calls come from | Your machine | Cursor's servers | Cursor | Cursor |
+| Sign-in | Key, Entra ID or token | Key only | Not applicable | Not applicable |
+| Claude on Foundry | Yes | Gateway needed | No | No |
+| OpenAI on Foundry | Not applicable: it runs Claude models | Yes, OpenAI format | No | No |
+| Fallback | None needed | MCP tools | MCP tools | HTTP MCP tools |
+
+[Read the full comparison](fullswitch.md), including what the community says
+and every disadvantage of the IDE route.
 
 ## For every surface
 
 {.general-links}
+- [Full switch](fullswitch.md): can Cursor fully switch to Foundry, with the
+  Claude Code comparison and community evidence.
 - [Foundry setup](setup.md): deploy an OpenAI and a Claude model, grant
   access, install the bridge and test it without Cursor.
 - [Findings](../FINDINGS.md): results by surface, API formats, forum
@@ -52,7 +71,7 @@ a source-cited investigation of what Cursor supports as of November 2026.
 - [Sources](../SOURCES.md): Cursor documentation, forum threads, Microsoft
   Learn and SDK references.
 
-## How the working setup fits together
+## How the MCP fallback works
 
 ```mermaid
 flowchart LR
@@ -62,10 +81,11 @@ flowchart LR
     M -->|Entra ID, Anthropic Messages| A[Foundry Claude model]
 ```
 
-Cursor's agent decides when to call a tool. The local MCP server signs in with
-your Azure CLI login and calls the Foundry deployment you configured. The
-Azure credential never leaves your machine. Prompts and answers that pass
-through the tools are visible to both Cursor and Foundry.
+This is **not a switch**: Cursor's model still runs the agent. It decides when
+to call a tool. The local MCP server signs in with your Azure CLI login and
+calls the Foundry deployment you configured, so the Azure credential never
+leaves your machine. Prompts and answers that pass through the tools are
+visible to both Cursor and Foundry.
 
 ## Proof from the live runs
 
@@ -79,6 +99,12 @@ audit records written when Azure responded.
 | CLI | `foundry_claude` | `claude-haiku-5-5` (Claude Haiku 5.5) | `msg_011Ch7WD7WDz7GtAkBPwrgc7` | 53 / 22 |
 | IDE | `foundry_openai` | `cursor-poc-gpt-6-luna` (GPT-6 Luna) | `resp_0005469135d59969016afba15331588193a4abfce9cfd018c0` | 40 / 22 |
 | IDE | `foundry_claude` | `claude-haiku-5-5` (Claude Haiku 5.5) | `msg_011Ch7ZcVhwms1HNAQKsBk9e` | 53 / 22 |
+
+The switch itself was tested in pieces. Foundry accepted 12 of 12 probes with a
+resource API key, and a LiteLLM gateway passed 6 of 6 cases in front of Claude.
+The CLI's `--endpoint` and `--model` were tested on the installed CLI. What I
+could not observe is Cursor's own request from the IDE key slots, because the
+Free plan locks the model picker.
 
 See the [evidence index](evidence.md) for every recorded result. All code is
 on [GitHub](https://github.com/webmaxru/cursor-microsoft-foundry) under the

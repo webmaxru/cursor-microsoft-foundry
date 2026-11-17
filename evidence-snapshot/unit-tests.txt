@@ -1,7 +1,7 @@
-......Processing request of type CallToolRequest
+..........Processing request of type CallToolRequest
 Processing request of type CallToolRequest
 ..
 ----------------------------------------------------------------------
-Ran 8 tests in 11.280s
+Ran 12 tests in 29.591s
 
 OK

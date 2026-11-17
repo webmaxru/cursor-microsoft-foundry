@@ -1,10 +1,12 @@
 # Cursor Cloud Agents with Microsoft Foundry
 
-**Verdict:** Cloud Agents have **no setting that runs their model on your
-Foundry deployments**. They can reach Foundry the same way the CLI and IDE do,
-by calling tools on an MCP server. The difference is that the server must be a
-**remote, authenticated HTTP service**, because the agent runs in a
-Cursor-hosted VM that can't reach a server on your laptop.
+**Verdict: no full switch, and Cursor says that is by design.** Cloud Agents
+have no setting that runs their model on your Foundry deployments, so there is
+nothing like Claude Code's Foundry mode here [A3]. The fallback is the same as
+for the CLI: the agent keeps its Cursor model and calls Foundry as tools over
+MCP. The difference is that the MCP server must be a **remote, authenticated
+HTTP service**, because the agent runs in a Cursor-hosted VM that can't reach a
+server on your laptop.
 
 This page is a **blueprint. It has not been run.** The test account was on
 Cursor's Free plan, which doesn't include Cloud Agents, and no Cursor API key
@@ -12,37 +14,54 @@ was available [C3, C5].
 
 | Question | Answer | Status |
 | --- | --- | --- |
-| Can a Cloud Agent's own model run on Foundry? | No documented setting | Documented by Cursor |
+| Can a Cloud Agent's own model run on Foundry? | No. No API field or setting exists | Documented by Cursor and confirmed by staff [F23] |
+| Can you bring your own provider key to Cloud Agents? | No | Staff say it is by design [F23]; users keep asking [F24]; OpenAI's guidance agrees [O1] |
 | Can a Cloud Agent call Foundry models as tools? | Yes, through an HTTP MCP server you host | Blueprint; not run |
 | Does the local `foundry-models` stdio server work there? | No. Cloud VMs can't reach `localhost` on your machine | By design |
 | Do self-hosted workers move inference to Azure? | No. Cursor keeps the agent loop and model calls | Documented by Cursor [C8] |
 
-## What the current Cloud Agents API offers
+## Why there is no switch
 
-Cloud Agents run in isolated remote environments with a curated set of models.
-The Cloud Agents API creates and manages agents; it is not an OpenAI-style
-inference API. A current create request takes [C5, C6]:
+- **The API has no field for it.** A current create-agent request takes a
+  model ID from Cursor's catalog, an environment, optional repositories and
+  inline MCP servers [C5, C6]. There is no provider, endpoint, deployment or
+  key field. The Cloud Agents API is not an OpenAI-style inference API.
+- **Staff say it is by design.** A Cursor staff member explained in August
+  2026 why there is no BYOK for Cloud Agents. Own keys are attached by the IDE
+  client on each request, and a headless cloud run has no such client. Cloud
+  runs also include VM compute, which Cursor provides. The same reasoning
+  covers the CLI [F23]. Users keep asking for it, most recently in
+  November 2026 [F24].
+- **Self-hosted workers don't change it.** A worker runs tools, file edits,
+  terminal commands and MCP servers on your machine, but Cursor still runs the
+  agent loop, planning and model calls [C8].
+- **OpenAI's own guidance excludes it.** Its steps for using OpenAI models in
+  Cursor leave out Cloud Agents and the CLI [O1].
+- **`envVars` doesn't change the provider.** It sets environment variables for
+  the agent's shell and tools. Putting `AZURE_OPENAI_ENDPOINT` there doesn't
+  route inference to Azure. The current API is in public beta, and its
+  documentation warns that `envVars` can be silently ignored on accounts where
+  it hasn't rolled out [C6].
 
-- a **model** ID from Cursor's model catalog, with optional parameters
-- an execution environment, optionally with a repository
-- inline **MCP server** definitions, over HTTP or stdio
+The same gap exists on the [CLI](cli.md#why-there-is-no-switch). Only the
+[IDE](ide.md) has an own-key route, and it needs a paid plan.
 
-There is no field for an Azure endpoint, a Foundry deployment or a provider
-credential.
+## Fallback: Foundry models as MCP tools
 
-Two details matter when you build on this:
+A Cloud Agent can reach Foundry the way the CLI and IDE do, by calling tools on
+an MCP server. This does not change the agent's model: Cursor still runs it.
+
+Two details matter when you build on the API:
 
 - **Use HTTP or stdio MCP.** The API reference lists an `sse` value, but the
   capabilities guide excludes SSE [C6, C7]. The legacy API has no MCP support
   at all. Don't copy its `source` and string `model` request shape into a new
   integration [C12].
-- **`envVars` doesn't change the model provider.** It sets environment
-  variables for the agent's shell and tools. The current API is in public beta,
-  and its documentation warns that `envVars` can be silently ignored on
-  accounts where it hasn't rolled out. Putting `AZURE_OPENAI_ENDPOINT` there
-  doesn't route inference to Azure [C6].
+- **Cursor's VM can't reach your laptop.** The local `foundry-models` stdio
+  bridge runs on your machine, so a Cloud Agent needs a network-reachable
+  service instead.
 
-## Architecture that would work
+### Architecture that would work
 
 ```mermaid
 flowchart LR
@@ -120,11 +139,9 @@ token exchange. This was researched, not configured.
 
 ## Self-hosted workers
 
-A self-hosted worker runs tools, file edits, terminal commands and MCP servers
-on your machine, for example an Azure VM. Cursor still runs the agent loop,
-planning and model calls [C8]. A worker on Azure can host the stdio bridge
-next to your Foundry resource, but the main model still runs on Cursor, and
-file contents and tool results still go to Cursor.
+A self-hosted worker can host the stdio bridge next to your Foundry resource,
+for example on an Azure VM. The main model still runs on Cursor, and file
+contents and tool results still go to Cursor [C8].
 
 ## Privacy
 

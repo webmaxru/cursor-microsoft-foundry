@@ -18,17 +18,19 @@ forum content can change after the observation date.
 | C8 | [Self-Hosted Machines](https://cursor.com/docs/cloud-agent/self-hosted) | Explicit distinction: Cursor owns inference/planning; worker executes tools |
 | C9 | [AWS Bedrock](https://cursor.com/docs/customizing/aws-bedrock) | Provider-specific integration exists; cannot extrapolate it to Azure |
 | C10 | [Cloud Agent OIDC identity](https://cursor.com/docs/cloud-agent/identity) | Issuer, token socket, audience/subject controls and five-minute token lifetime |
-| C11 | [Bring your own API key](https://cursor.com/help/models-and-usage/api-keys) | IDE providers (including an Azure OpenAI slot), backend routing, BYOK privacy and billing qualifications |
+| C11 | [Bring your own API key](https://cursor.com/help/models-and-usage/api-keys) | IDE providers (including an Azure OpenAI slot: "Models deployed in your Azure OpenAI Service instance"), chat models only, requests and keys through Cursor's backend, zero data retention not applying, and billing differences by plan |
 | C12 | [Legacy Cloud Agents API](https://cursor.com/docs/cloud-agent/api/v0) | Older body/model shape and explicit lack of MCP in that surface |
 | C13 | [Cloud Agent Secrets & Network](https://cursor.com/docs/cloud-agent/security-network) | Secrets, egress, VM and conversation retention, OIDC guidance |
 | C14 | [CLI permissions](https://cursor.com/docs/cli/reference/permissions) | Exact `Mcp(server:tool)`, `Shell`, `Read`, `Write` and `WebFetch` allow/deny syntax |
 | C15 | [Cursor CLI product page](https://cursor.com/cli) | Product scope and links to automation/headless documentation; not proof of BYOK support |
+| C16 | [Network configuration](https://cursor.com/docs/enterprise/network-configuration) | Zero data retention doesn't apply when requests use your own API keys |
+| C17 | [Models and pricing](https://cursor.com/docs/models-and-pricing) | The $0.25 per million tokens Cursor Token Rate that applies to own-key use on Teams and Enterprise |
 
 ## Requested forum threads and related community evidence
 
 | Key | Source | Date / confidence and qualification |
 | --- | --- | --- |
-| F1 | [Support for Azure AI Foundry, staff reply #10](https://forum.cursor.com/t/support-for-azure-ai-foundry/162862/10) and [full thread](https://forum.cursor.com/t/support-for-azure-ai-foundry/162862) | June 2026 support answer: IDE Azure OpenAI-format limitations; not a current CLI configuration guide |
+| F1 | [Support for Azure AI Foundry, staff reply #10](https://forum.cursor.com/t/support-for-azure-ai-foundry/162862/10) and [full thread](https://forum.cursor.com/t/support-for-azure-ai-foundry/162862) | June 2026 staff answer: IDE Azure OpenAI-format limitations, and a statement that requests go directly to your provider, which the current docs contradict [C11]; not a current CLI configuration guide |
 | F2 | [Allow use of Claude models through Azure Foundry](https://forum.cursor.com/t/allow-use-of-claude-models-through-azure-foundry/145774) | December 2025 feature request; does not establish delivered functionality |
 | F3 | [Request to override Anthropic Base URL](https://forum.cursor.com/t/request-to-override-anthropic-base-url/161445) | May 2026 request; staff confirms traffic through Cursor; later users still request override |
 | F4 | [Enable Azure OpenAI settings in cursor-agent CLI](https://forum.cursor.com/t/enable-azure-openai-settings-when-using-cursor-agent-cli/151891) | February 2026 user report specific to CLI; behavior substantially consistent with the new probes |
@@ -50,6 +52,14 @@ forum content can change after the observation date.
 | F20 | [Custom base URLs for each custom model](https://forum.cursor.com/t/custom-base-urls-for-each-custom-model/147219) | December 2025 feature request; not delivered |
 | F21 | [How to use a custom OpenAI-compatible API in Cursor](https://forum.cursor.com/t/how-to-use-a-custom-openai-compatible-api-in-cursor-setup-limits-and-tips/171497) | September 2026 community guide, not official documentation |
 | F22 | [Adding new models](https://forum.cursor.com/t/adding-new-models/176811) | October 2026 staff reply: supported key providers are OpenAI, Anthropic, Google, Azure OpenAI and Bedrock; keys apply to chat only, Tab uses Cursor; some plans exclude own keys |
+| F23 | [Why is BYOK not available on cloud agents](https://forum.cursor.com/t/why-is-byok-not-available-on-cloud-agents/167358) | Created August 2026; staff reply 5 August 2026: keys are attached by the IDE client on each request, headless runs have no client, and cloud runs include VM compute |
+| F24 | [Support for BYOK in Cloud Agents](https://forum.cursor.com/t/support-for-byok-in-cloud-agents/161348) | May to November 2026, 9 posts: continued requests; no delivered feature |
+| F25 | [Can I use provider API keys with Cursor cli agent?](https://forum.cursor.com/t/can-i-use-provider-api-keys-with-cursor-cli-agent/149158) | January to November 2026, 8 posts; staff reply in November 2026: the CLI doesn't support provider API keys |
+| F26 | [Anthropic BYOK still unusable while Override OpenAI Base URL is set](https://forum.cursor.com/t/anthropic-byok-still-unusable-while-override-openai-base-url-is-set-one-global-toggle-breaks-claude-byok-windows-3-27-22/177380) | November 2026 user report: the one global override breaks Claude BYOK |
+| F27 | [Cursor-managed models are routed through Override OpenAI Base URL](https://forum.cursor.com/t/cursor-managed-models-are-routed-through-override-openai-base-url/169088) | August to October 2026; staff confirmed in August that managed models are routed through the override |
+| F28 | [Azure AI API models still unreliable in Cursor](https://forum.cursor.com/t/azure-ai-api-models-still-unreliable-in-cursor-please-prioritize-a-native-fix/150606) | February to March 2026: user reports plus staff pointing at tool-schema problems for file operations and missing Responses API support on Azure |
+| F29 | [When will Cursor fully support BYOK?](https://forum.cursor.com/t/when-will-cursor-fully-support-byok/164375) | June 2026, 8 posts: no per-model base URL or parameters; "no concrete timeline" |
+| F30 | [Override OpenAI Base URL not working](https://forum.cursor.com/t/override-openai-base-url-not-working/168323) and [The custom override of the OpenAI base URL is unusable](https://forum.cursor.com/t/the-custom-override-of-the-openai-base-url-is-unusable/152675) | August 2026 and February 2026 user reports only; not reproduced here |
 
 The public proxy endpoint in F6 was not invoked. No Azure credentials were
 shared with a community proxy. The author's code was not incorporated.
@@ -66,8 +76,10 @@ shared with a community proxy. The author's code was not incorporated.
 | M6 | [Foundry model deployment quickstart](https://learn.microsoft.com/azure/foundry/tutorials/quickstart-create-foundry-resources#deploy-a-model) | Azure CLI model-deployment command shape |
 | M7 | [Partner models: Anthropic](https://learn.microsoft.com/azure/foundry/foundry-models/concepts/models-from-partners#anthropic) | Haiku-specific capability/parameter differences; do not copy all Sonnet examples blindly |
 | M8 | [Configure keyless authentication with Microsoft Entra ID](https://learn.microsoft.com/azure/foundry/foundry-models/how-to/configure-entra-id) | `Cognitive Services User` role for inference on all Foundry models; Owner/Contributor alone do not grant inference; role propagation delay |
+| M9 | [Databricks AI Gateway with Cursor](https://learn.microsoft.com/en-us/azure/databricks/ai-gateway/coding-agent-cursor) | Updated 11 November 2026. Microsoft's own pattern for pointing the Cursor IDE at a gateway: Models > API Keys, Override OpenAI Base URL, the gateway token as the OpenAI key, and **+ Add Custom Model**. It isn't a Foundry guide; there is none |
 | A1 | [Anthropic OpenAI SDK compatibility](https://platform.claude.com/docs/en/cli-sdks-libraries/libraries/openai-sdk) | Compatibility for the Claude API is not proof that every Foundry endpoint exposes the same routes |
 | A2 | [Anthropic streaming](https://platform.claude.com/docs/en/build-with-claude/streaming) | Native stream events, text streaming and tool/usage semantics |
+| A3 | [Claude Code on Microsoft Foundry](https://code.claude.com/docs/en/microsoft-foundry) | The full switch used for comparison: `CLAUDE_CODE_USE_FOUNDRY=1`, `ANTHROPIC_FOUNDRY_RESOURCE` or `ANTHROPIC_FOUNDRY_BASE_URL`, an API key, Entra ID or a token for authentication, and pinned model variables. Read as documentation; Claude Code was not run |
 | O1 | [OpenAI models in Cursor](https://help.openai.com/en/articles/20001506-using-openai-models-in-cursor) | Directional desktop BYOK/gateway guidance explicitly excludes CLI and Cloud; defers to Cursor for evolving behavior |
 
 ## Maintained implementation references and secondary research
@@ -75,14 +87,27 @@ shared with a community proxy. The author's code was not incorporated.
 | Key | Source | How it was used |
 | --- | --- | --- |
 | S1 | [Official MCP Python SDK, supported v1 line](https://github.com/modelcontextprotocol/python-sdk/tree/v1.x) | FastMCP server and stdio client; installed versions are pinned in the lockfile |
-| L1 | [LiteLLM Azure Anthropic provider](https://docs.litellm.ai/docs/providers/azure/azure_anthropic) | Researched maintained alternative for Chat Completions translation; not installed/tested here |
+| L1 | [LiteLLM Azure Anthropic provider](https://docs.litellm.ai/docs/providers/azure/azure_anthropic) | Maintained Chat Completions translator for Foundry Claude. Version 1.108.4 was installed in a separate environment and tested locally, not through Cursor |
+| L2 | [LiteLLM: use with Cursor](https://docs.litellm.ai/docs/tutorials/cursor_integration) | The gateway must be reachable from the internet because Cursor calls it from its servers; Agent mode needs LiteLLM 1.97.0 or later |
+| G1 | [sherkevin/cursor-agent-byok](https://github.com/sherkevin/cursor-agent-byok) | Unofficial bridge for the Cursor agent with your own provider. Not evaluated or run; 3 stars, MIT. Listed so readers know it exists, not as a recommendation |
+| G2 | [leookun/cursor-byok](https://github.com/leookun/cursor-byok) | Unofficial BYOK project, archived 20 October 2026. Not evaluated |
+| G3 | [gabrii/Cursor-Azure-GPT-5](https://github.com/gabrii/Cursor-Azure-GPT-5) | Community proxy for Azure OpenAI models in Cursor. Not evaluated |
+| X1 | [OpenCode providers](https://opencode.ai/docs/providers) | Documents `azure` provider modes for chat and responses. Configuration docs only; not tested |
+| X2 | [Codex advanced configuration](https://developers.openai.com/codex/config-advanced) | Documents an Azure provider and per-provider tuning. Configuration docs only; not tested |
 | B1 | [Cursor BYOK guide, BYOKList](https://byoklist.com/guides/cursor-byok) | Secondary cross-check on IDE setup/privacy; not treated as authoritative CLI or Cloud evidence |
 
 ## Interpreting apparent contradictions
 
 - Search summaries sometimes confuse the **Cursor service endpoint** with a
-  model-provider base URL. The installed help and local HTTP probe are the
+  model-provider base URL. The installed help and local HTTP probes are the
   evidence for the CLI distinction.
+- A June 2026 staff reply says requests go directly to your provider [F1];
+  the current Cursor documentation says your key and requests pass through
+  Cursor's servers [C11, C16]. The documentation is treated as authoritative.
+- Staff cite `*.cognitiveservices.azure.com` endpoints for Foundry [F8], while
+  the Azure OpenAI slot's placeholder shows `*.openai.azure.com`. Both host
+  names exist on a Foundry resource. Which forms the slot accepts was not
+  tested.
 - Third-party proxy documentation can list `/chat/completions` because the
   proxy implements it. That does not make it an Azure-native endpoint.
 - Generic statements that Claude requires a separate Anthropic API are useful
@@ -93,3 +118,12 @@ shared with a community proxy. The author's code was not incorporated.
 - Protocol and feature support can be deployed incrementally. The saved
   evidence establishes behavior of the tested versions/account, not a
   universal service contract.
+
+## Coverage limits
+
+- Community evidence comes from the Cursor forum, read through its public
+  JSON API. No Reddit, Hacker News, X or Stack Overflow posts were opened.
+- Claude Code was compared through its documentation [A3] and not run.
+  OpenCode and Codex were read through their configuration documentation
+  [X1, X2]. Cline, Roo Code, Continue and GitHub Copilot were not checked.
+- The unofficial bridges [G1, G2, G3] were not evaluated.

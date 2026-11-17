@@ -56,10 +56,18 @@ Azure-signed attestations.
 
 | File | What it shows |
 | --- | --- |
-| [`cursor-routing.json`](../evidence-snapshot/cursor-routing.json) | With `--endpoint` pointed at a local listener, Cursor CLI sent only its own authentication call (`/auth/exchange_user_api_key`), so the flag targets Cursor's service, not a model API. With fake `OPENAI_BASE_URL`, `AZURE_OPENAI_ENDPOINT`, `ANTHROPIC_BASE_URL` and matching key variables set, the `auto` run succeeded and sent nothing to the local listener. |
+| [`cursor-routing.json`](../evidence-snapshot/cursor-routing.json) | The first routing probe. With `--endpoint` pointed at a local listener and an **invalid** API key, Cursor CLI sent only its own authentication call (`/auth/exchange_user_api_key`), so it never got past sign-in. With fake `OPENAI_BASE_URL`, `AZURE_OPENAI_ENDPOINT`, `ANTHROPIC_BASE_URL` and matching key variables set, the `auto` run succeeded and sent nothing to the local listener. [`cli-fullswitch.json`](../evidence-snapshot/cli-fullswitch.json) repeats the endpoint test with a real login. |
 | [`cursor-routing-initial.json`](../evidence-snapshot/cursor-routing-initial.json) | Earlier attempt of the same probe with an explicit paid model, refused with "Model unavailable on Free". Kept because it records the plan limitation. |
 | [`cursor-cli-help.txt`](../evidence-snapshot/cursor-cli-help.txt) | `agent --help` from the tested version, `2026.11.13-eacade1`. |
 | [`environment.json`](../evidence-snapshot/environment.json) | Tool versions, the absence of a Cursor API key and why no Cloud Agent run was attempted. |
+
+## Full-switch tests
+
+| File | What it shows |
+| --- | --- |
+| [`fullswitch-key-routes.json`](../evidence-snapshot/fullswitch-key-routes.json) | Twelve checks of a resource API key against the Foundry routes an IDE key slot would use, all as expected. Luna on Chat Completions: **200** with a Bearer header and with the `api-key` header, **401** with a wrong key, **400** for legacy `max_tokens`, **400** for tools without `reasoning_effort: "none"`, **200** with it, and **200** for streaming. Claude: **404 `api_not_supported`** on Chat Completions, **200** on Responses and on Anthropic Messages. This shows what Foundry accepts. It doesn't show what Cursor sends. |
+| [`cli-fullswitch.json`](../evidence-snapshot/cli-fullswitch.json) | With a real Cursor login, `--endpoint` made the CLI call only Cursor's own `/aiserver.v1.*` services (`GetMe`, `GetServerConfig` and others, all `application/proto`), with an `authorization` header, and exit with `[unimplemented]`. `--model` rejected a name outside Cursor's catalog. `agent --help` lists `bedrock` as the only provider command. Only header names were recorded. |
+| [`litellm-gateway.json`](../evidence-snapshot/litellm-gateway.json) | A local LiteLLM 1.108.4 proxy in front of the Claude deployment passed 6 of 6 cases: text with both token-limit spellings, a tool call, the tool-result round trip and streaming with usage. A wrong gateway key was refused. This is **not** verified through Cursor. |
 
 ## Deployments and tests
 
@@ -68,4 +76,4 @@ Azure-signed attestations.
 | [`deployment-created.json`](../evidence-snapshot/deployment-created.json) | The Luna deployment created by `Deploy-OpenAIModel.ps1`: DataZoneStandard, capacity 10, 10 requests and 10,000 tokens per minute. |
 | [`deployment.json`](../evidence-snapshot/deployment.json) | A later run of the same script found the matching deployment and changed nothing. |
 | [`deployment-inventory.json`](../evidence-snapshot/deployment-inventory.json) | Both deployments used: Luna (OpenAI format) and the existing Claude Haiku 5.5 deployment (Anthropic format, version 2, GlobalStandard). |
-| [`unit-tests.txt`](../evidence-snapshot/unit-tests.txt) | All eight unit tests passed. |
+| [`unit-tests.txt`](../evidence-snapshot/unit-tests.txt) | All twelve unit tests passed. |

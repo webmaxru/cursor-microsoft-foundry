@@ -22,11 +22,16 @@ They need practical instructions and verifiable results, not promotional claims.
 ## Capabilities and Constraints
 
 - Keep CLI, IDE, and Cloud as distinct, prominent sections.
-- Shared pages cover setup, findings, scripts, evidence, and sources.
+- Shared pages cover the full-switch verdict, setup, findings, scripts,
+  evidence, and sources.
+- Lead with whether a full switch to Foundry (as in Claude Code) exists for the
+  surface, and list its disadvantages. Present MCP only as the fallback where
+  no switch exists.
 - The local MCP bridge calls Foundry OpenAI and Claude models as tools. It
   does not replace Cursor's own agent model.
-- CLI and IDE MCP paths have recorded end-to-end evidence. The IDE's own-key
-  path was inspected but not tested with a key. Cloud is an unexecuted blueprint.
+- CLI and IDE MCP paths have recorded end-to-end evidence. For the IDE's own-key
+  path, the Foundry side was verified with a key, but Cursor's request path was
+  not observed (Free plan). Cloud is an unexecuted blueprint.
 - Preserve those confidence distinctions, source citations, and all evidence.
 - Publish static HTML on GitHub Pages, generated from Markdown with Python.
 - Keep old guide links and anchors working. Do not require JavaScript to read

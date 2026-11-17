@@ -1,0 +1,324 @@
+{
+  "observed_at_utc": "2026-11-17T09:46:33.717410+00:00",
+  "authentication": "Foundry resource API key (never recorded)",
+  "luna_deployment": "cursor-poc-gpt-6-luna",
+  "claude_deployment": "claude-haiku-5-5",
+  "passed": true,
+  "routes": [
+    {
+      "case": "Luna chat/completions, Authorization: Bearer",
+      "route": "/openai/v1/chat/completions",
+      "auth": "Authorization: Bearer",
+      "request_keys": [
+        "max_completion_tokens",
+        "messages",
+        "model"
+      ],
+      "http_status": 200,
+      "expected_status": 200,
+      "as_expected": true,
+      "model": "gpt-6-luna-2026-09-22",
+      "usage": {
+        "completion_tokens": 17,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 5,
+          "rejected_prediction_tokens": 0
+        },
+        "latency_checkpoint": {
+          "engine_tbt_ms": 8,
+          "engine_ttft_ms": 101,
+          "engine_ttlt_ms": 246,
+          "pre_inference_ms": 108,
+          "service_tbt_ms": 6,
+          "service_ttft_ms": 326,
+          "service_ttlt_ms": 421,
+          "user_visible_ttft_ms": 217
+        },
+        "prompt_tokens": 12,
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "total_tokens": 29
+      },
+      "finish_reason": "stop",
+      "tool_calls": []
+    },
+    {
+      "case": "Luna chat/completions, api-key header",
+      "route": "/openai/v1/chat/completions",
+      "auth": "api-key",
+      "request_keys": [
+        "max_completion_tokens",
+        "messages",
+        "model"
+      ],
+      "http_status": 200,
+      "expected_status": 200,
+      "as_expected": true,
+      "model": "gpt-6-luna-2026-09-22",
+      "usage": {
+        "completion_tokens": 16,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 4,
+          "rejected_prediction_tokens": 0
+        },
+        "latency_checkpoint": {
+          "engine_tbt_ms": 10,
+          "engine_ttft_ms": 102,
+          "engine_ttlt_ms": 268,
+          "pre_inference_ms": 150,
+          "service_tbt_ms": 10,
+          "service_ttft_ms": 340,
+          "service_ttlt_ms": 502,
+          "user_visible_ttft_ms": 191
+        },
+        "prompt_tokens": 12,
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "total_tokens": 28
+      },
+      "finish_reason": "stop",
+      "tool_calls": []
+    },
+    {
+      "case": "Luna chat/completions with tools, no reasoning_effort",
+      "route": "/openai/v1/chat/completions",
+      "auth": "Authorization: Bearer",
+      "request_keys": [
+        "max_completion_tokens",
+        "messages",
+        "model",
+        "tools"
+      ],
+      "http_status": 400,
+      "expected_status": 400,
+      "as_expected": true,
+      "error_code": "invalid_request_error",
+      "error_message": "Function tools with reasoning_effort are not supported for cursor-poc-gpt-6-luna in /v1/chat/completions. To use function tools, use /v1/responses or set reasoning_effort to 'none'."
+    },
+    {
+      "case": "Luna chat/completions with tools, reasoning_effort=low",
+      "route": "/openai/v1/chat/completions",
+      "auth": "Authorization: Bearer",
+      "request_keys": [
+        "max_completion_tokens",
+        "messages",
+        "model",
+        "reasoning_effort",
+        "tools"
+      ],
+      "http_status": 400,
+      "expected_status": 400,
+      "as_expected": true,
+      "error_code": "invalid_request_error",
+      "error_message": "Function tools with reasoning_effort are not supported for cursor-poc-gpt-6-luna in /v1/chat/completions. To use function tools, use /v1/responses or set reasoning_effort to 'none'."
+    },
+    {
+      "case": "Luna chat/completions with tools, reasoning_effort=none",
+      "route": "/openai/v1/chat/completions",
+      "auth": "Authorization: Bearer",
+      "request_keys": [
+        "max_completion_tokens",
+        "messages",
+        "model",
+        "reasoning_effort",
+        "tools"
+      ],
+      "http_status": 200,
+      "expected_status": 200,
+      "as_expected": true,
+      "model": "gpt-6-luna-2026-09-22",
+      "usage": {
+        "completion_tokens": 18,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0
+        },
+        "latency_checkpoint": {
+          "engine_tbt_ms": 11,
+          "engine_ttft_ms": 786,
+          "engine_ttlt_ms": 1001,
+          "pre_inference_ms": 92,
+          "service_tbt_ms": 12,
+          "service_ttft_ms": 938,
+          "service_ttlt_ms": 1145,
+          "user_visible_ttft_ms": 846
+        },
+        "prompt_tokens": 138,
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "total_tokens": 156
+      },
+      "finish_reason": "tool_calls",
+      "tool_calls": [
+        "read_file"
+      ]
+    },
+    {
+      "case": "Luna chat/completions with tools, reasoning_effort=none, streaming",
+      "route": "/openai/v1/chat/completions",
+      "auth": "Authorization: Bearer",
+      "request_keys": [
+        "max_completion_tokens",
+        "messages",
+        "model",
+        "reasoning_effort",
+        "stream",
+        "stream_options",
+        "tools"
+      ],
+      "http_status": 200,
+      "expected_status": 200,
+      "as_expected": true,
+      "stream_finish_reasons": [
+        "tool_calls"
+      ]
+    },
+    {
+      "case": "Luna chat/completions with legacy max_tokens",
+      "route": "/openai/v1/chat/completions",
+      "auth": "Authorization: Bearer",
+      "request_keys": [
+        "max_tokens",
+        "messages",
+        "model"
+      ],
+      "http_status": 400,
+      "expected_status": 400,
+      "as_expected": true,
+      "error_code": "unsupported_parameter",
+      "error_message": "Unsupported parameter: 'max_tokens' is not supported with this model. Use 'max_completion_tokens' instead."
+    },
+    {
+      "case": "Luna chat/completions, wrong key",
+      "route": "/openai/v1/chat/completions",
+      "auth": "wrong key",
+      "request_keys": [
+        "max_completion_tokens",
+        "messages",
+        "model"
+      ],
+      "http_status": 401,
+      "expected_status": 401,
+      "as_expected": true,
+      "error_code": "401",
+      "error_message": "Access denied due to invalid subscription key or wrong API endpoint. Make sure to provide a valid key for an active subscription and use a correct regional API endpoint for your resource."
+    },
+    {
+      "case": "Claude chat/completions, Authorization: Bearer",
+      "route": "/openai/v1/chat/completions",
+      "auth": "Authorization: Bearer",
+      "request_keys": [
+        "max_completion_tokens",
+        "messages",
+        "model"
+      ],
+      "http_status": 404,
+      "expected_status": 404,
+      "as_expected": true,
+      "error_code": "api_not_supported",
+      "error_message": "Requested API is currently not supported"
+    },
+    {
+      "case": "Claude responses, Authorization: Bearer",
+      "route": "/openai/v1/responses",
+      "auth": "Authorization: Bearer",
+      "request_keys": [
+        "input",
+        "max_output_tokens",
+        "model",
+        "store"
+      ],
+      "http_status": 200,
+      "expected_status": 200,
+      "as_expected": true,
+      "model": "claude-haiku-5-5",
+      "usage": {
+        "input_tokens": 19,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 10,
+        "output_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "total_tokens": 29
+      }
+    },
+    {
+      "case": "Claude Anthropic messages, x-api-key",
+      "route": "/anthropic/v1/messages",
+      "auth": "x-api-key",
+      "request_keys": [
+        "max_tokens",
+        "messages",
+        "model"
+      ],
+      "http_status": 200,
+      "expected_status": 200,
+      "as_expected": true,
+      "model": "claude-haiku-5-5",
+      "usage": {
+        "input_tokens": 23,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 0
+        },
+        "output_tokens": 10,
+        "output_tokens_details": {
+          "thinking_tokens": 0
+        },
+        "service_tier": "standard",
+        "inference_geo": "global",
+        "speed": "standard"
+      }
+    },
+    {
+      "case": "Claude Anthropic messages, Authorization: Bearer",
+      "route": "/anthropic/v1/messages",
+      "auth": "Authorization: Bearer",
+      "request_keys": [
+        "max_tokens",
+        "messages",
+        "model"
+      ],
+      "http_status": 200,
+      "expected_status": 200,
+      "as_expected": true,
+      "model": "claude-haiku-5-5",
+      "usage": {
+        "input_tokens": 23,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 0
+        },
+        "output_tokens": 10,
+        "output_tokens_details": {
+          "thinking_tokens": 0
+        },
+        "service_tier": "standard",
+        "inference_geo": "global",
+        "speed": "standard"
+      }
+    }
+  ]
+}

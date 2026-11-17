@@ -1,0 +1,19 @@
+# LiteLLM gateway that exposes Foundry Claude to Cursor as an OpenAI Chat Completions model.
+# Tested with LiteLLM 1.108.4 by scripts/probe_litellm_gateway.py. Replace <resource> and the
+# deployment name, and set both environment variables before starting the proxy:
+#   AZURE_AI_API_KEY    the Foundry resource API key (the gateway keeps it; Cursor never sees it)
+#   LITELLM_MASTER_KEY  a long random value starting with sk-; this is the key you give Cursor
+#
+#   litellm --config config/litellm.config.example.yaml --host 0.0.0.0 --port 4000
+#
+# Cursor sends requests from its own servers, so the gateway needs a public HTTPS address in front of it.
+model_list:
+  # The alias must not start with "claude": Cursor sends every claude-* model to its Anthropic key slot.
+  - model_name: foundry-haiku
+    litellm_params:
+      model: azure_ai/claude-haiku-5-5
+      api_base: https://<resource>.services.ai.azure.com/anthropic
+      api_key: os.environ/AZURE_AI_API_KEY
+
+general_settings:
+  master_key: os.environ/LITELLM_MASTER_KEY

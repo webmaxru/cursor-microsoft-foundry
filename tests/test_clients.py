@@ -138,5 +138,66 @@ class McpValidation(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(before, after)
 
 
+class CaptureProxy(unittest.TestCase):
+    def test_body_shape_keeps_request_shape_but_not_prompt_text(self):
+        import capture_proxy
+        raw = json.dumps({
+            "model": "m", "stream": True, "reasoning_effort": "none", "max_completion_tokens": 8,
+            "messages": [{"role": "system", "content": "SECRET PROMPT"}, {"role": "user", "content": "SECRET PROMPT"}],
+            "tools": [{"type": "function", "function": {"name": "read_file", "parameters": {}}}],
+        }).encode()
+        shape = capture_proxy.body_shape(raw)
+        self.assertNotIn("SECRET PROMPT", json.dumps(shape))
+        self.assertEqual(shape["tool_names"], ["read_file"])
+        self.assertEqual(shape["message_roles"], ["system", "user"])
+        self.assertEqual(shape["reasoning_effort"], "none")
+        self.assertEqual(capture_proxy.body_shape(b"not json"), {"json": False, "bytes": 8})
+
+    def test_response_summary_reports_errors_and_stream_usage(self):
+        import capture_proxy
+        error = json.dumps({"error": {"code": "api_not_supported", "message": "nope"}}).encode()
+        summary = capture_proxy.summarize_response(404, "application/json", error)
+        self.assertEqual((summary["status"], summary["error_code"], summary["error"]), (404, "api_not_supported", "nope"))
+        stream = b'data: {"usage": {"total_tokens": 3}}\n\ndata: [DONE]\n\n'
+        summary = capture_proxy.summarize_response(200, "text/event-stream", stream)
+        self.assertEqual((summary["sse_events"], summary["usage"]), (2, {"total_tokens": 3}))
+
+    def test_wrong_secret_is_rejected_before_any_azure_token_is_requested(self):
+        import contextlib
+        import io
+        import threading
+        import capture_proxy
+        config = load_config(EXAMPLE_CONFIG_PATH)
+        with tempfile.TemporaryDirectory() as directory, contextlib.redirect_stdout(io.StringIO()):
+            log = Path(directory) / "capture.jsonl"
+            with patch("capture_proxy.AzureCliCredential") as credential:
+                server = capture_proxy.Server(("127.0.0.1", 0), config, "right-secret", log, None)
+                threading.Thread(target=server.serve_forever, daemon=True).start()
+                try:
+                    url = f"http://127.0.0.1:{server.server_address[1]}/chat/completions"
+                    wrong = httpx.post(url, json={"model": "m"}, headers={"Authorization": "Bearer wrong-secret"})
+                    missing = httpx.post(url, json={"model": "m"})
+                finally:
+                    server.shutdown()
+                    server.server_close()
+                credential.return_value.get_token.assert_not_called()
+            self.assertEqual((wrong.status_code, missing.status_code), (401, 401))
+            self.assertNotIn("wrong-secret", log.read_text(encoding="utf-8"))
+
+
+class CliProbe(unittest.TestCase):
+    def test_command_names_come_from_the_commands_section_only(self):
+        import probe_cli_fullswitch
+        help_text = (
+            "Options:\n  -p, --print   Print\n\nCommands:\n"
+            "  persist                     Start a session that survives terminal\n"
+            "                              disconnects\n"
+            "  status|whoami [options]     View authentication status\n"
+            "  bedrock                     Configure AWS Bedrock usage for CLI\n"
+            "  help [command]              Display help for command\n"
+        )
+        self.assertEqual(probe_cli_fullswitch.commands_from_help(help_text), ["persist", "status", "bedrock", "help"])
+
+
 if __name__ == "__main__":
     unittest.main()
