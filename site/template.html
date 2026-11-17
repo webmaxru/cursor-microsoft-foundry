@@ -1,4 +1,17 @@
 <!doctype html>
+<!--
+THESIS: A technical field edition, not a software landing page. The research
+and its confidence boundaries are the visual subject.
+OWN-WORLD: Navy navigation spine, cool-white pages, workhorse sans typography,
+open support ledger, restrained blue links, square-edged code and evidence.
+STORY: Choose a Cursor surface, distinguish tool calls from the agent model,
+follow the setup, and inspect the source records.
+FIRST VIEWPORT: Persistent left navigation; large, left-aligned title and
+introduction; a support ledger beside the essential findings. Guides replace
+that spread with a readable article and a right-hand contents rail.
+FORM: Research-institute field edition, grounded direction 5, seed a1fe59f0.
+Typographic staging uses weight and measure, not ornamental interface chrome.
+-->
 <html lang="en">
 <head>
   <meta charset="utf-8">
@@ -18,25 +31,30 @@
 </head>
 <body class="$page_class">
   <a class="skip-link" href="#content">Skip to content</a>
-  <header class="site-header">
-    <div class="header-inner">
-      <a class="brand" href="index.html">Cursor <span aria-hidden="true">+</span> Microsoft Foundry</a>
-      <nav class="site-nav" aria-label="Main">
-        $nav
-      </nav>
-    </div>
-  </header>
-  <div class="layout $layout">
-    $toc
-    <main id="content" class="content">
+  <div class="site-shell">
+    <header class="site-header">
+      <a class="brand" href="index.html">Cursor <span class="brand-plus" aria-hidden="true">+</span><br class="brand-break"> Microsoft Foundry</a>
+      <p class="brand-note">An independent field guide</p>
+      <nav class="site-nav" aria-label="Main">$nav</nav>
+      <div class="edition">
+        <p>Research edition<br><time datetime="2026-11">November 2026</time></p>
+        <a href="$repo_url" rel="noopener">Repository on GitHub <span aria-hidden="true">↗</span></a>
+      </div>
+    </header>
+    <div class="page-shell">
+      <div class="layout $layout">
+        <main id="content" class="content" tabindex="-1">
 $content
-      <p class="page-source"><a href="$source_url" rel="noopener">View this page's source on GitHub</a></p>
-    </main>
+          <p class="page-source"><a href="$source_url" rel="noopener">View this page's source on GitHub <span aria-hidden="true">↗</span></a></p>
+        </main>
+        $toc
+      </div>
+      <footer class="site-footer">
+        <p>Independent research, tested in November 2026. Not affiliated with or endorsed by Anysphere (Cursor) or Microsoft.
+          Product behavior can change; check the linked sources.</p>
+        <p><a href="$repo_url" rel="noopener">Source on GitHub</a><br>MIT License</p>
+      </footer>
+    </div>
   </div>
-  <footer class="site-footer">
-    <p>Independent research, tested in November 2026. Not affiliated with or endorsed by Anysphere (Cursor) or Microsoft.
-      Product behavior can change; check the linked sources.</p>
-    <p><a href="$repo_url" rel="noopener">Source on GitHub</a> · MIT License</p>
-  </footer>
 </body>
 </html>

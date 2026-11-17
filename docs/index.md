@@ -25,19 +25,6 @@ a source-cited investigation of what Cursor supports as of November 2026.
   Agents in Cursor-hosted VMs. There's no provider setting, but an HTTP MCP
   service in Azure could reach Foundry. Not run: it needs a paid plan.
 
-## For every surface
-
-{.general-links}
-- [Foundry setup](setup.md): deploy an OpenAI and a Claude model, grant
-  access, install the bridge and test it without Cursor.
-- [Findings](../FINDINGS.md): results by surface, API formats, forum
-  threads, privacy, billing and recommendations.
-- [Scripts and config](scripts.md): what each script does and whether it
-  calls Azure.
-- [Evidence](evidence.md): redacted records from the live runs.
-- [Sources](../SOURCES.md): Cursor documentation, forum threads, Microsoft
-  Learn and SDK references.
-
 ## The short answer
 
 - **Cursor can use your Foundry models as tools, in the CLI and the IDE.** A
@@ -51,6 +38,19 @@ a source-cited investigation of what Cursor supports as of November 2026.
   flag points at Cursor's own service.
 - **Claude on Foundry as Cursor's chat model** is an open feature request on
   every surface.
+
+## For every surface
+
+{.general-links}
+- [Foundry setup](setup.md): deploy an OpenAI and a Claude model, grant
+  access, install the bridge and test it without Cursor.
+- [Findings](../FINDINGS.md): results by surface, API formats, forum
+  threads, privacy, billing and recommendations.
+- [Scripts and config](scripts.md): what each script does and whether it
+  calls Azure.
+- [Evidence](evidence.md): redacted records from the live runs.
+- [Sources](../SOURCES.md): Cursor documentation, forum threads, Microsoft
+  Learn and SDK references.
 
 ## How the working setup fits together
 

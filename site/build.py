@@ -55,9 +55,10 @@ PAGES = [
      "Sources used in the investigation, with confidence notes."),
 ]
 NAV_GROUPS = [
-    ("surface", "Surface", "Cursor surfaces"),
-    ("shared", None, "Pages for all surfaces"),
+    ("surface", "Cursor surfaces", "Cursor surfaces"),
+    ("shared", "Setup & reference", "Pages for all surfaces"),
 ]
+SURFACE_NOTES = {"cli.html": "Terminal agent", "ide.html": "Desktop editor", "cloud.html": "Hosted agents"}
 ALIASES = {"README.md": "index.html"}
 EVIDENCE_DIR = "evidence-snapshot"
 IMAGE_DIR = "docs/assets"
@@ -103,7 +104,14 @@ def make_parser() -> MarkdownIt:
         if token.info.strip() == "mermaid":
             env["mermaid"] = True
             return f'<pre class="mermaid">{html.escape(token.content)}</pre>\n'
-        return default_fence(tokens, idx, options, env)
+        language = token.info.strip().split(maxsplit=1)[0] if token.info.strip() else "text"
+        label = {"powershell": "PowerShell", "bash": "Shell", "json": "JSON", "python": "Python", "text": "Text"}.get(language, language)
+        return (
+            '<div class="code-block">\n'
+            f'<div class="code-toolbar"><span>{html.escape(label)}</span></div>\n'
+            + default_fence(tokens, idx, options, env)
+            + "</div>\n"
+        )
 
     md.add_render_rule("fence", fence)
     default_code_inline = md.renderer.rules["code_inline"]
@@ -200,26 +208,40 @@ def render_page(md: MarkdownIt, source: str, fragment_checks: list):
 
     if title is None:
         raise LinkError(f"{source}: page has no level-1 heading")
-    body = md.renderer.render(tokens, md.options, env)
+    section_starts = [i for i, token in enumerate(tokens) if token.type == "heading_open" and token.tag == "h2"]
+    intro_end = section_starts[0] if section_starts else len(tokens)
+    body = '<div class="page-intro">\n' + md.renderer.render(tokens[:intro_end], md.options, env) + "</div>\n"
+    for start, end in zip(section_starts, section_starts[1:] + [len(tokens)]):
+        section_id = html.escape(tokens[start].attrGet("id"), quote=True)
+        body += (
+            f'<section class="doc-section section-{section_id}" aria-labelledby="{section_id}">\n'
+            + md.renderer.render(tokens[start:end], md.options, env)
+            + "</section>\n"
+        )
     return title, toc, ids, body, env.get("mermaid", False)
 
 
 def nav_html(current: str) -> str:
-    groups = []
+    home_attr = ' aria-current="page"' if current == "index.html" else ""
+    groups = [f'<a class="nav-overview" href="index.html"{home_attr}>Overview</a>']
     for key, visible_label, accessible_label in NAV_GROUPS:
         links = []
         for _, out, label, group, _ in PAGES:
             if group != key:
                 continue
             attr = ' aria-current="page"' if out == current else ""
-            links.append(f'<a href="{out}"{attr}>{label}</a>')
+            note = f'<span class="nav-note">{SURFACE_NOTES[out]}</span>' if out in SURFACE_NOTES else ""
+            links.append(f'<a href="{out}"{attr}><span>{label}</span>{note}</a>')
         if key == "shared":
-            links.append(f'<a href="{REPO_URL}" rel="noopener">GitHub</a>')
-        label_html = f'<span class="nav-label" aria-hidden="true">{visible_label}</span>' if visible_label else ""
-        groups.append(
-            f'<div class="nav-group nav-{key}" role="group" aria-label="{accessible_label}">'
-            f'{label_html}<div class="nav-links">{"".join(links)}</div></div>'
-        )
+            groups.append(
+                f'<details class="nav-group nav-shared" open><summary>{html.escape(visible_label)}</summary>'
+                f'<div class="nav-links">{"".join(links)}</div></details>'
+            )
+        else:
+            groups.append(
+                f'<div class="nav-group nav-{key}" role="group" aria-label="{accessible_label}">'
+                f'<p class="nav-label">{visible_label}</p><div class="nav-links">{"".join(links)}</div></div>'
+            )
     return "\n        ".join(groups)
 
 
@@ -241,7 +263,7 @@ def toc_html(toc) -> str:
 
 
 def with_inline_toc(body: str, toc) -> str:
-    """Add a collapsible outline after the title for narrow screens."""
+    """Keep the long-page outline reachable before the article on narrow screens."""
     if len(toc) < 2:
         return body
     inline = (
@@ -250,7 +272,7 @@ def with_inline_toc(body: str, toc) -> str:
         f"      <ol>\n{toc_links(toc)}\n      </ol>\n"
         "    </details>\n"
     )
-    return body.replace("</h1>\n", "</h1>\n" + inline, 1)
+    return inline + body
 
 
 def mermaid_script(enabled: bool) -> str:
@@ -263,9 +285,21 @@ def mermaid_script(enabled: bool) -> str:
         "    const sources = blocks.map((block) => block.textContent);\n"
         "    const scheme = matchMedia(\"(prefers-color-scheme: dark)\");\n"
         "    async function render() {\n"
-        "      mermaid.initialize({ startOnLoad: false, theme: scheme.matches ? \"dark\" : \"default\", securityLevel: \"strict\" });\n"
+        "      const style = getComputedStyle(document.documentElement);\n"
+        "      const color = (name) => style.getPropertyValue(name).trim();\n"
+        "      mermaid.initialize({ startOnLoad: false, theme: \"base\", securityLevel: \"strict\",\n"
+        "        themeVariables: { background: color(\"--bg\"), primaryColor: color(\"--bg-soft\"),\n"
+        "          primaryTextColor: color(\"--text\"), primaryBorderColor: color(\"--muted\"),\n"
+        "          lineColor: color(\"--muted\"), secondaryColor: color(\"--bg-soft\"),\n"
+        "          tertiaryColor: color(\"--bg\"), edgeLabelBackground: color(\"--bg\"),\n"
+        "          fontFamily: \"system-ui, sans-serif\" },\n"
+        "        flowchart: { curve: \"linear\", padding: 18, nodeSpacing: 30, rankSpacing: 40 } });\n"
         "      blocks.forEach((block, i) => { block.removeAttribute(\"data-processed\"); block.textContent = sources[i]; });\n"
         "      await mermaid.run({ nodes: blocks });\n"
+        "      for (const block of blocks) {\n"
+        "        const svg = block.querySelector(\"svg\");\n"
+        "        if (svg) svg.style.setProperty(\"--diagram-width\", `${svg.viewBox.baseVal.width}px`);\n"
+        "      }\n"
         "    }\n"
         "    render();\n"
         "    scheme.addEventListener(\"change\", render);\n"

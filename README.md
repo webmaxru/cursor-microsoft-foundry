@@ -91,7 +91,8 @@ answers passed through the tools are visible to both Cursor and Foundry.
 | [`tests/`](tests/) | Unit tests (`python -m unittest discover -s tests -v`) |
 | [`evidence-snapshot/`](evidence-snapshot/) | Redacted results from the live runs ([index](docs/evidence.md)) |
 | [`docs/assets/`](docs/assets/) | Screenshots of the Cursor IDE settings and the MCP run |
-| [`site/`](site/) | Static site generator for GitHub Pages |
+| [`site/`](site/) | Static site generator and reading-interface regression tests for GitHub Pages |
+| [`PRODUCT.md`](PRODUCT.md), [`DESIGN.md`](DESIGN.md) | Product constraints and the website's visual system |
 
 ## Clean up
 
