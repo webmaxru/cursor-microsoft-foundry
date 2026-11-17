@@ -23,8 +23,15 @@ Azure-signed attestations.
 | File | What it shows |
 | --- | --- |
 | [`cursor-mcp-e2e.json`](../evidence-snapshot/cursor-mcp-e2e.json) | **Main proof.** Cursor CLI (`auto` model) called both tools with fresh random tasks. Cursor's answer contains both correct results and both Azure response IDs, and they match new audit records, including request and response SHA-256 hashes. Luna used 40 input and 22 output tokens; Claude Haiku used 53 and 22. |
-| [`guide-prompt-output.txt`](../evidence-snapshot/guide-prompt-output.txt) | Verbatim output of the example prompt in [step 9 of the guide](guide.md#9-ask-cursor-to-use-your-foundry-models). Both response IDs appear in the audit log. |
+| [`guide-prompt-output.txt`](../evidence-snapshot/guide-prompt-output.txt) | Verbatim output of the example prompt in [step 3 of the CLI guide](cli.md#3-ask-cursor-to-use-your-foundry-models). Both response IDs appear in the audit log. |
 | [`foundry-audit.jsonl`](../evidence-snapshot/foundry-audit.jsonl) | One line per successful Foundry call: time, route, deployment, response ID, Azure request ID, hashes and usage. No prompt, answer or credential. |
+
+## Cursor IDE end to end
+
+| File | What it shows |
+| --- | --- |
+| [`ide-mcp-e2e.json`](../evidence-snapshot/ide-mcp-e2e.json) | **IDE proof.** In the Cursor IDE 3.30.14 Agent panel (Grok 4.7, Free plan), the Agent called both tools with a fresh challenge from `verify_ide.py prepare`. `verify_ide.py check` matched the displayed results and response IDs with new audit records. Luna response `resp_0005469135d59969016afba15331588193a4abfce9cfd018c0`; Claude Haiku response `msg_011Ch7ZcVhwms1HNAQKsBk9e`. |
+| [`ide-transcript.txt`](../evidence-snapshot/ide-transcript.txt) | The Agent's chat copied from the IDE, which the check read. |
 
 ## Foundry calls without Cursor
 
@@ -40,6 +47,7 @@ Azure-signed attestations.
 | File | What it shows |
 | --- | --- |
 | [`claude-api-formats.json`](../evidence-snapshot/claude-api-formats.json) | The Claude deployment returned **200** on the OpenAI Responses route and **404 `api_not_supported`** on both Chat Completions routes (`/openai/v1/chat/completions` and `/anthropic/v1/chat/completions`). |
+| [`openai-api-routes.json`](../evidence-snapshot/openai-api-routes.json) | The request shapes the IDE key slots can send, against the Luna deployment with Entra ID. Current `/openai/v1/chat/completions`, the same with `reasoning_effort`, legacy `/openai/deployments/{name}/chat/completions` and current `/openai/v1/responses` returned **200**. Chat Completions with a Responses-style `reasoning` object returned **400 `unknown_parameter`**. |
 | [`openai-responses-features.json`](../evidence-snapshot/openai-responses-features.json) | Luna on the Responses API: streaming and a full function-tool round trip passed. |
 | [`claude-responses-features.json`](../evidence-snapshot/claude-responses-features.json) | Claude on the Responses API: streaming and a function-tool round trip passed. |
 | [`claude-anthropic-features.json`](../evidence-snapshot/claude-anthropic-features.json) | Claude on the native Messages API: streaming and a tool-use round trip passed. |
@@ -60,4 +68,4 @@ Azure-signed attestations.
 | [`deployment-created.json`](../evidence-snapshot/deployment-created.json) | The Luna deployment created by `Deploy-OpenAIModel.ps1`: DataZoneStandard, capacity 10, 10 requests and 10,000 tokens per minute. |
 | [`deployment.json`](../evidence-snapshot/deployment.json) | A later run of the same script found the matching deployment and changed nothing. |
 | [`deployment-inventory.json`](../evidence-snapshot/deployment-inventory.json) | Both deployments used: Luna (OpenAI format) and the existing Claude Haiku 5.5 deployment (Anthropic format, version 2, GlobalStandard). |
-| [`unit-tests.txt`](../evidence-snapshot/unit-tests.txt) | All seven unit tests passed. |
+| [`unit-tests.txt`](../evidence-snapshot/unit-tests.txt) | All eight unit tests passed. |

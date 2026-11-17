@@ -97,6 +97,28 @@ class ClientGuards(unittest.TestCase):
                 audit.assert_not_called()
 
 
+class TranscriptCorrelation(unittest.TestCase):
+    def test_proof_needs_displayed_ids_matching_hashes_and_both_deployments(self):
+        import verify_cursor
+        config = load_config(EXAMPLE_CONFIG_PATH)
+        expected = verify_cursor.expected_hashes(config, "p1", "NONCE_a:1", "p2", "NONCE_b:2")
+        openai_dep, claude_dep = config["deployment_name"], config["claude_deployment_name"]
+
+        def record(deployment, response_id, tamper=False):
+            request, response = expected[deployment]
+            return {"deployment": deployment, "response_id": response_id,
+                    "request_sha256": request, "response_sha256": "0" * 64 if tamper else response}
+
+        records = [record(openai_dep, "resp_1"), record(claude_dep, "msg_2"),
+                   record(claude_dep, "msg_hidden"), record(claude_dep, "msg_tampered", tamper=True)]
+        transcript = "NONCE_a:1 resp_1 NONCE_b:2 msg_2 msg_tampered"
+        matched = verify_cursor.correlate(records, transcript, expected)
+        self.assertEqual([r["response_id"] for r in matched], ["resp_1", "msg_2"])
+        self.assertTrue(verify_cursor.proven(transcript, ("NONCE_a:1", "NONCE_b:2"), expected, matched))
+        self.assertFalse(verify_cursor.proven(transcript, ("NONCE_a:1", "NONCE_b:2"), expected, matched[:1]))
+        self.assertFalse(verify_cursor.proven("resp_1 msg_2", ("NONCE_a:1", "NONCE_b:2"), expected, matched))
+
+
 class McpValidation(unittest.IsolatedAsyncioTestCase):
     async def test_invalid_tool_arguments_never_reach_azure(self):
         audit = foundry_client.AUDIT_PATH

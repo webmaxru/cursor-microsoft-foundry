@@ -1,27 +1,35 @@
-# Step-by-step: connect Cursor to Microsoft Foundry
+# Set up Microsoft Foundry for Cursor
 
-This guide connects **Cursor CLI** to models you deploy in **Microsoft
-Foundry**: an **OpenAI** model (GPT-6 Luna in the example) and an **Anthropic
-Claude** model (Claude Haiku 5.5 in the example). Every command below was run
-during the investigation. The outputs shown are from real runs.
+Every Cursor surface on this site uses the same foundation: an **OpenAI**
+model (GPT-6 Luna in the example) and an **Anthropic Claude** model (Claude
+Haiku 5.5 in the example) deployed in **Microsoft Foundry**, plus a small local
+MCP server that calls them with your Azure CLI login. Do this page once, then
+connect the surface you use:
 
-> **Tested on:** Windows 11, PowerShell 7.6, Python 3.12, Azure CLI 2.93 and
-> Cursor CLI `2026.11.13-eacade1` (17 November 2026). The scripts use
-> cross-platform PowerShell 7 and should work on macOS and Linux, but those
-> platforms were not tested.
+| Surface | Steps on this page you need | Then continue with |
+| --- | --- | --- |
+| Cursor CLI | 1 to 7 | [Cursor CLI](cli.md) |
+| Cursor IDE, Foundry models as tools | 1 to 7 | [Cursor IDE, path A](ide.md#path-a-foundry-models-as-mcp-tools) |
+| Cursor IDE, Azure OpenAI API-key slot | 1 to 3 | [Cursor IDE, path B](ide.md#path-b-azure-openai-api-key-slot) |
+| Cursor Cloud Agents | 1 to 5 | [Cursor Cloud Agents](cloud.md) |
+
+Every command below was run during the investigation. The outputs shown are
+from real runs.
+
+> **Tested on:** Windows 11, PowerShell 7.6, Python 3.12 and Azure CLI 2.93
+> (17 November 2026). The scripts use cross-platform PowerShell 7 and should
+> work on macOS and Linux, but those platforms were not tested.
 
 ## What you are building
 
 ```mermaid
 flowchart LR
-    U[You] --> C[Cursor CLI agent]
-    C -->|MCP tool call| M[Local MCP server<br/>scripts/foundry_mcp.py]
+    C[Cursor agent<br/>CLI or IDE] -->|MCP tool call| M[Local MCP server<br/>scripts/foundry_mcp.py]
     M -->|Entra ID token,<br/>OpenAI Responses API| O[Foundry: OpenAI model]
     M -->|Entra ID token,<br/>Anthropic Messages API| A[Foundry: Claude model]
 ```
 
-A small local [MCP](https://modelcontextprotocol.io/) server gives Cursor two
-tools:
+The MCP server gives Cursor two tools:
 
 | Tool | Calls | API used |
 | --- | --- | --- |
@@ -31,25 +39,12 @@ tools:
 The server signs in with your Azure CLI login (Microsoft Entra ID). No API key
 is created, copied or stored, and the Azure credential never reaches Cursor.
 
-> **Know the limits before you start.** Cursor's own agent model (for example
-> `auto`) still runs on Cursor's service and is billed by Cursor. Your Foundry
-> models do the work you delegate to them through the tools. As of November
-> 2026, Cursor CLI and Cloud Agents have **no supported setting that sends
-> their main model traffic to Foundry**. The [findings](../FINDINGS.md) explain
-> why and show the evidence.
-
-## Choose your path
-
-| You want to... | Use | Status |
-| --- | --- | --- |
-| Use Foundry OpenAI **and** Claude models from Cursor CLI | This guide (MCP bridge) | **Verified end to end** |
-| Use the same tools in the Cursor IDE agent | Same `.cursor/mcp.json` ([step 11](#11-use-it-in-your-own-project)) | Cursor documents that the CLI and IDE share MCP config; not tested here |
-| Pick a Foundry **OpenAI-format** deployment as the chat model in the Cursor IDE | IDE **Azure OpenAI** API-key slot ([step 12](#12-cursor-ide-and-cloud-agents)) | Documented by Cursor; not tested here |
-| Pick Foundry **Claude** as the main model in the IDE or CLI | No supported path found | Open feature requests ([F2], [F3]) |
-| Use Foundry from Cursor **Cloud Agents** | Remote HTTP MCP service ([step 12](#12-cursor-ide-and-cloud-agents)) | Blueprint only; not tested |
-
-[F2]: https://forum.cursor.com/t/allow-use-of-claude-models-through-azure-foundry/145774
-[F3]: https://forum.cursor.com/t/request-to-override-anthropic-base-url/161445
+> **Know the limits before you start.** Cursor's own agent model still runs on
+> Cursor's service and is billed by Cursor. Your Foundry models do the work you
+> delegate to them through the tools. As of November 2026, no Cursor surface
+> can send its **main** model traffic to Foundry Claude, and only the IDE has a
+> setting for Foundry OpenAI-format models. The [findings](../FINDINGS.md)
+> compare the surfaces.
 
 ## 1. Prerequisites
 
@@ -67,24 +62,9 @@ is created, copied or stored, and the Azure credential never reaches Cursor.
 
 - [PowerShell 7](https://learn.microsoft.com/powershell/scripting/install/installing-powershell)
   (`pwsh`), [Python 3.12+](https://www.python.org/downloads/) and Git.
-- Cursor CLI, installed and signed in:
-
-  ```bash
-  # macOS, Linux, WSL
-  curl https://cursor.com/install -fsS | bash
-  ```
-
-  ```powershell
-  # Windows PowerShell
-  irm 'https://cursor.com/install?win32=true' | iex
-  ```
-
-  ```powershell
-  agent --version
-  agent login
-  ```
-
-  A free Cursor account is enough for this guide; use `--model auto`.
+- The Cursor surface you plan to use. Installation is covered on the
+  [CLI](cli.md#1-install-and-sign-in) and [IDE](ide.md#before-you-start)
+  pages. A free Cursor account is enough for the MCP tools.
 
 ## 2. Get the code and create your configuration
 
@@ -244,7 +224,8 @@ paths for your machine:
 }
 ```
 
-Run it again whenever you move the folder.
+Cursor CLI and the Cursor IDE both read this file from the `demo` folder. Run
+the script again whenever you move the repository.
 
 ## 7. Test Foundry without Cursor
 
@@ -283,146 +264,14 @@ the exact answer. A pass prints a JSON record like this (shortened):
 }
 ```
 
-Fix any failure here before continuing; see [troubleshooting](#13-troubleshooting).
+Fix any failure here before you connect Cursor; see
+[troubleshooting](#8-troubleshooting). Then continue with your surface:
+[CLI](cli.md), [IDE](ide.md) or [Cloud Agents](cloud.md).
 
-## 8. Connect Cursor CLI
+## 8. Troubleshooting
 
-Cursor reads `.cursor/mcp.json` from the folder it runs in. Approve only this
-server, then check that Cursor can load its tools:
-
-```powershell
-cd demo
-agent mcp enable foundry-models
-agent mcp list
-agent mcp list-tools foundry-models
-```
-
-```text
-foundry-models: ready
-Tools for foundry-models (2):
-- foundry_claude (prompt, max_output_tokens)
-- foundry_openai (prompt, max_output_tokens)
-```
-
-The demo's `.cursor/cli.json` allows only these two tools and denies shell,
-file and web tools:
-
-```json
-{
-  "permissions": {
-    "allow": ["Mcp(foundry-models:foundry_openai)", "Mcp(foundry-models:foundry_claude)"],
-    "deny": ["Shell(*)", "Read(**)", "Write(**)", "WebFetch(*)"]
-  }
-}
-```
-
-## 9. Ask Cursor to use your Foundry models
-
-From the `demo` folder:
-
-```powershell
-agent --mode ask --model auto --print --trust "Call foundry_openai and foundry_claude, each with the prompt 'In one sentence, what is a Python list comprehension?'. For each tool, report its text, deployment and response_id. Do not read files or run shell commands."
-```
-
-Real output (exit code 0, about 30 seconds):
-
-```text
-**foundry_openai**
-- **text:** A Python list comprehension is a concise way to create a list by transforming or filtering items from an iterable in a single expression.
-- **deployment:** `cursor-poc-gpt-6-luna`
-- **response_id:** `resp_0c6f4d57c8f858d0016afb99a9766c81958a84539c773a7180`
-
-**foundry_claude**
-- **text:** A Python list comprehension is a concise syntax for creating a new list by applying an expression to each item in an iterable, optionally filtering items with a condition, as in `[x * 2 for x in range(5) if x % 2 == 0]`.
-- **deployment:** `claude-haiku-5-5`
-- **response_id:** `msg_011Ch7X7ugJReAnRB6NoRKdT`
-```
-
-Both response IDs match records that the MCP server wrote to its local audit
-log (`evidence/foundry-audit.jsonl`) when Azure responded, so they come from
-real Azure calls, not from model-generated text. The published copies are
-[`guide-prompt-output.txt`](../evidence-snapshot/guide-prompt-output.txt) and
-[`foundry-audit.jsonl`](../evidence-snapshot/foundry-audit.jsonl). Your text
-and IDs will differ. The `resp_` prefix comes from the OpenAI Responses API
-and the `msg_` prefix from the Anthropic Messages API.
-
-## 10. Run the full end-to-end check
-
-From the repository root:
-
-```powershell
-cd ..
-./scripts/Run-Poc.ps1
-```
-
-This runs all four smoke tests, approves and lists the MCP server, and then
-runs `scripts/verify_cursor.py`. That script asks Cursor to call both tools
-with fresh random tasks. It passes only if Cursor's answer contains the
-correct results **and** the request hashes, response hashes and response IDs
-match new audit records. The recorded run is in
-[`cursor-mcp-e2e.json`](../evidence-snapshot/cursor-mcp-e2e.json).
-
-## 11. Use it in your own project
-
-1. Copy `demo/.cursor/mcp.json` to `<your-project>/.cursor/mcp.json`, or to
-   `~/.cursor/mcp.json` to make the tools available in every project.
-2. Allow the two tools in `<your-project>/.cursor/cli.json`:
-
-   ```json
-   {
-     "permissions": {
-       "allow": ["Mcp(foundry-models:foundry_openai)", "Mcp(foundry-models:foundry_claude)"]
-     }
-   }
-   ```
-
-   The demo's `deny` rules exist to isolate the experiment. In a real project,
-   set shell and file permissions to suit your own workflow.
-3. Approve the server from that project folder:
-
-   ```powershell
-   agent mcp enable foundry-models
-   ```
-
-4. Ask for the tool by name, for example: *"Ask foundry_claude to review the
-   function below for edge cases"*.
-
-Each tool call accepts up to 8,000 characters and 128 to 2,048 output tokens.
-Text you send to a tool goes to **both** Foundry and Cursor, because Cursor's
-agent writes the tool arguments and reads the results. Only the Azure
-credential stays on your machine.
-
-**Cursor IDE.** Cursor documents one MCP configuration shared by the CLI and
-the editor, so the same `.cursor/mcp.json` should make the tools available to
-the IDE agent. The IDE was not tested in this investigation.
-
-## 12. Cursor IDE and Cloud Agents
-
-**IDE Azure OpenAI API key (OpenAI-format models only).** Cursor's
-[Bring your own API key](https://cursor.com/help/models-and-usage/api-keys)
-page lists an **Azure OpenAI** provider under **Cursor Settings > Models**.
-Cursor staff say it works with OpenAI-format Foundry deployments but not with
-Claude ([forum](https://forum.cursor.com/t/support-for-azure-ai-foundry/162862/10)).
-Things to know before you use it:
-
-- It needs a resource **API key**, not Entra ID.
-- Every request, including your key, goes through Cursor's backend.
-- Cursor's Zero Data Retention policy does not apply.
-- It works only for chat models; Tab completion keeps using Cursor's models.
-- Teams and Enterprise plans pay the Cursor Token Rate.
-
-This path was researched, not tested here.
-
-**Cloud Agents.** Cursor Cloud Agents run in remote VMs, so they can't reach
-a stdio server on your laptop. The current Cloud Agents API accepts MCP server
-definitions over HTTP or stdio. A working setup would need an authenticated
-HTTP MCP service hosting the same two tools, for example in Azure with a
-managed identity. It also needs a Cursor plan that includes Cloud Agents.
-[`config/cloud-agent.request.example.json`](../config/cloud-agent.request.example.json)
-shows the request shape. It is a **blueprint, not a tested deployment**. See
-[Findings, section 6](../FINDINGS.md#6-cursor-cloud-agents).
-
-## 13. Troubleshooting
+These problems happen before Cursor is involved. Surface-specific problems are
+on the [CLI](cli.md#troubleshooting) and [IDE](ide.md#troubleshooting) pages.
 
 | Symptom | Cause and fix |
 | --- | --- |
@@ -433,26 +282,18 @@ shows the request shape. It is a **blueprint, not a tested deployment**. See
 | HTTP 400 about `reasoning.effort` | The OpenAI model doesn't accept `none` (see [step 3](#3-deploy-an-openai-model)). Claude rejects `none` on the Responses API; the Claude tool uses native Messages and isn't affected. |
 | HTTP 404 `api_not_supported` for Claude | The Claude deployment returned 404 on both Chat Completions routes. Use Anthropic Messages, as the tool does. |
 | HTTP 429 | Your deployment capacity is low. Run tests one at a time or raise capacity. |
-| `Model unavailable on Free` from Cursor | Use `--model auto`. |
-| `agent mcp list-tools` can't find `foundry-models` | Run it from the folder that contains `.cursor/mcp.json`. |
-| Cursor asks for approval again | Changing `mcp.json` resets approval. Run `agent mcp enable foundry-models` again. |
 | Windows: "The system cannot find the path specified" | Run `./scripts/Setup.ps1` again to rewrite absolute paths. |
 
-## 14. Clean up
+## 9. Clean up
 
-Delete only the OpenAI deployment you created for this guide:
+Disconnect each surface first ([CLI](cli.md#disconnect),
+[IDE](ide.md#clean-up)). Then delete only the OpenAI deployment you created
+for this guide:
 
 ```powershell
 az cognitiveservices account deployment delete -g <resource-group> -n <resource> --deployment-name <openai-deployment-name>
 ```
 
 Delete the Claude deployment the same way if you created it only for this
-guide. Then disconnect Cursor from the server:
-
-```powershell
-cd demo
-agent mcp disable foundry-models
-```
-
-Nothing else runs in the background: the MCP server starts and stops with
-each Cursor session.
+guide. Nothing else runs in the background: the MCP server starts and stops
+with each Cursor session.

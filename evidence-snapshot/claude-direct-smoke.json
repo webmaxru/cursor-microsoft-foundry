@@ -2,20 +2,20 @@
   "test": "direct",
   "model": "claude",
   "passed": true,
-  "prompt": "Compute 412 + 154. Reply with exactly NONCE_7b7d6bcb6aa5545e: followed by the sum. No spaces.",
-  "expected": "NONCE_7b7d6bcb6aa5545e:566",
+  "prompt": "Compute 154 + 515. Reply with exactly NONCE_a23da9cd68d064df: followed by the sum. No spaces.",
+  "expected": "NONCE_a23da9cd68d064df:669",
   "result": {
-    "observed_at_utc": "2026-11-16T23:49:20.918303+00:00",
+    "observed_at_utc": "2026-11-17T00:15:09.443164+00:00",
     "route": "Microsoft Foundry / Anthropic Messages API",
     "authentication": "Microsoft Entra ID via Azure CLI",
     "deployment": "claude-haiku-5-5",
     "configured_model": "claude-haiku-5-5",
     "configured_model_version": "2",
     "model": "claude-haiku-5-5",
-    "response_id": "msg_011Ch7W65naaUogV7cxGfUsM",
-    "azure_request_id": "req_011Ch7W64xUfdDM3kcbjNTKP",
+    "response_id": "msg_011Ch7Y4EMhNxErP8fNBQ2pV",
+    "azure_request_id": "req_011Ch7Y4DZabEmnG5eMre4Qx",
     "stop_reason": "end_turn",
-    "request_sha256": "04c1ed98a02cec414355de7f4744fbc033d5d535378d8c905788b2459786dbb9",
+    "request_sha256": "4215faa8ac380cec678b15b41bd462cb561d3cdce1235a3e5a5a0151b4ce38a7",
     "usage": {
       "cache_creation": {
         "ephemeral_1h_input_tokens": 0,
@@ -24,8 +24,8 @@
       "cache_creation_input_tokens": 0,
       "cache_read_input_tokens": 0,
       "inference_geo": "global",
-      "input_tokens": 55,
-      "output_tokens": 23,
+      "input_tokens": 51,
+      "output_tokens": 19,
       "output_tokens_details": {
         "thinking_tokens": 0
       },
@@ -33,7 +33,7 @@
       "service_tier": "standard",
       "speed": "standard"
     },
-    "response_sha256": "f8d22e0a209d894d6b827ecc9650bc3b424eebb91f0c9cc087fe79a45d1379cd",
-    "text": "NONCE_7b7d6bcb6aa5545e:566"
+    "response_sha256": "746c86039b56c067332e188887796afeb5c5009d2c0dee0017a42af4c93d587c",
+    "text": "NONCE_a23da9cd68d064df:669"
   }
 }

@@ -1,0 +1,71 @@
+{
+  "passed": true,
+  "surface": "Cursor IDE 3.30.14 Agent panel (Grok 4.7, Free plan)",
+  "cursor_orchestrator": "Cursor Agent model chosen in the IDE (Cursor-routed, not the Foundry deployment)",
+  "challenge_created_at_utc": "2026-11-17T00:32:11.356828+00:00",
+  "expected": {
+    "openai": "NONCE_1d6d72c082f1c5ba:1625",
+    "claude": "NONCE_3ea9b72b73b4577c:1058"
+  },
+  "cursor_transcript": "[Cursor IDE 3.30.14 Agent panel, model: Grok 4.7 (Free plan), workspace: demo]\nUser: This is a synthetic integration test. Do not read files, run shell commands, browse, or use other tools. Call foundry-models foundry_openai exactly once with max_output_tokens=256 and this exact prompt: \"Compute 969 + 656. Reply with exactly NONCE_1d6d72c082f1c5ba: followed by the sum. No spaces.\". Then call foundry-models foundry_claude exactly once with max_output_tokens=256 and this exact prompt: \"Compute 856 + 202. Reply with exactly NONCE_3ea9b72b73b4577c: followed by the sum. No spaces.\". Do not compute the answers yourself. Report each tool's exact text, deployment, model, and response_id. If either tool fails, report failure; do not invent output.\nWorked for 18s\nThought 4s\nI'll look up the Foundry model tool schemas, then call each model once with the prompts you specified.\nExplored 1 search, 2 tools\nBoth Foundry calls completed. Exact tool results:\nfoundry_openai\n- text: NONCE_1d6d72c082f1c5ba:1625\n- deployment: cursor-poc-gpt-6-luna\n- model: cursor-poc-gpt-6-luna\n- response_id: resp_0005469135d59969016afba15331588193a4abfce9cfd018c0\nfoundry_claude\n- text: NONCE_3ea9b72b73b4577c:1058\n- deployment: claude-haiku-5-5\n- model: claude-haiku-5-5\n- response_id: msg_011Ch7ZcVhwms1HNAQKsBk9e",
+  "correlated_local_azure_audit": [
+    {
+      "observed_at_utc": "2026-11-17T00:35:31.088635+00:00",
+      "route": "Microsoft Foundry / Azure OpenAI Responses API",
+      "authentication": "Microsoft Entra ID via Azure CLI",
+      "deployment": "cursor-poc-gpt-6-luna",
+      "configured_model": "gpt-6-luna",
+      "configured_model_version": "2026-09-22",
+      "model": "cursor-poc-gpt-6-luna",
+      "response_id": "resp_0005469135d59969016afba15331588193a4abfce9cfd018c0",
+      "azure_request_id": "cff94086-7086-4bd8-84c6-73fe5beed153",
+      "status": "completed",
+      "request_sha256": "c6bd96b1e966ed82bbf8c53c8acc47545322420ae32629e3af6c0acfff0baf75",
+      "usage": {
+        "input_tokens": 40,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 22,
+        "output_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "total_tokens": 62
+      },
+      "response_sha256": "c08c252ad9f34a91f116c45dccd90b756b4215c6bc8b67feeb82dfee12954e28"
+    },
+    {
+      "observed_at_utc": "2026-11-17T00:35:33.964080+00:00",
+      "route": "Microsoft Foundry / Anthropic Messages API",
+      "authentication": "Microsoft Entra ID via Azure CLI",
+      "deployment": "claude-haiku-5-5",
+      "configured_model": "claude-haiku-5-5",
+      "configured_model_version": "2",
+      "model": "claude-haiku-5-5",
+      "response_id": "msg_011Ch7ZcVhwms1HNAQKsBk9e",
+      "azure_request_id": "req_011Ch7ZcUwYqzm3QvWPTp9Hr",
+      "stop_reason": "end_turn",
+      "request_sha256": "8ee1b21277143a6087367e4d37378bbac3f997aec5f65da2ed0e87eef1e56887",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 53,
+        "output_tokens": 22,
+        "output_tokens_details": {
+          "thinking_tokens": 0
+        },
+        "server_tool_use": null,
+        "service_tier": "standard",
+        "speed": "standard"
+      },
+      "response_sha256": "dffad4d6cb94fb6c55671934470b49916c91734196a9db074958f67d3e2b0398"
+    }
+  ],
+  "interpretation": "Cursor orchestrates; only the two MCP tool inferences are billed to Foundry."
+}

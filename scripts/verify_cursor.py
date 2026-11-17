@@ -7,14 +7,11 @@ from cursor_runtime import ROOT, run_cursor
 from foundry_client import load_config, request_body
 from smoke_test import challenge
 
+AUDIT_PATH = ROOT / "evidence" / "foundry-audit.jsonl"
 
-def main():
-    openai_prompt, openai_expected = challenge()
-    claude_prompt, claude_expected = challenge()
-    config = load_config()
-    audit_path = ROOT / "evidence" / "foundry-audit.jsonl"
-    old_count = len(audit_path.read_text(encoding="utf-8").splitlines()) if audit_path.exists() else 0
-    prompt = (
+
+def build_prompt(openai_prompt, claude_prompt):
+    return (
         "This is a synthetic integration test. Do not read files, run shell commands, browse, or use other tools. "
         "Call foundry-models foundry_openai exactly once with max_output_tokens=256 and this exact prompt: "
         + json.dumps(openai_prompt)
@@ -23,39 +20,57 @@ def main():
         + ". Do not compute the answers yourself. Report each tool's exact text, deployment, model, and response_id. "
         "If either tool fails, report failure; do not invent output."
     )
-    result = run_cursor([
-        "--workspace", str(ROOT / "demo"), "--trust", "--mode", "ask", "--model", "auto",
-        "--print", "--output-format", "json", prompt,
-    ], timeout=240)
-    output = result.stdout.strip()
-    records = [
-        json.loads(line) for line in audit_path.read_text(encoding="utf-8").splitlines()[old_count:]
-    ] if audit_path.exists() else []
+
+
+def expected_hashes(config, openai_prompt, openai_expected, claude_prompt, claude_expected):
+    """Map each deployment to the (request, response) SHA-256 pair the bridge must audit."""
     openai_body = {**request_body(openai_prompt, 256), "model": config["deployment_name"]}
     claude_body = {
         "model": config["claude_deployment_name"], "max_tokens": 256,
         "messages": [{"role": "user", "content": claude_prompt}], "thinking": {"type": "disabled"},
     }
-    expected_hashes = {
-        config["deployment_name"]: (
-            hashlib.sha256(json.dumps(openai_body, sort_keys=True, ensure_ascii=True).encode()).hexdigest(),
-            hashlib.sha256(openai_expected.encode()).hexdigest(),
-        ),
-        config["claude_deployment_name"]: (
-            hashlib.sha256(json.dumps(claude_body, sort_keys=True, ensure_ascii=True).encode()).hexdigest(),
-            hashlib.sha256(claude_expected.encode()).hexdigest(),
-        ),
+
+    def digest(value):
+        return hashlib.sha256(value.encode()).hexdigest()
+
+    return {
+        config["deployment_name"]: (digest(json.dumps(openai_body, sort_keys=True, ensure_ascii=True)), digest(openai_expected)),
+        config["claude_deployment_name"]: (digest(json.dumps(claude_body, sort_keys=True, ensure_ascii=True)), digest(claude_expected)),
     }
-    matched = [
+
+
+def audit_records(offset=0):
+    if not AUDIT_PATH.exists():
+        return []
+    return [json.loads(line) for line in AUDIT_PATH.read_text(encoding="utf-8").splitlines()[offset:] if line.strip()]
+
+
+def correlate(records, output, expected):
+    """Keep audit records whose exact request/answer hashes match and whose response ID Cursor displayed."""
+    return [
         record for record in records
-        if record["response_id"] in output
-        and (record["request_sha256"], record.get("response_sha256")) == expected_hashes.get(record["deployment"])
+        if record.get("response_id") and record["response_id"] in output
+        and (record.get("request_sha256"), record.get("response_sha256")) == expected.get(record.get("deployment"))
     ]
-    success = (
-        result.returncode == 0
-        and openai_expected in output and claude_expected in output
-        and set(expected_hashes) <= {r["deployment"] for r in matched}
-    )
+
+
+def proven(output, answers, expected, matched):
+    return all(answer in output for answer in answers) and set(expected) <= {r["deployment"] for r in matched}
+
+
+def main():
+    openai_prompt, openai_expected = challenge()
+    claude_prompt, claude_expected = challenge()
+    config = load_config()
+    old_count = len(audit_records())
+    result = run_cursor([
+        "--workspace", str(ROOT / "demo"), "--trust", "--mode", "ask", "--model", "auto",
+        "--print", "--output-format", "json", build_prompt(openai_prompt, claude_prompt),
+    ], timeout=240)
+    output = result.stdout.strip()
+    expected = expected_hashes(config, openai_prompt, openai_expected, claude_prompt, claude_expected)
+    matched = correlate(audit_records(old_count), output, expected)
+    success = result.returncode == 0 and proven(output, (openai_expected, claude_expected), expected, matched)
     evidence = {
         "passed": success, "cursor_orchestrator": "auto (Cursor-routed, not the Foundry deployment)",
         "exit_code": result.returncode, "expected": {"openai": openai_expected, "claude": claude_expected},

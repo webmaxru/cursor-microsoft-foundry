@@ -1,0 +1,182 @@
+{
+  "observed_at_utc": "2026-11-17T00:40:02.164416+00:00",
+  "authentication": "Microsoft Entra ID via Azure CLI",
+  "deployment": "cursor-poc-gpt-6-luna",
+  "configured_model": "gpt-6-luna",
+  "passed": true,
+  "routes": [
+    {
+      "case": "current v1 chat/completions",
+      "url": "https://my-foundry-resource.openai.azure.com/openai/v1/chat/completions",
+      "request_keys": [
+        "max_completion_tokens",
+        "messages",
+        "model"
+      ],
+      "http_status": 200,
+      "expected_status": 200,
+      "as_expected": true,
+      "request_id": "3f61f386-ca47-4e92-802b-dbcbe2061706",
+      "model": "gpt-6-luna-2026-09-22",
+      "id": "chatcmpl-El1WqL04NT9zvz4f9FNSLY1IS6TcF",
+      "usage": {
+        "completion_tokens": 6,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0
+        },
+        "latency_checkpoint": {
+          "engine_tbt_ms": 7,
+          "engine_ttft_ms": 117,
+          "engine_ttlt_ms": 163,
+          "pre_inference_ms": 76,
+          "service_tbt_ms": 7,
+          "service_ttft_ms": 256,
+          "service_ttlt_ms": 299,
+          "user_visible_ttft_ms": 181
+        },
+        "prompt_tokens": 12,
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "total_tokens": 18
+      },
+      "text": "ROUTE_OK"
+    },
+    {
+      "case": "current v1 chat/completions + reasoning_effort",
+      "url": "https://my-foundry-resource.openai.azure.com/openai/v1/chat/completions",
+      "request_keys": [
+        "max_completion_tokens",
+        "messages",
+        "model",
+        "reasoning_effort"
+      ],
+      "http_status": 200,
+      "expected_status": 200,
+      "as_expected": true,
+      "request_id": "219f27ce-36a7-495f-a123-77533cc93ac8",
+      "model": "gpt-6-luna-2026-09-22",
+      "id": "chatcmpl-El1Wrzs4kGvTLrojC7JAPyKYgxDFA",
+      "usage": {
+        "completion_tokens": 6,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0
+        },
+        "latency_checkpoint": {
+          "engine_tbt_ms": 6,
+          "engine_ttft_ms": 121,
+          "engine_ttlt_ms": 163,
+          "pre_inference_ms": 110,
+          "service_tbt_ms": 1,
+          "service_ttft_ms": 385,
+          "service_ttlt_ms": 393,
+          "user_visible_ttft_ms": 275
+        },
+        "prompt_tokens": 12,
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "total_tokens": 18
+      },
+      "text": "ROUTE_OK"
+    },
+    {
+      "case": "current v1 chat/completions + Responses-style reasoning object",
+      "url": "https://my-foundry-resource.openai.azure.com/openai/v1/chat/completions",
+      "request_keys": [
+        "max_completion_tokens",
+        "messages",
+        "model",
+        "reasoning"
+      ],
+      "http_status": 400,
+      "expected_status": 400,
+      "as_expected": true,
+      "request_id": "cbf0fac1-5c5e-45de-bdee-2f96db64b2ad",
+      "error_code": "unknown_parameter",
+      "error_param": "reasoning",
+      "error_message": "Unknown parameter: 'reasoning'."
+    },
+    {
+      "case": "legacy deployments chat/completions (Azure OpenAI slot shape)",
+      "url": "https://my-foundry-resource.openai.azure.com/openai/deployments/cursor-poc-gpt-6-luna/chat/completions?api-version=2025-04-01-preview",
+      "request_keys": [
+        "max_completion_tokens",
+        "messages"
+      ],
+      "http_status": 200,
+      "expected_status": 200,
+      "as_expected": true,
+      "request_id": "9458c08c-6ad2-4845-859f-7a05ae726917",
+      "model": "gpt-6-luna-2026-09-22",
+      "id": "chatcmpl-El1Wrrl7dLaadXpqp0yCbE3f6Fj6a",
+      "usage": {
+        "completion_tokens": 17,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 5,
+          "rejected_prediction_tokens": 0
+        },
+        "latency_checkpoint": {
+          "engine_tbt_ms": 8,
+          "engine_ttft_ms": 141,
+          "engine_ttlt_ms": 282,
+          "pre_inference_ms": 91,
+          "service_tbt_ms": 8,
+          "service_ttft_ms": 302,
+          "service_ttlt_ms": 438,
+          "user_visible_ttft_ms": 211
+        },
+        "prompt_tokens": 12,
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "total_tokens": 29
+      },
+      "text": "ROUTE_OK"
+    },
+    {
+      "case": "current v1 responses",
+      "url": "https://my-foundry-resource.openai.azure.com/openai/v1/responses",
+      "request_keys": [
+        "input",
+        "max_output_tokens",
+        "model",
+        "reasoning",
+        "store"
+      ],
+      "http_status": 200,
+      "expected_status": 200,
+      "as_expected": true,
+      "request_id": "f4bd328b-f363-4e19-99aa-7532cb0ba359",
+      "model": "cursor-poc-gpt-6-luna",
+      "id": "resp_06e44eef82650e86016afba262721081959bed95cdd8e7d8bf",
+      "usage": {
+        "input_tokens": 12,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 7,
+        "output_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "total_tokens": 19
+      },
+      "text": "ROUTE_OK"
+    }
+  ]
+}

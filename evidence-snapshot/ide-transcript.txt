@@ -1,0 +1,17 @@
+[Cursor IDE 3.30.14 Agent panel, model: Grok 4.7 (Free plan), workspace: demo]
+User: This is a synthetic integration test. Do not read files, run shell commands, browse, or use other tools. Call foundry-models foundry_openai exactly once with max_output_tokens=256 and this exact prompt: "Compute 969 + 656. Reply with exactly NONCE_1d6d72c082f1c5ba: followed by the sum. No spaces.". Then call foundry-models foundry_claude exactly once with max_output_tokens=256 and this exact prompt: "Compute 856 + 202. Reply with exactly NONCE_3ea9b72b73b4577c: followed by the sum. No spaces.". Do not compute the answers yourself. Report each tool's exact text, deployment, model, and response_id. If either tool fails, report failure; do not invent output.
+Worked for 18s
+Thought 4s
+I'll look up the Foundry model tool schemas, then call each model once with the prompts you specified.
+Explored 1 search, 2 tools
+Both Foundry calls completed. Exact tool results:
+foundry_openai
+- text: NONCE_1d6d72c082f1c5ba:1625
+- deployment: cursor-poc-gpt-6-luna
+- model: cursor-poc-gpt-6-luna
+- response_id: resp_0005469135d59969016afba15331588193a4abfce9cfd018c0
+foundry_claude
+- text: NONCE_3ea9b72b73b4577c:1058
+- deployment: claude-haiku-5-5
+- model: claude-haiku-5-5
+- response_id: msg_011Ch7ZcVhwms1HNAQKsBk9e

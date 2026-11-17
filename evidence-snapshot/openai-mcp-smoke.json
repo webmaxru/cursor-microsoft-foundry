@@ -2,20 +2,20 @@
   "test": "mcp",
   "model": "openai",
   "passed": true,
-  "prompt": "Compute 442 + 156. Reply with exactly NONCE_9700ef2601ac597a: followed by the sum. No spaces.",
-  "expected": "NONCE_9700ef2601ac597a:598",
+  "prompt": "Compute 237 + 253. Reply with exactly NONCE_369853f109e256b2: followed by the sum. No spaces.",
+  "expected": "NONCE_369853f109e256b2:490",
   "result": {
-    "observed_at_utc": "2026-11-16T23:49:42.452965+00:00",
+    "observed_at_utc": "2026-11-17T00:15:27.825530+00:00",
     "route": "Microsoft Foundry / Azure OpenAI Responses API",
     "authentication": "Microsoft Entra ID via Azure CLI",
     "deployment": "cursor-poc-gpt-6-luna",
     "configured_model": "gpt-6-luna",
     "configured_model_version": "2026-09-22",
     "model": "cursor-poc-gpt-6-luna",
-    "response_id": "resp_0a834698be0dad24016afb969667a8819691d82b01425450d4",
-    "azure_request_id": "9c95396a-5eab-4a2a-823b-a632ed4e038b",
+    "response_id": "resp_08bdbce5394ca345016afb9c9f73d88195a41e4749e4b51cb7",
+    "azure_request_id": "297f8a63-5434-468a-b234-cbb80c806df7",
     "status": "completed",
-    "request_sha256": "acb74d87fc39ec141caf194d9cd142148111c3385b975ada3a39c0623a7b0279",
+    "request_sha256": "e8d5093ad9230e53df0fd9f895fb944a70048f9be14fe0fbd4a221fb3c454d1a",
     "usage": {
       "input_tokens": 36,
       "input_tokens_details": {
@@ -28,7 +28,7 @@
       },
       "total_tokens": 53
     },
-    "response_sha256": "3edef4350a37982d861f9c590f74a27b2bf1ac64fd77deba935e194b10b25dce",
-    "text": "NONCE_9700ef2601ac597a:598"
+    "response_sha256": "68923587945b5fbcd6742d70318396da018c9986fffee5f3d36bc21c0dcf381e",
+    "text": "NONCE_369853f109e256b2:490"
   }
 }

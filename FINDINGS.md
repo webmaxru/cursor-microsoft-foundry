@@ -2,7 +2,15 @@
 
 ## Executive conclusion
 
-There are three separate compatibility questions:
+Cursor has three surfaces, and each one reaches Foundry differently:
+
+| Surface | Foundry models as MCP tools | Foundry model as Cursor's own chat model | Details |
+| --- | --- | --- | --- |
+| **Cursor CLI** | **Verified** with GPT-6 Luna and Claude Haiku 5.5 | No setting. `--endpoint` is Cursor's own service; provider environment variables are ignored. | [CLI](docs/cli.md) |
+| **Cursor IDE** | **Verified** with both models in IDE 3.30.14 | OpenAI-format deployments through the **Azure OpenAI** API-key slot: confirmed by Cursor staff and captured, not tested with a key. No path for Claude. | [IDE](docs/ide.md) |
+| **Cloud Agents** | Possible through a remote HTTP MCP service: blueprint, not run | No setting | [Cloud](docs/cloud.md) |
+
+Three separate questions sit behind that table:
 
 1. **Can the model be called through Foundry?** Yes: both a GPT-6 Luna
    deployment and a Claude Haiku 5.5 deployment were invoked successfully with
@@ -10,15 +18,19 @@ There are three separate compatibility questions:
 2. **Can a client speak the model's API?** Yes, but the API route and
    model-specific parameters matter. Haiku accepts native Anthropic Messages.
    The same deployment also accepted OpenAI Responses, streaming, and function
-   tools in live tests; it did not accept Chat Completions.
-3. **Will Cursor use that endpoint as its main inference provider?** For the
-   tested CLI and documented Cloud Agents surfaces, no supported Azure/Foundry
-   route was established. API compatibility alone does not provide a provider
-   routing setting that Cursor does not expose.
+   tools in live tests; it did not accept Chat Completions. Luna accepts both
+   Chat Completions and Responses, but rejects a Responses-style `reasoning`
+   object on Chat Completions, which matches a known Cursor IDE error.
+3. **Will Cursor use that endpoint as its main inference provider?** Only the
+   IDE has a provider setting that can reach Foundry, and only for
+   OpenAI-format deployments. The CLI and Cloud Agents have none. API
+   compatibility alone does not create a routing setting that Cursor doesn't
+   expose.
 
-The working solution in this repository is therefore **Cursor CLI orchestration
-with Foundry inference delegated to two MCP tools**. It is not a claim that
-all Cursor inference, billing, or data processing has moved into Azure.
+The working solution in this repository is therefore **Cursor orchestration
+with Foundry inference delegated to two MCP tools**, verified in both the CLI
+and the IDE. It is not a claim that all Cursor inference, billing, or data
+processing has moved into Azure.
 
 Source keys such as [C1] and [M1] refer to [SOURCES.md](SOURCES.md).
 
@@ -37,8 +49,10 @@ Response IDs, hashes, token usage, HTTP statuses and model behavior are kept.
 All model creation and inference used the selected project's parent account;
 no other Azure resource was modified.
 
-The installed Cursor CLI was inspected and executed, not inferred from IDE
-documentation. Azure control-plane metadata, HTTP results, SDK response IDs,
+The installed Cursor CLI (2026.11.13-eacade1) and Cursor IDE (3.30.14, Free
+plan) were inspected and executed, not inferred from documentation. IDE
+settings were inspected through the UI and captured as screenshots; no API
+key was entered into them. Azure control-plane metadata, HTTP results, SDK response IDs,
 token usage, and fresh arithmetic challenges were captured locally. Sources
 are distinguished as official documentation, staff forum responses, community
 reports, or observed behavior. A forum feature request is not a release note.
@@ -48,136 +62,71 @@ certification, throughput benchmark, or full production agent evaluation.
 No confidential repository was supplied to Cursor; only the synthetic `demo`
 workspace was used.
 
-## 2. Cursor CLI: the endpoint flag is not an inference base URL
+## 2. Results by surface
 
-### What the actual CLI exposes
+Each surface has its own page with setup steps and full detail. This section
+summarizes the evidence.
 
-The installed help shows:
+### Cursor CLI
 
-- `--api-key` / `CURSOR_API_KEY`: Cursor authentication.
-- `--endpoint` / `CURSOR_API_ENDPOINT`: defaults to `https://api2.cursor.sh`.
-- `--model`: selects models known to Cursor.
-- MCP configuration and tool commands.
-- `bedrock configure`, `bedrock enable`, and related commands.
+- **The MCP bridge works.** `verify_cursor.py` asked the installed CLI to call
+  both tools with fresh random challenges and passed only after matching the
+  answers, request and response hashes, and Azure response IDs against new
+  local audit records
+  ([`cursor-mcp-e2e.json`](evidence-snapshot/cursor-mcp-e2e.json)).
+- **`--endpoint` is not an inference base URL.** Pointed at a loopback
+  listener, the CLI's first request was `POST /auth/exchange_user_api_key`,
+  a Cursor authentication exchange
+  ([`cursor-routing.json`](evidence-snapshot/cursor-routing.json)).
+- **Provider environment variables are ignored.** With `OPENAI_BASE_URL`,
+  `OPENAI_API_BASE`, `AZURE_OPENAI_ENDPOINT` and `ANTHROPIC_BASE_URL` pointed
+  at the listener, an Auto run answered and the listener saw zero requests.
+- **Bedrock commands exist; Azure ones don't.** The CLI has `bedrock`
+  subcommands, so "no provider keys of any kind" would be too broad. Bedrock
+  is not evidence of Azure support. [C1, C2, C3, C9, F4, F5, O1]
 
-There is no Azure endpoint/deployment/provider-key option in the inspected
-help. The documented CLI configuration schema also has no Azure provider
-block. Project-level `cli.json` controls permissions, not arbitrary provider
-configuration. [C1, C2, C3]
+Details: [Cursor CLI](docs/cli.md).
 
-**Important qualification:** the Bedrock commands mean a blanket statement that
-the CLI has "no BYOK of any kind" would be too broad for this installed version.
-Bedrock integration is not evidence that Azure Foundry is supported. It was
-not configured or tested here. [C9]
+### Cursor IDE
 
-### Black-box endpoint experiment
+- **The same MCP bridge works.** The IDE reads the same `.cursor/mcp.json`.
+  The project server started turned off and had to be turned on in
+  **Customize > MCPs**. `verify_ide.py` checked a pasted Agent transcript
+  against new audit records the same way the CLI check does
+  ([`ide-mcp-e2e.json`](evidence-snapshot/ide-mcp-e2e.json)). The Agent
+  model was Grok 4.7, the only model the Free plan allowed.
+- **The IDE has provider key slots.** Cursor Settings > Models > API Keys
+  offers OpenAI (with an **Override OpenAI Base URL** toggle), Anthropic
+  (no base URL), **Azure OpenAI** (base URL, deployment name and key) and
+  AWS Bedrock. Cursor staff say Foundry OpenAI deployments work through the
+  Azure slot and that there is no dedicated Foundry integration [F8, C11].
+  These slots were captured as screenshots but **not tested with a key**,
+  because they need a resource API key that Cursor sends through its backend.
+- **Turning on a key has side effects.** Staff replies describe the key
+  toggles and the OpenAI override as affecting most non-Cursor models, and
+  empty Azure fields breaking every model [F11, F12, F17, F18].
+- **Foundry Claude can't be the IDE chat model.** The Anthropic slot has no
+  base URL and the Azure slot speaks OpenAI formats [F1, F2, F3].
 
-`probe_cursor_routing.py` starts a loopback-only listener, passes a deliberately
-invalid synthetic Cursor API key, and points `--endpoint` at that listener.
-It records method/path/content-type only, discarding request bodies and
-credential headers.
+Details: [Cursor IDE](docs/ide.md).
 
-Observed first request:
+### Cursor Cloud Agents
 
-```text
-POST /auth/exchange_user_api_key
-Content-Type: application/json
-```
+- **No provider setting.** The current Cloud Agents API takes a model ID from
+  Cursor's catalog and inline MCP servers. It has no Azure endpoint,
+  deployment or credential field, and `envVars` only reaches the agent's
+  shell and tools [C5, C6].
+- **MCP tools could reach Foundry** through a remote, authenticated HTTP MCP
+  service. The local stdio bridge isn't reachable from a Cursor-hosted VM.
+  [`config/cloud-agent.request.example.json`](config/cloud-agent.request.example.json)
+  is a request-shape blueprint only [C7].
+- **Not run.** The account had no Cursor API key, and the Free plan doesn't
+  include Cloud Agents [C3, C5]. OIDC federation [C10] and self-hosted
+  workers [C8] were researched; neither moves the main model to Foundry.
 
-That is a Cursor authentication exchange, not `/responses`,
-`/chat/completions`, or `/messages`. An Azure inference endpoint cannot satisfy
-this exchange merely by receiving an Azure key. This probe stopped at
-authentication; it does not claim to implement or document Cursor's complete
-private backend protocol.
+Details: [Cursor Cloud Agents](docs/cloud.md).
 
-A separate authenticated Auto run set `OPENAI_BASE_URL`, `OPENAI_API_BASE`,
-`AZURE_OPENAI_ENDPOINT`, and `ANTHROPIC_BASE_URL` to the listener, with dummy
-provider keys. Cursor returned the requested marker and the listener saw
-**zero requests**. This demonstrates that those variables did not redirect
-that Auto run, not that every possible provider/configuration has been tested.
-
-Evidence: [`cursor-routing.json`](evidence-snapshot/cursor-routing.json).
-
-### Why the linked forum answers are not CLI configuration instructions
-
-The Azure OpenAI settings discussed in the Foundry thread are IDE settings.
-The CLI-specific Azure feature request reports that IDE settings and
-OpenAI/Azure environment variables do not affect CLI routing. A separate CLI
-custom-endpoint request describes the same misleading `--endpoint` flag.
-[F1, F4, F5]
-
-OpenAI's current integration guidance explicitly excludes Cursor CLI and Cloud
-Agents from its local-desktop OpenAI-key/gateway instructions. That source
-itself says Cursor's functionality may change, so the live CLI evidence and
-the Bedrock exception above are important qualifications. [O1]
-
-**Do not use a command such as `cursor chat --endpoint <azure-url>
---deployment <name>` copied from an unverified summary.** It is not the
-installed CLI's supported interface.
-
-## 3. The working Cursor CLI PoC
-
-```mermaid
-flowchart LR
-    U[Synthetic prompt] --> C[Cursor CLI / Cursor-routed Auto]
-    C -->|MCP tool call| M[Local Python stdio MCP server]
-    M -->|Entra token stays local| L[Foundry OpenAI Responses / Luna]
-    M -->|Entra token stays local| H[Foundry Anthropic Messages / Haiku]
-    L -->|Answer + metadata| M
-    H -->|Answer + metadata| M
-    M -->|Tool result visible to Cursor| C
-```
-
-The official MCP Python SDK handles protocol framing, initialization, tool
-schemas, and errors. The model clients use the official OpenAI and Anthropic
-SDKs. `AzureCliCredential` obtains tokens for `https://ai.azure.com/.default`
-using the configured subscription. No resource key was retrieved. [C4, M1, M2]
-
-The two tools are:
-
-| Tool | Fixed destination (from config) | API |
-| --- | --- | --- |
-| `foundry_openai` | `cursor-poc-gpt-6-luna` | OpenAI Responses |
-| `foundry_claude` | `claude-haiku-5-5` | Anthropic Messages |
-
-The caller cannot provide an endpoint, credential, shell command, or file
-path. Tools accept bounded text and an output-token limit. The workspace
-denies shell, file-read, file-write and web-fetch tools. This is defense in
-depth for the experiment, not an OS-level isolation guarantee.
-
-### What proves the inference really happened
-
-`verify_cursor.py` generates fresh random arithmetic inputs and nonce markers,
-then asks the actual Cursor CLI to call both tools. It requires:
-
-- Successful Cursor completion and both correct answers.
-- New audit records from the local model client, not old responses.
-- Exact input-body SHA-256 matches for the requested model-specific requests.
-- Exact response-text SHA-256 matches.
-- Matching Azure response IDs in Cursor's final result.
-- Both configured deployment identities.
-
-The result is in [`cursor-mcp-e2e.json`](evidence-snapshot/cursor-mcp-e2e.json). This is stronger than asking
-an agent which model it thinks it used. It is still local test evidence rather
-than independent Azure billing attestation.
-
-In the recorded final paired Cursor run, the delegated calls used **62 Luna
-tokens (40 in / 22 out) and 75 Haiku tokens (53 in / 22 out)**. Cursor also
-used its own orchestration tokens;
-they are reported separately in the file. The small delegated tasks do not
-establish that this architecture is cheaper than native Cursor inference.
-
-### Windows-specific issues actually encountered
-
-| Issue | Observed fix |
-| --- | --- |
-| MCP `enable` did not find the server when invoked only with `--workspace` from the parent directory | Change the process working directory to `demo` before MCP management commands |
-| `${workspaceFolder}` plus parent-relative Windows executable paths failed with "The system cannot find the path specified" | Use normalized absolute executable/script paths; `Setup.ps1` regenerates them |
-| Changing MCP configuration invalidated approval | Re-approve only `foundry-models`; do not blanket-approve all MCP servers |
-| Explicit Composer 2.5 was refused with "Model unavailable on Free" | Use the account-supported `auto` orchestrator; do not upgrade the subscription |
-| Luna's response `model` field was the deployment alias | Correlate with Azure control-plane model/version metadata rather than requiring a catalog model ID in that field |
-
-## 4. Haiku: actual API format results
+## 3. API format results
 
 ### Do not conflate three APIs
 
@@ -212,6 +161,27 @@ this deployment. Treat this as verified behavior of this account/model, not a
 guarantee for every Foundry region, tenant, model, or API. The native Anthropic
 route is the documented route and remains the main Haiku MCP implementation.
 [M2, M3]
+
+### Results against the tested Luna deployment
+
+Cursor doesn't document which Azure route its IDE Azure OpenAI slot calls, so
+`probe_openai_routes.py` called the Luna deployment on each candidate with
+Entra authentication:
+
+| Route | Result |
+| --- | --- |
+| Current `/openai/v1/chat/completions` | **200**; response `model` is `gpt-6-luna-2026-09-22` |
+| Current `/openai/v1/chat/completions` with `reasoning_effort` | **200** |
+| Current `/openai/v1/chat/completions` with a Responses-style `reasoning` object | **400** `unknown_parameter`: "Unknown parameter: 'reasoning'." |
+| Legacy `/openai/deployments/<name>/chat/completions?api-version=2025-04-01-preview` | **200** |
+| Current `/openai/v1/responses` | **200** |
+
+Evidence: [`openai-api-routes.json`](evidence-snapshot/openai-api-routes.json).
+
+The 400 is the same error users report when the IDE's Azure slot sends some
+models to Chat Completions with a Responses-only reasoning setting. Cursor
+staff call it a known issue [F9]. Luna itself accepts both API formats; the
+failure comes from mixing them in one request.
 
 ### Reasoning settings are not interchangeable
 
@@ -248,7 +218,7 @@ API and native SDK already solved the tested requirement. Such a translator
 would still not manufacture an Azure-provider override in Cursor CLI or
 Cloud Agents.
 
-## 5. How the requested forum threads fit together
+## 4. How the forum threads fit together
 
 | Source/time | What it establishes | What it does not establish |
 | --- | --- | --- |
@@ -258,98 +228,18 @@ Cloud Agents.
 | Anthropic base-URL request, May 2026 [F3] | No equivalent Anthropic override was available to the requester; staff confirms overridden OpenAI traffic traverses Cursor | An Azure-native CLI switch |
 | Foundry support reply, June 2026 [F1] | IDE Azure slot supports Azure OpenAI-format use; Claude's different format was a limitation then | Universal impossibility of all later Foundry Responses compatibility |
 | Enterprise gateway report, October 2026 [F7] | Community reports model-ID collisions/built-in routing can bypass expected gateway selection | A stable or officially supported model-alias hack |
-| These live experiments, November 2026 | Both models work through local MCP; Haiku Responses works; Haiku Chat Completions fails | Native main-model Foundry routing in Cursor |
+| OpenAI override threads, October 2025 to September 2026 [F18, F19, F20, F21] | The IDE's OpenAI base URL override is global: it also captures Cursor's own models, and there is no per-model base URL | A safe way to combine the override with Cursor's models |
+| Key side-effect threads, July to November 2026 [F11, F12, F13, F14, F15, F16, F17] | Staff: any key toggle routes most non-Cursor models through your keys; empty Azure fields break every model; Azure settings win over Bedrock; Grok 4.6 runs only on Cursor | That these interactions are stable across releases |
+| Azure slot model errors, July and October 2026 [F9, F10] | Staff: some models reach Chat Completions with a Responses-only reasoning setting, a known issue; users report `response.failed` errors for GPT-5.4 and GPT-5.6 | Which models are affected in a given release |
+| Model and plan answer, October 2026 [F22] | Own keys are for chat models only; Tab always uses Cursor; some plans can't use own keys | Plan details beyond that reply |
+| Foundry BYOK staff reply, November 2026 [F8] | Foundry OpenAI deployments, including `*.cognitiveservices.azure.com` endpoints, should work through the IDE Azure OpenAI slot; no dedicated Foundry integration and no timeline | Claude support, or CLI and Cloud Agents support |
+| These live experiments, November 2026 | Both models work through local MCP in the CLI and IDE; Haiku Responses works; Haiku Chat Completions fails; Luna rejects a `reasoning` object on Chat Completions | Native main-model Foundry routing in Cursor |
 
 Do not send Azure credentials to the public Railway endpoint in the community
 post. Its URL is a research reference, not a trusted service for this account.
 No request or credential from this PoC was sent there.
 
-## 6. Cursor Cloud Agents
-
-### What the official surfaces currently support
-
-Cloud Agents run in isolated remote environments and use a curated model
-selection. Their public API creates/manages agents; it is not an OpenAI
-inference API. The current create request accepts a model selection containing
-an ID from Cursor's model catalog, optional parameters, an execution
-environment, and MCP definitions. It does not expose a documented
-`foundry_endpoint`/Azure deployment/provider credential override. [C5, C6]
-
-The current API supports inline HTTP or stdio MCP configurations. The legacy
-API documentation says MCP is not supported there. Do not copy the legacy
-`source`/string-model body into a current integration. Prefer HTTP or stdio:
-the capabilities page explicitly excludes SSE, despite an `sse` value
-appearing in the current API reference. [C6, C7, C12]
-
-The current API is in public beta. Its `envVars` field configures the agent's
-shell/tool environment, not Cursor's model provider; the documentation also
-warns that this field can be silently ignored for accounts where it has not
-rolled out. Supplying `AZURE_OPENAI_ENDPOINT` there is therefore neither a
-documented inference override nor a reliable substitute for validating the
-tool environment. [C6]
-
-### Viable cloud architecture, not executed
-
-```mermaid
-flowchart LR
-    C[Cursor Cloud Agent / Cursor inference] --> G[Authenticated remote MCP service]
-    G -->|Managed identity / Entra token| F[Your Foundry deployments]
-```
-
-The included `config/cloud-agent.request.example.json` is a **request-shape
-blueprint**, not a deployable service. Its `.invalid` hostname and token
-placeholder are intentional. The local stdio server is not publicly exposed,
-has no HTTP authentication implementation, and cannot be reached from a
-Cursor-hosted VM as `localhost`.
-
-To turn this into a cloud integration, the missing prerequisites are:
-
-1. A Cursor plan/account with Cloud Agent access and a supported user/service
-   API key.
-2. An authenticated, network-reachable MCP service with the two fixed inference
-   tools, preferably running in Azure and using managed identity.
-3. Least-privilege model-inference permissions and an explicit network/data
-   handling policy.
-4. A real Cloud Agent run with fresh nonce/output-hash correlation against
-   the gateway's Azure request logs.
-
-   The example omits `repos` and `env`, using the documented no-repository agent
-   shape. It omits `model` to use Cursor's configured default, not to select a
-   Foundry deployment. Its JSON structure was compared with the official current
-   create-agent schema; no authenticated create request was submitted.
-
-No billing upgrade, Cursor API-key creation, public gateway deployment, new
-Entra application, federation trust, or IAM assignment was performed.
-
-### Why cloud runtime testing stopped
-
-The environment had no `CURSOR_API_KEY`. Browser-based CLI login is not a
-substitute for the documented public Cloud Agents API credential. The
-installed CLI also identified the account as Free when refusing a paid
-model. Official Cloud Agents documentation says Free and Plus do not include
-Cloud Agents. The cloud runtime path is therefore **not verified here**; it
-must not be advertised as working merely because the same MCP tool works
-locally. [C3, C5]
-
-### OIDC is useful, but not automatic Azure access
-
-Cursor documents short-lived OIDC tokens minted over the agent's local socket.
-The current issuer is `https://api.cursor.com`, token lifetime is five minutes,
-and the verifier must validate audience and subject/claims. A properly
-configured Entra federated identity could avoid a long-lived Azure secret in
-the VM. A Cursor OIDC token itself is not a Foundry bearer token: trust and
-token exchange still have to be established. This was researched, not
-configured. [C10]
-
-### Self-hosted workers do not solve inference ownership
-
-Cursor explicitly states that a self-hosted worker performs tools, file edits,
-terminal commands and local MCP execution while Cursor retains the agent
-loop, inference and planning. Moving that worker onto an Azure VM does not
-move the main model into a Foundry deployment. Relevant file contents and tool
-results still leave the worker for Cursor. [C8]
-
-## 7. Privacy, credentials, billing, and residency
+## 5. Privacy, credentials, billing, and residency
 
 | Concern | Actual behavior / limitation |
 | --- | --- |
@@ -363,14 +253,14 @@ results still leave the worker for Cursor. [C8]
 | Response storage | OpenAI Responses requests use `store: false`. That flag is not a blanket promise about provider logging, safety processing, or Cursor retention. |
 | Audit contents | Successful-call metadata, hashes and usage are recorded; no prompt, answer or credential is written to the audit stream. Synthetic test artifacts intentionally include their test text. |
 | Error behavior | No model fallback or silent retry; incomplete/empty responses are failures. SDK error bodies are not echoed through the core inference tools. |
-| Local permissions | Only named inference tools are allowlisted; no `--force` or blanket MCP approval is used. This does not replace a production sandbox. |
+| Local permissions | In the CLI, only named inference tools are allowlisted; no `--force` or blanket MCP approval is used. In the IDE, the project server had to be turned on by hand, and the recorded run then called both tools without an approval prompt. Neither replaces a production sandbox. |
 
 Cloud Agent conversations and environment snapshots have their own retention
 and secret-handling rules. A stdio server inside the cloud VM exposes its
 configuration/environment to that VM. Official documentation recommends
 HTTP MCP for separating server credentials from the agent VM. [C7, C13]
 
-## 8. Verification and limits
+## 6. Verification and limits
 
 | Check | Evidence (in `evidence-snapshot/`) | Outcome |
 | --- | --- | --- |
@@ -379,14 +269,17 @@ HTTP MCP for separating server credentials from the agent VM. [C7, C13]
 | Direct Luna and native Haiku calls | `openai-direct-smoke.json`, `claude-direct-smoke.json` | Passed |
 | SDK MCP client to both models | `openai-mcp-smoke.json`, `claude-mcp-smoke.json` | Passed |
 | Actual installed Cursor CLI to both models | `cursor-mcp-e2e.json` | Passed with hashes/IDs correlated |
+| Cursor IDE Agent to both models | `ide-mcp-e2e.json`, `ide-transcript.txt` | Passed with hashes/IDs correlated (IDE 3.30.14, Grok 4.7 Agent) |
+| Luna on candidate OpenAI routes | `openai-api-routes.json` | Chat Completions (current and legacy) and Responses 200; `reasoning` object on Chat Completions 400 |
 | Luna Responses streaming + tool continuation | `openai-responses-features.json` | Passed |
 | Haiku Responses streaming + tool continuation | `claude-responses-features.json` | Passed |
 | Haiku native streaming + tool continuation | `claude-anthropic-features.json` | Passed |
 | Haiku endpoint compatibility | `claude-api-formats.json` | Responses 200; both Chat Completions routes 404 |
 | CLI endpoint/auth distinction and environment overrides | `cursor-routing.json` | Observed Cursor auth exchange; Auto did not use provider overrides |
-| Input, destination, missing-config, error, audit, MCP rejection tests | `unit-tests.txt` | Seven tests passed, including multiple edge cases |
+| Input, destination, missing-config, error, audit, MCP rejection and transcript-correlation tests | `unit-tests.txt` | Eight tests passed, including multiple edge cases |
 | Live Cloud Agent | `environment.json` and plan requirements | Not run; account prerequisites missing |
-| IDE native BYOK / public proxy | Research only | Not validated in this environment |
+| IDE Azure OpenAI, OpenAI and Anthropic key slots | Screenshots in `docs/assets/` | Fields captured; not tested with a key |
+| Public community proxy | Research only | Not invoked |
 
 Streaming tests verify text deltas and final completion. Tool tests verify one
 function call, exact arguments, a correctly correlated result, and a final
@@ -400,16 +293,25 @@ explicitly request `marker:<integer>` with no spaces or Markdown and check the
 real continuation against that contract. This corrected the test, not the
 provider's protocol.
 
-## 9. Recommendations
+## 7. Recommendations
 
-**For this experiment:** use the provided local MCP bridge. It is the path
-actually verified with the installed Cursor CLI and both deployed models.
+**For this experiment, in the CLI or the IDE:** use the provided local MCP
+bridge. It is the path verified with the installed Cursor CLI, the Cursor IDE
+and both deployed models. In the IDE, turn the server on in **Customize >
+MCPs** and off again when you're done.
 
-**For the Cursor IDE with OpenAI-format models:** Cursor documents an Azure
-OpenAI API-key slot, and Cursor staff state that it works for OpenAI-format
-Foundry deployments but not for Claude. It uses a resource key, and requests
-pass through Cursor's backend. This path was researched, not validated here.
-[C11, F1]
+**For the Cursor IDE with OpenAI-format models as the chat model:** the Azure
+OpenAI API-key slot is the supported route. Cursor staff say it works for
+Foundry OpenAI deployments but not for Claude. It needs a resource key, and
+requests pass through Cursor's backend. Test the exact model first, because
+some models hit the `reasoning` parameter error [F9]. Prefer it to the global
+OpenAI base URL override, and never leave **Use Azure OpenAI** on with empty
+fields. This path was researched and captured, not tested with a key.
+[C11, F1, F8, F12, F18]
+
+**For Cloud Agents:** host the two tools as an authenticated HTTP MCP service
+that calls Foundry with a managed identity, then verify a real run with a
+fresh challenge, as the CLI and IDE checks do.
 
 **For a Responses-capable custom application:** the unified Foundry Responses
 route worked for both models; retain deployment-specific reasoning controls
@@ -419,10 +321,12 @@ and run the compatibility tests in each target environment.
 Messages SDK route. The MCP wrapper already implements it.
 
 **If the hard requirement is that all agent inference be billed and processed
-through your own Foundry account:** this PoC does not satisfy that requirement,
-and a generic OpenAI proxy does not fix the missing Cursor CLI/Cloud provider
-control. Use an agent/runtime with explicit Foundry provider support, or obtain
-a supported Cursor enterprise integration with verifiable routing guarantees.
+through your own Foundry account:** this PoC does not satisfy that requirement.
+The IDE Azure slot covers only OpenAI-format chat models, still passes through
+Cursor's backend and doesn't apply to Tab, the CLI or Cloud Agents. A generic
+OpenAI proxy doesn't fix the missing CLI and Cloud provider controls. Use an
+agent runtime with explicit Foundry provider support, or obtain a supported
+Cursor enterprise integration with verifiable routing guarantees.
 
 ---
 

@@ -6,15 +6,17 @@
   $base
   <title>$page_title</title>
   <meta name="description" content="$description">
+  <link rel="canonical" href="$canonical">
   <meta property="og:title" content="$page_title">
   <meta property="og:description" content="$description">
   <meta property="og:type" content="article">
+  <meta property="og:url" content="$canonical">
   <meta name="color-scheme" content="light dark">
   <link rel="stylesheet" href="assets/style.css">
   <script src="assets/site.js" defer></script>
   $mermaid
 </head>
-<body>
+<body class="$page_class">
   <a class="skip-link" href="#content">Skip to content</a>
   <header class="site-header">
     <div class="header-inner">

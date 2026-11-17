@@ -22,6 +22,7 @@ $py = if ($IsWindows) { './.venv/Scripts/python.exe' } else { './.venv/bin/pytho
 | [`scripts/Run-Poc.ps1`](../scripts/Run-Poc.ps1) | Runs the four smoke tests, approves the `foundry-models` MCP server in `demo`, lists its tools and runs `verify_cursor.py`. Stops at the first failure. | **Live** | Smoke-test and E2E evidence |
 | [`scripts/smoke_test.py`](../scripts/smoke_test.py) | `--transport direct\|mcp --model openai\|claude`. Sends a random arithmetic task with a one-time marker and checks the exact answer. `mcp` starts the MCP server and calls it with the official MCP client. | **Live** | `evidence/<model>-<transport>-smoke.json` |
 | [`scripts/verify_cursor.py`](../scripts/verify_cursor.py) | Runs the real Cursor CLI in `demo` and asks it to call both tools with fresh random tasks. Passes only if Cursor's answer and the new audit records agree on results, request and response hashes, and response IDs. | **Live** (and uses Cursor) | `evidence/cursor-mcp-e2e.json` |
+| [`scripts/verify_ide.py`](../scripts/verify_ide.py) | The same proof for the Cursor IDE, in two phases. `prepare` saves a fresh challenge and prints the prompt to paste into the Agent. `check <transcript>` correlates the copied chat with the new audit records. See the [IDE guide](ide.md#prove-it-with-a-fresh-challenge). | **Live** (through the IDE) | `evidence/ide-challenge.json`, `evidence/ide-mcp-e2e.json` |
 
 ## The bridge
 
@@ -45,6 +46,7 @@ bridge.
 | --- | --- | --- | --- |
 | [`scripts/verify_model_features.py`](../scripts/verify_model_features.py) | `--api responses --model openai\|claude` or `--api anthropic --model claude`. Checks streaming and a full function-tool round trip on that API. | **Live** | `evidence/<model>-<api>-features.json` |
 | [`scripts/probe_claude_formats.py`](../scripts/probe_claude_formats.py) | Sends one request to the Claude deployment through the Responses API and both Chat Completions routes and records the HTTP status of each. | **Live** | `evidence/claude-api-formats.json` |
+| [`scripts/probe_openai_routes.py`](../scripts/probe_openai_routes.py) | Sends the request shapes that Cursor's IDE key slots can produce to the OpenAI deployment: current and legacy Chat Completions, Chat Completions with `reasoning_effort` and with a Responses-style `reasoning` object, and Responses. Uses Entra ID, never an API key. | **Live** | `evidence/openai-api-routes.json` |
 | [`scripts/probe_cursor_routing.py`](../scripts/probe_cursor_routing.py) | Black-box test of Cursor CLI: points `--endpoint` at a local listener that discards request bodies, then runs Cursor with fake OpenAI and Azure provider variables to see whether they change routing. | No (uses Cursor) | `evidence/cursor-routing.json` |
 | [`scripts/snapshot_evidence.py`](../scripts/snapshot_evidence.py) | Copies `evidence/` to `evidence-snapshot/`, replacing the subscription, resource group, resource and project names, local paths and unrelated deployment names with the values from `config/foundry.example.json`. Fails if a private value remains. | No | `evidence-snapshot/` |
 | [`scripts/cursor_runtime.py`](../scripts/cursor_runtime.py) | Helper that starts Cursor CLI from Python. On Windows it runs the installed version's Node entry point directly; elsewhere it runs `agent`. | No | Nothing |
@@ -58,19 +60,21 @@ limit.
 & $py -m unittest discover -s tests -v
 ```
 
-[`tests/test_clients.py`](../tests/test_clients.py) has seven offline tests.
+[`tests/test_clients.py`](../tests/test_clients.py) has eight offline tests.
 They check input limits, rejection of non-Azure destinations and credentials
 in URLs, the missing-config message, that incomplete or empty responses fail,
 that audit records hold no prompt or answer, that provider errors are redacted
-and not retried, and that invalid MCP arguments never reach Azure. The tests
-don't call Azure or Cursor.
+and not retried, that invalid MCP arguments never reach Azure, and that a
+Cursor transcript counts as proof only when it shows response IDs whose audit
+records match the expected answers for both deployments. The tests don't call
+Azure or Cursor.
 
 ## Configuration files
 
 | File | Purpose |
 | --- | --- |
-| [`config/foundry.example.json`](../config/foundry.example.json) | Template. Copy it to `config/foundry.json` (gitignored) and fill in your values. The [guide](guide.md#2-get-the-code-and-create-your-configuration) explains each key. |
-| `demo/.cursor/mcp.json` | Written by `Setup.ps1` (gitignored, because it holds absolute local paths). [`mcp.example.json`](../demo/.cursor/mcp.example.json) shows the shape. |
+| [`config/foundry.example.json`](../config/foundry.example.json) | Template. Copy it to `config/foundry.json` (gitignored) and fill in your values. The [setup guide](setup.md#2-get-the-code-and-create-your-configuration) explains each key. |
+| `demo/.cursor/mcp.json` | Written by `Setup.ps1` (gitignored, because it holds absolute local paths). The Cursor CLI and IDE both read it. [`mcp.example.json`](../demo/.cursor/mcp.example.json) shows the shape. |
 | [`demo/.cursor/cli.json`](../demo/.cursor/cli.json) | Cursor CLI permissions for the demo: allows only the two Foundry tools and denies shell, file and web tools. |
 | [`config/cloud-agent.request.example.json`](../config/cloud-agent.request.example.json) | Shape of a Cursor Cloud Agents API request that adds a remote HTTP MCP server. **Blueprint only**; the host name and token are placeholders. |
 | [`requirements.txt`](../requirements.txt), [`requirements.lock.txt`](../requirements.lock.txt) | Direct dependencies and the exact tested versions. |
