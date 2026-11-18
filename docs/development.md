@@ -13,6 +13,10 @@ Cursor output tokens**. Post-study checks also found validation and Windows
 encoding gaps. It is more than an arithmetic demo; it is not evidence that
 Foundry can replace Cursor's inference or make this workflow cheaper.
 
+The workflow also writes requests and generated proposals to disk and returns
+their content to Cursor. See [Data boundaries and governance](governance.md)
+before using it with confidential code or regulated data.
+
 ## Important: native MCP versus the tested workaround
 
 **Native Cursor tool dispatch failed in the new development sessions.**

@@ -76,6 +76,8 @@ and every disadvantage of the IDE route.
   Claude Code comparison and community evidence.
 - [MCP for real development](development.md): a greenfield application,
   Cursor-versus-Foundry token accounting and a fresh-session context handoff.
+- [Data boundaries and governance](governance.md): who processes your code,
+  geographic boundaries, retention, enterprise controls and approval gaps.
 - [Foundry setup](setup.md): deploy an OpenAI and a Claude model, grant
   access, install the bridge and test it without Cursor.
 - [Findings](../FINDINGS.md): results by surface, API formats, forum

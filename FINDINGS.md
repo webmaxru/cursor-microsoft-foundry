@@ -488,9 +488,14 @@ No request or credential from this PoC was sent there.
 
 ## 5. Privacy, credentials, billing, and residency
 
+The separate [Data boundaries and enterprise governance](docs/governance.md)
+review (18 November 2026) covers per-route processing geography, retention,
+Claude hosting/processor distinctions and enterprise approval requirements.
+The working inference tests do not establish an Azure-only data boundary.
+
 | Concern | Actual behavior / limitation |
 | --- | --- |
-| Azure credentials | The MCP bridge obtains Entra tokens locally and sends them only to the configured Azure service. For the IDE key route, a resource API key (all deployments on the resource) goes to Cursor's servers on every request. The key was read from Azure only in memory for probes and never entered into Cursor, printed or written. |
+| Azure credentials | The MCP bridge obtains Entra tokens locally and sends them only to the configured Azure service. For the IDE key route, a resource API key (all deployments on the resource) goes to Cursor's servers on every request. The owner entered a real key for the later IDE tests; direct probes read it in memory without publishing it. |
 | Cursor's visibility | Cursor sees the user prompt, MCP arguments, returned text and metadata; using Foundry for a tool does not create an Azure-only data boundary. |
 | **IDE BYOK privacy** | Official docs say your key and requests pass through Cursor's backend, that zero data retention does **not** apply when you use your own keys, and that the key isn't persisted. This is an IDE consideration, not what the local MCP server does. [C11, C16] |
 | Main-model cost | Cursor inference remains a separate usage lane. MCP does not transfer all Cursor tokens to Azure commitments. With your own key on an individual plan, the provider bills you and included usage isn't drawn; on Teams or Enterprise, Cursor's token rate of $0.25 per million tokens applies on top. [C11, C17] |

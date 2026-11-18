@@ -48,6 +48,8 @@ PAGES = [
      "Can Cursor fully switch to Microsoft Foundry the way Claude Code does? Per-surface verdicts, a Claude Code comparison and what the community reports."),
     ("docs/development.md", "development.html", "MCP for development", "shared",
      "A real greenfield coding comparison: Cursor-only versus Foundry-heavy MCP delegation, token usage, tests and context handoffs."),
+    ("docs/governance.md", "governance.html", "Data & governance", "shared",
+     "Data flows, processing geography, retention and enterprise controls for Cursor with Microsoft Foundry: IDE BYOK, proxies, MCP and Cloud Agents."),
     ("docs/setup.md", "setup.html", "Foundry setup", "shared",
      "Deploy OpenAI and Claude models in Microsoft Foundry, grant Entra ID or API-key access and test the MCP bridge before connecting Cursor."),
     ("FINDINGS.md", "findings.html", "Findings", "shared",

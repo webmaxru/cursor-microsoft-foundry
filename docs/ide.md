@@ -657,6 +657,10 @@ route, with the source for each.
 
 **Privacy and security**
 
+For the full data-flow, geography and retention analysis, see
+[Data boundaries and enterprise governance](governance.md). Cursor's US-only
+residency guarantee explicitly excludes BYOK and custom gateways. [P1]
+
 - **Every request goes through Cursor's servers.** The key is sent "with every
   request" for final prompt building [C11]. It switches the *model endpoint*,
   not who handles your code.

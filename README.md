@@ -30,6 +30,7 @@ clearly labels a shell-invoked MCP-client alternative.
   [CLI](docs/cli.md) · [IDE](docs/ide.md) · [Cloud Agents](docs/cloud.md)
 - **Full findings:** [FINDINGS.md](FINDINGS.md) · **Sources:** [SOURCES.md](SOURCES.md)
 - **Development study:** [Does MCP work for real development?](docs/development.md)
+- **Enterprise review:** [Data boundaries and governance](docs/governance.md)
 
 The three-stage coding comparison completed through a **shell-invoked MCP
 client**, not native CLI dispatch: eight successful Foundry calls, **24.9 versus
@@ -119,6 +120,7 @@ through the tools are visible to both Cursor and Foundry.
 | Path | Purpose |
 | --- | --- |
 | [`docs/fullswitch.md`](docs/fullswitch.md) | Can Cursor fully switch to Foundry? Verdicts, the Claude Code comparison and community evidence |
+| [`docs/governance.md`](docs/governance.md) | Processing geography, retention, processor responsibilities and enterprise controls across BYOK, proxies, MCP and Cloud Agents |
 | [`docs/setup.md`](docs/setup.md) | Foundry setup for every surface: OpenAI and Claude deployments, access, bridge, optional API-key access |
 | [`docs/cli.md`](docs/cli.md), [`docs/ide.md`](docs/ide.md), [`docs/cloud.md`](docs/cloud.md) | Guides for the Cursor CLI, IDE and Cloud Agents |
 | [`FINDINGS.md`](FINDINGS.md) | Investigation: results by surface, API formats, forum threads, privacy, billing |

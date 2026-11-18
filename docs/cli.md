@@ -23,6 +23,10 @@ separates that failure from a shell-invoked MCP-client workaround.
 > The full-switch results didn't change. The MCP fallback needs [Foundry setup](setup.md)
 > steps 1 to 7.
 
+For corporate code, review [Data boundaries and governance](governance.md).
+Keeping Azure credentials in the local MCP bridge does not keep its prompts
+or returned content out of Cursor.
+
 ## Why there is no switch
 
 I tested each place a switch could live.

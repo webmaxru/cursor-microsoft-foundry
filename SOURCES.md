@@ -1,8 +1,11 @@
 # Sources and confidence
 
-Accessed during 17 November 2026 local time. This file records source URLs and
-our summaries rather than republishing third-party pages. Documentation and
-forum content can change after the observation date.
+Core investigation sources were accessed during 17 November 2026 local time.
+The governance review below was conducted on **18 November 2026**, including
+fresh reads of the linked BYOK, Cloud Agent, deployment-type and Responses
+documentation. This file records source URLs and our summaries rather than
+republishing third-party pages. Documentation and forum content can change
+after the observation date.
 
 ## Official Cursor documentation
 
@@ -20,7 +23,7 @@ forum content can change after the observation date.
 | C10 | [Cloud Agent OIDC identity](https://cursor.com/docs/cloud-agent/identity) | Issuer, token socket, audience/subject controls and five-minute token lifetime |
 | C11 | [Bring your own API key](https://cursor.com/help/models-and-usage/api-keys) | IDE providers (including an Azure OpenAI slot: "Models deployed in your Azure OpenAI Service instance"), chat models only, requests and keys through Cursor's backend, zero data retention not applying, and billing differences by plan |
 | C12 | [Legacy Cloud Agents API](https://cursor.com/docs/cloud-agent/api/v0) | Older body/model shape and explicit lack of MCP in that surface |
-| C13 | [Cloud Agent Secrets & Network](https://cursor.com/docs/cloud-agent/security-network) | Secrets, egress, VM and conversation retention, OIDC guidance |
+| C13 | [Cloud Agent Secrets & Network](https://cursor.com/docs/cloud-agent/security-network) | Rechecked 18 November 2026: indefinite conversation retention by default; rolling 30-day inactivity expiry for environment snapshots; Delete Agent removes conversations/artifacts, not snapshots; early-access Enterprise 90-day conversation policy. Also secrets, egress and OIDC guidance |
 | C14 | [CLI permissions](https://cursor.com/docs/cli/reference/permissions) | Exact `Mcp(server:tool)`, `Shell`, `Read`, `Write` and `WebFetch` allow/deny syntax |
 | C15 | [Cursor CLI product page](https://cursor.com/cli) | Product scope and links to automation/headless documentation; not proof of BYOK support |
 | C16 | [Network configuration](https://cursor.com/docs/enterprise/network-configuration) | Zero data retention doesn't apply when requests use your own API keys |
@@ -89,8 +92,8 @@ shared with a community proxy. The author's code was not incorporated.
 | M1 | [Foundry model endpoints](https://learn.microsoft.com/azure/foundry/foundry-models/concepts/endpoints) | Account `/openai/v1/` routing, deployment aliases, Entra scope, SDK usage |
 | M2 | [Deploy and use Claude models in Foundry](https://learn.microsoft.com/azure/foundry/foundry-models/how-to/use-foundry-models-claude) | Native `/anthropic/v1/messages`, AnthropicFoundry client, Entra auth and header/API differences |
 | M3 | [Foundry SDKs and endpoints](https://learn.microsoft.com/azure/foundry/how-to/develop/sdk-overview) | Distinguishes project, OpenAI and Anthropic surfaces; general Claude wording is narrower than the live Responses result here |
-| M4 | [Azure OpenAI Responses API](https://learn.microsoft.com/azure/foundry/openai/how-to/responses) and [reasoning models](https://learn.microsoft.com/azure/foundry/openai/how-to/reasoning) | Responses requests, tool continuation, streaming, reasoning and incomplete-result handling |
-| M5 | [Foundry model deployment types](https://learn.microsoft.com/azure/foundry/foundry-models/concepts/deployment-types) | DataZoneStandard vs GlobalStandard, pay-per-token vs reserved capacity, residency limitations |
+| M4 | [Azure OpenAI Responses API](https://learn.microsoft.com/azure/foundry/openai/how-to/responses) and [reasoning models](https://learn.microsoft.com/azure/foundry/openai/how-to/reasoning) | Responses requests, tool continuation, streaming, reasoning and incomplete-result handling. Responses page rechecked 18 November 2026: stored responses retained 30 days by default; stateless `store: false`; background mode requires storage; storage control is not blanket ZDR |
+| M5 | [Foundry model deployment types](https://learn.microsoft.com/azure/foundry/foundry-models/concepts/deployment-types) | Rechecked 18 November 2026: Global, Data Zone (US/EU/APAC) and geography-based processing; at-rest geography differs from inference location. EU zone definition includes EFTA locations, whereas P10 still describes EU member nations; do not silently equate these |
 | M6 | [Foundry model deployment quickstart](https://learn.microsoft.com/azure/foundry/tutorials/quickstart-create-foundry-resources#deploy-a-model) | Azure CLI model-deployment command shape |
 | M7 | [Partner models: Anthropic](https://learn.microsoft.com/azure/foundry/foundry-models/concepts/models-from-partners#anthropic) | Haiku-specific capability/parameter differences; do not copy all Sonnet examples blindly |
 | M8 | [Configure keyless authentication with Microsoft Entra ID](https://learn.microsoft.com/azure/foundry/foundry-models/how-to/configure-entra-id) | `Cognitive Services User` role for inference on all Foundry models; Owner/Contributor alone do not grant inference; role propagation delay |
@@ -123,6 +126,36 @@ shared with a community proxy. The author's code was not incorporated.
 | X2 | [Codex advanced configuration](https://developers.openai.com/codex/config-advanced) | Documents an Azure provider and per-provider tuning. Configuration docs only; not tested |
 | B1 | [Cursor BYOK guide, BYOKList](https://byoklist.com/guides/cursor-byok) | Secondary cross-check on IDE setup/privacy; not treated as authoritative CLI or Cloud evidence |
 
+## Governance primary sources
+
+Reviewed on **18 November 2026** for
+[Data boundaries and enterprise governance](docs/governance.md). These are
+published policies, not evidence that the PoC account has a negotiated
+agreement, residency enrollment, retention exception or production controls.
+The review also re-read C8, C11, C13, C16, M4 and M5.
+
+| Key | Source | Relevance and qualification |
+| --- | --- | --- |
+| P1 | [Cursor privacy and data governance](https://cursor.com/docs/enterprise/privacy-and-data-governance) | Enterprise US-only residency for supported features, per-team enrollment, BYOK/custom-model/MCP exclusions, EU/EEA/APAC in development; Privacy Mode, retention-requiring models and CMEK. High-level Cloud Agent deletion wording is less specific than C13 |
+| P2 | [Cursor Data Use & Privacy Overview](https://cursor.com/data-use) | Page dated 3 September 2026: Privacy Mode, training, ZDR exceptions for abuse and non-ZDR models, BYOK through Cursor, temporary encrypted file cache without a numeric TTL |
+| P3 | [Cursor privacy and data help](https://cursor.com/help/security-and-privacy/privacy) | Privacy Mode enforcement, BYOK exception, enterprise controls and the distinction between individual-plan privacy terms and Teams/Enterprise DPA coverage |
+| P4 | [Cursor Data Processing Addendum](https://cursor.com/terms/dpa) | Public DPA dated 5 November 2025: processor obligations, transfer clauses, subprocessor changes, deletion on termination/request and Annex 1 restriction on sensitive/special-category data. The customer's signed agreement was not reviewed |
+| P5 | [Cursor security](https://cursor.com/security) and [subprocessor register](https://trust.cursor.com/subprocessors) | Security page dated 25 August 2026: reported certifications and Trust Center reports. The register URL returned a JavaScript app shell; a complete current subprocessor/country list was not retrievable in this review |
+| P6 | [Cursor model and integration management](https://cursor.com/docs/enterprise/model-and-integration-management) | Enterprise model controls combine team/group allows by union; BYOK controls are team-level; MCP allowlists, tool/network restrictions, repository controls and separate Auto-review classifier |
+| P7 | [Cursor compliance and monitoring](https://cursor.com/docs/enterprise/compliance-and-monitoring) | Enterprise administrative audit events omit prompts, generated code and agent output; hooks/telemetry are separate logging paths |
+| P8 | [Cursor ignore file](https://cursor.com/docs/reference/ignore-file) | `.cursorignore` does not prevent terminal or MCP tools from accessing files; not a hard data-loss-prevention boundary |
+| P9 | [Cursor Search / Instant Grep](https://cursor.com/docs/agent/tools/search) | Current guidance says search indexing is local, with no code/path uploads to build that index and no stored codebase search embeddings; opened file matches can still be sent to a model. Historical semantic-indexing descriptions should not be assumed current |
+| P10 | [Data, privacy and security for Models sold by Azure](https://learn.microsoft.com/en-us/azure/foundry/responsible-ai/openai/data-privacy) | Azure OpenAI processing/storage, no provider access/training, stateful features, geography, safety-review storage, human access and modified monitoring. Does not govern Anthropic Marketplace models; current EU DataZone wording differs from M5 |
+| P11 | [Azure abuse monitoring](https://learn.microsoft.com/en-us/azure/foundry/openai/concepts/abuse-monitoring) | Automated review versus human review; conditional modified monitoring and announced future removal for models made available on/after 1 November 2026 with at least 30 days' notice. No universal numeric human-review retention limit supplied in the reviewed page |
+| P12 | [Data, privacy and security for Claude in Foundry](https://learn.microsoft.com/en-us/azure/foundry/responsible-ai/claude-models/data-privacy) | Hosted on Azure versus Hosted on Anthropic; Anthropic seller/operator and independent processor for both; Microsoft service/billing processing under its own applicable terms |
+| P13 | [Anthropic: Claude in Microsoft Foundry](https://platform.claude.com/docs/en/build-with-claude/claude-in-microsoft-foundry) | Hosting-option selection by model version; Azure-hosted Global or US Data Zone versus Anthropic-hosted Global; retained content on Azure for Azure hosting, operational data outside Azure; model-specific availability. Monitoring recommendations are not a provider retention commitment |
+| P14 | [Anthropic API and data retention](https://platform.claude.com/docs/en/manage-claude/api-and-data-retention) | Explicitly includes Foundry; ZDR/feature eligibility, Covered Model exceptions, safety/legal retention, and Foundry HIPAA requirements (Anthropic BAA plus Azure subscription configuration). Does not verify this subscription's settings |
+| P15 | [Anthropic commercial data retention](https://privacy.claude.com/en/articles/7996866-how-long-do-you-store-my-organization-s-data) | Article dated 1 July 2026: standard API deletion within 30 days, exceptions, flagged inputs/outputs up to two years, safety scores up to seven years, feedback five years. Must be reconciled with P14 and applicable Foundry terms; not applied as a blanket Haiku retention period |
+| P16 | [Dev Tunnels overview](https://learn.microsoft.com/en-us/azure/developer/dev-tunnels/overview) | Development/testing only, public preview without SLA, not for production; tunnels created in the closest available region |
+| P17 | [Dev Tunnels security](https://learn.microsoft.com/en-us/azure/developer/dev-tunnels/security) | Web-forwarding TLS terminates at service ingress; anonymous tunnel access is separate from application authentication |
+| P18 | [Foundry network isolation](https://learn.microsoft.com/en-us/azure/foundry/how-to/configure-private-link) | Private endpoints, public-network settings, DNS and reachability requirements. Does not establish a private route from Cursor's BYOK backend |
+| P19 | [Anthropic commercial terms](https://www.anthropic.com/legal/commercial-terms) and [Data Processing Addendum](https://www.anthropic.com/legal/data-processing-addendum) | Customer-content/no-training provisions, processor obligations, subprocessors and transfer provisions; review alongside accepted Foundry Marketplace terms and the customer's signed contract |
+
 ## Interpreting apparent contradictions
 
 - Search summaries sometimes confuse the **Cursor service endpoint** with a
@@ -149,6 +182,12 @@ shared with a community proxy. The author's code was not incorporated.
 - Protocol and feature support can be deployed incrementally. The saved
   evidence establishes behavior of the tested versions/account, not a
   universal service contract.
+- The governance review preserves three policy differences rather than
+  resolving them by assumption: the EU-zone definitions in M5/P10,
+  Anthropic's general versus arrangement-specific retention wording in
+  P14/P15, and Cursor's summary of Cloud Agent code deletion in P1 versus
+  the detailed conversation/snapshot lifecycle in C13. Obtain written
+  clarification when approval depends on one of these distinctions.
 
 ## Coverage limits
 
@@ -165,6 +204,10 @@ shared with a community proxy. The author's code was not incorporated.
   the code first.
 - The Premium round used one individual plan. Team and Enterprise plans, and
   other Cursor versions, may behave differently.
+- Governance research is a public-document and source-code review. No
+  enterprise residency, CMEK, BAA, modified abuse monitoring, deletion
+  guarantee or private production gateway was enabled or verified. The
+  historical Claude evidence does not establish its selected hosting option.
 - The later [development study](docs/development.md) could not reproduce native
   CLI MCP dispatch in new Auto or pinned-model sessions, despite successful
   local tool listing. Its measured workaround uses a shell-invoked MCP client.

@@ -43,11 +43,17 @@ is created, copied or stored, and the Azure credential never reaches Cursor.
 > a switch: Cursor's own agent model still runs on Cursor's service and is
 > billed by Cursor, and your Foundry models do the work you delegate to them
 > through the tools. As of November 2026, no Cursor surface can send its
-> **main** model traffic to Foundry Claude, and only the IDE's Azure OpenAI
-> slot (with your own API key, on a paid plan) can send it to Foundry OpenAI
-> deployments. [Full switch](fullswitch.md) compares Cursor with Claude
+> **main** model traffic directly to Foundry Claude: the IDE needs the
+> [translating proxy](ide.md#can-a-proxy-bring-claude-to-the-ide). Its Azure
+> OpenAI slot can call compatible OpenAI deployments without that proxy.
+> [Full switch](fullswitch.md) compares Cursor with Claude
 > Code's Foundry mode, and the [IDE page](ide.md#main-option-the-azure-openai-slot)
 > has the key route.
+
+Before using confidential repositories, read
+[Data boundaries and enterprise governance](governance.md). A Foundry region
+or `store: false` setting does not establish locality or retention for Cursor,
+the proxy or MCP results.
 
 ## 1. Prerequisites
 

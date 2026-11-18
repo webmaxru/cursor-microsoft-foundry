@@ -162,8 +162,10 @@ contents and tool results still go to Cursor [C8].
 - With either transport, Cursor sees the prompts you send to the tools and the
   answers they return. Foundry processes only the tool calls.
 
-See [Findings: privacy, credentials, billing and residency](../FINDINGS.md#5-privacy-credentials-billing-and-residency)
-for details that apply to every surface.
+See [Data boundaries and governance](governance.md#retention-is-different-at-every-layer)
+for the separate conversation and snapshot retention periods, geographic
+limits and enterprise controls. Self-hosting execution does not self-host
+Cursor's agent loop.
 
 ---
 
